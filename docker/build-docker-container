@@ -1,0 +1,70 @@
+#!/bin/sh
+
+if test "$1" != "sendmail" -a "$1" != "postfix" ; then
+    echo "Usage: $0 sendmail"
+    echo "   or: $0 postfix"
+    exit 1
+fi
+
+MTA="$1"
+IMAGE=mm-$MTA-image
+CONTAINER=mm-test-$MTA
+
+bailout () {
+    echo "FATAL: $@"
+    exit 1
+}
+
+# Get version
+VERSION=`grep '^PACKAGE_VERSION=' ../configure | sed -e 's/PACKAGE_VERSION=//' -e "s/'//g"`
+
+if test -z "$VERSION" ; then
+    bailout "Could not determine Mailmunge version!"
+fi
+
+# If host system is Debian and is using an HTTP proxy, copy that info
+# to image
+PROXY=`apt-config dump | grep Acquire::http::Proxy 2> /dev/null`
+# Check if image exists
+docker images | grep "^$IMAGE " > /dev/null 2>&1
+if test $? = 0 ; then
+   echo "Image $IMAGE appears to exist; skipping build."
+   echo "If you wish to rebuild, please remove $IMAGE first."
+else
+    if test "$PROXY" = "" ; then
+        docker build -t "$IMAGE" -f "Dockerfile.$MTA" . || bailout "docker build failed"
+    else
+        docker build --build-arg "APT_PROXY=$PROXY" -t "$IMAGE" -f "Dockerfile.$MTA" . || bailout "docker build failed"
+    fi
+fi
+
+docker container inspect "$CONTAINER" > /dev/null 2>&1
+if test $? = 0 ; then
+    echo "Container $CONTAINER appears to exist; skipping create."
+    echo "If you wish to re-create, please remove container $CONTAINER first."
+else
+    # Create the container
+    docker create --tmpfs /run --tmpfs /tmp "--name=$CONTAINER" "$IMAGE" || bailout "docker create failed"
+fi
+
+
+# If container is not running, start it
+docker container inspect "$CONTAINER" 2>&1 | grep '"Running": false' > /dev/null 2>&1
+if test $? = 0 ; then
+    echo "Container $CONTAINER is not running; starting it..."
+    docker start "$CONTAINER" || bailout "docker start failed"
+else
+    echo "Container $CONTAINER appears to be running."
+fi
+
+if test 1 = 0 ; then
+# Create a tarball of mailmunge and copy it to the container
+make -C .. dist || bailout "make dist failed"
+
+docker cp ../mailmunge-$VERSION.tar.gz "$CONTAINER:/root/" || bailout "docker cp failed"
+docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -rf mailmunge-$VERSION && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure && make && make install" || bailout "docker exec failed"
+fi
+
+docker exec "$CONTAINER" /root/docker-testfiles/setup-tests.sh || bailout "docker exec failed"
+
+exit 0

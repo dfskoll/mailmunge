@@ -1,0 +1,20 @@
+From: <user1@example.com>
+To: <user1@example.com>
+Subject: __SUBJECT__
+X-Mailmunge-Drop: maildrop.msg
+X-Delete-Me:
+        I'm a goner
+X-Delete-Us-All: Me too
+X-Delete-Us-All:
+        Me three
+X-Change-Me: I'll never change
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Hello.
+
+This is a generic message.
+
+Sweeeeeet.
+
+

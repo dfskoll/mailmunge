@@ -1,0 +1,204 @@
+# DO NOT EDIT MAKEFILE; EDIT MAKEFILE.IN INSTEAD
+# Makefile.in for C code.
+
+# Needed for autoconf to behave properly...
+datarootdir=@datarootdir@
+srcdir=@srcdir@
+top_srcdir=@top_srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+sysconfdir=@sysconfdir@
+CONFSUBDIR=@CONFSUBDIR@
+CONFDIR=${sysconfdir}${CONFSUBDIR}
+MMUSER=@MMUSER@
+MMGROUP=@MMGROUP@
+MANDIR=@mandir@
+
+MINCLUDE=@MINCLUDE@
+DEFS=-D_POSIX_PTHREAD_SEMANTICS \
+	@EMBPERLDEFS@ \
+	@ENABLE_DEBUGGING@ @CLEANUP_DEFS@ -DPERL_PATH=\"@PERL@\" \
+	-DRM=\"@RM@\" \
+	-DVERSION=\"@PACKAGE_VERSION@\" \
+	-DSPOOLDIR=\"@SPOOLDIR@\" \
+	-DQDIR=\"@QDIR@\" \
+	-DCONFDIR=\"${CONFDIR}\"
+
+CC=@CC@
+PERL=@PERL@
+INSTALL=@INSTALL@
+
+CFLAGS=@CFLAGS@
+EMBPERLCFLAGS=@EMBPERLCFLAGS@
+PTHREAD_FLAG=@PTHREAD_FLAG@
+EMBPERLOBJS=@EMBPERLOBJS@
+EMBPERLLDFLAGS=@EMBPERLLDFLAGS@
+EMBPERLLIBS=@EMBPERLLIBS@
+LIBS_WITHOUT_PTHREAD=@LIBS_WITHOUT_PTHREAD@
+LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@
+SPOOLDIR=@SPOOLDIR@
+QDIR=@QDIR@
+VERSION=@PACKAGE_VERSION@
+
+INSTALL_STRIP_FLAG=-s
+
+## NO MORE ./configure substitutions beyond this point!
+
+all: mailmunge mailmunge-multiplexor mm-mx-ctrl manpages
+
+mailmunge-multiplexor: mailmunge-multiplexor.o event.o event_tcp.o drop_privs_nothread.o notifier.o syslog-fac.o utils.o ps_status.o $(EMBPERLOBJS)
+	$(CC) $(CFLAGS) -o mailmunge-multiplexor mailmunge-multiplexor.o event.o event_tcp.o drop_privs_nothread.o syslog-fac.o notifier.o utils.o ps_status.o $(EMBPERLOBJS) $(LIBS_WITHOUT_PTHREAD) $(EMBPERLLDFLAGS) $(EMBPERLLIBS)
+
+embperl.o: embperl.c
+	$(CC) $(CFLAGS) $(EMBPERLCFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o embperl.o $(srcdir)/embperl.c
+
+ps_status.o: ps_status.c
+	$(CC) $(CFLAGS) $(EMBPERLCFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o ps_status.o $(srcdir)/ps_status.c
+
+xs_init.o: xs_init.c
+	$(CC) $(CFLAGS) $(EMBPERLCFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o xs_init.o $(srcdir)/xs_init.c
+
+xs_init.c: embperl.c
+	$(PERL) -MExtUtils::Embed -e xsinit -- -o $(srcdir)/xs_init.c
+
+test-embed-perl.o: test-embed-perl.c
+	$(CC) $(CFLAGS) $(EMBPERLCFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o test-embed-perl.o $(srcdir)/test-embed-perl.c
+
+te: test-embed-perl.o
+	$(CC) $(CFLAGS) -o te test-embed-perl.o $(LIBS_WITHOUT_PTHREAD) $(EMBPERLLDFLAGS) $(EMBPERLLIBS)
+rm_r.o: rm_r.c
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o rm_r.o $(srcdir)/rm_r.c
+
+syslog-fac.o: syslog-fac.c
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o syslog-fac.o $(srcdir)/syslog-fac.c
+
+mm-mx-ctrl: mm-mx-ctrl.o
+	$(CC) $(CFLAGS) -o mm-mx-ctrl mm-mx-ctrl.o $(LIBS_WITHOUT_PTHREAD)
+
+mm-mx-ctrl.o: mm-mx-ctrl.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o mm-mx-ctrl.o $(srcdir)/mm-mx-ctrl.c
+
+event_tcp.o: event_tcp.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o event_tcp.o $(srcdir)/event_tcp.c
+
+notifier.o: notifier.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o notifier.o $(srcdir)/notifier.c
+
+drop_privs_nothread.o: drop_privs.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o drop_privs_nothread.o $(srcdir)/drop_privs.c
+
+drop_privs_threaded.o: drop_privs.c
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o drop_privs_threaded.o $(srcdir)/drop_privs.c
+
+event.o: event.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o event.o $(srcdir)/event.c
+
+mailmunge-multiplexor.o: mailmunge-multiplexor.c
+	$(CC) $(CFLAGS) $(DEFS) $(MINCLUDE) -c -o mailmunge-multiplexor.o $(srcdir)/mailmunge-multiplexor.c
+
+mailmunge: mailmunge.o drop_privs_threaded.o utils.o rm_r.o syslog-fac.o dynbuf.o milter_cap.o gen_id.o
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) -o mailmunge mailmunge.o drop_privs_threaded.o utils.o rm_r.o syslog-fac.o dynbuf.o milter_cap.o gen_id.o $(LDFLAGS) -lmilter $(LIBS)
+
+mailmunge.o: mailmunge.c mailmunge.h
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o mailmunge.o $(srcdir)/mailmunge.c
+
+utils.o: utils.c mailmunge.h
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o utils.o $(srcdir)/utils.c
+
+milter_cap.o: milter_cap.c mailmunge.h
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o milter_cap.o $(srcdir)/milter_cap.c
+
+dynbuf.o: dynbuf.c dynbuf.h
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o dynbuf.o $(srcdir)/dynbuf.c
+
+gen_id.o: gen_id.c mailmunge.h
+	$(CC) $(CFLAGS) $(PTHREAD_FLAG) $(DEFS) $(MINCLUDE) -c -o gen_id.o $(srcdir)/gen_id.c
+
+manpages: ../man/mailmunge-multiplexor.8 ../man/mailmunge-notify.7 ../man/mailmunge-protocol.7 ../man/mailmunge.8 ../man/mm-mx-ctrl.8 ../man/watch-multiple-mailmunges.8
+
+../man/mailmunge-multiplexor.8: ../pod/mailmunge-multiplexor.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+../man/mailmunge-notify.7: ../pod/mailmunge-notify.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+../man/mailmunge-protocol.7: ../pod/mailmunge-protocol.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+../man/mailmunge.8: ../pod/mailmunge.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+../man/mm-mx-ctrl.8: ../pod/mm-mx-ctrl.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+../man/watch-multiple-mailmunges.8: ../pod/watch-multiple-mailmunges.pod
+	-test -d ../man || mkdir ../man > /dev/null 2>&1
+	pod2man < $< > $@
+
+clean:: FORCE
+	rm -f *~ *.o mailmunge mailmunge-multiplexor mm-mx-ctrl xs_init.c
+
+install: all
+	$(INSTALL) -m 755 -d $(DESTDIR)$(CONFDIR)
+
+	if test "$(MMUSER)" != "" ; then \
+		if id "$(MMUSER)" > /dev/null 2>&1 ; then \
+			chown "$(MMUSER)" $(DESTDIR)${CONFDIR}/mailmunge-ip-key > /dev/null 2>&1 || true; \
+			test ! -d $(DESTDIR)$(SPOOLDIR) && $(INSTALL) -m 750 -o $(MMUSER) -d $(DESTDIR)$(SPOOLDIR) > /dev/null 2>&1 || true; \
+			test ! -d $(DESTDIR)$(QDIR) && $(INSTALL) -m 750 -o $(MMUSER) -d $(DESTDIR)$(QDIR) > /dev/null 2>&1 || true; \
+                fi \
+	else \
+		echo ""; \
+		echo "Please create the spool directory, '$(SPOOLDIR)',"; \
+		echo "if it does not exist.  Give it mode 700 or 750, and make"; \
+		echo "it owned by the user and group you intend to run Mailmunge as."; \
+		if test "$(QDIR)" != "$(SPOOLDIR)" ; then \
+			echo "Please do the same with the quarantine directory, '$(QDIR)'."; \
+		fi; \
+	fi
+	if test "$(MMGROUP)" != "" ; then \
+		chgrp $(MMGROUP) $(DESTDIR)$(SPOOLDIR) > /dev/null 2>&1 || true; \
+		chgrp $(MMGROUP) $(DESTDIR)$(QDIR) > /dev/null 2>&1 || true; \
+        fi
+
+	$(INSTALL) -m 755 -d $(DESTDIR)/etc
+	$(INSTALL) -m 755 -d $(DESTDIR)/etc/init.d
+	$(INSTALL) -m 755 -d $(DESTDIR)/etc/systemd
+	$(INSTALL) -m 755 -d $(DESTDIR)/etc/systemd/system
+	$(INSTALL) -m 644 ../systemd-units/mailmunge.service $(DESTDIR)/etc/systemd/system
+	$(INSTALL) -m 644 ../systemd-units/mailmunge-multiplexor.service $(DESTDIR)/etc/systemd/system
+	$(INSTALL) -m 755 ../examples/mailmunge-filter.pl.example $(DESTDIR)/$(CONFDIR)/mailmunge-filter.pl.example
+	$(INSTALL) -m 755 ../sysvinit/mailmunge $(DESTDIR)/etc/init.d
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/bin
+	$(INSTALL) -m 755 -d $(DESTDIR)$(MANDIR)/man1
+	$(INSTALL) -m 755 -d $(DESTDIR)$(MANDIR)/man7
+	$(INSTALL) -m 755 -d $(DESTDIR)$(MANDIR)/man8
+	-test ! -d $(DESTDIR)$(SPOOLDIR) && mkdir -p $(DESTDIR)$(SPOOLDIR) && chmod 750 $(DESTDIR)$(SPOOLDIR) || true
+	-test ! -d $(DESTDIR)$(QDIR) && mkdir -p $(DESTDIR)$(QDIR) && chmod 750 $(DESTDIR)$(QDIR) || true
+
+	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mailmunge-multiplexor   $(DESTDIR)$(prefix)/bin/mailmunge-multiplexor
+	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mm-mx-ctrl              $(DESTDIR)$(prefix)/bin/mm-mx-ctrl
+	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mailmunge               $(DESTDIR)$(prefix)/bin/mailmunge
+
+	$(INSTALL) -m 755 ../script/watch-multiple-mailmunges.tcl $(DESTDIR)$(prefix)/bin/watch-multiple-mailmunges.tcl
+	$(INSTALL) -m 755 ../script/mailmunge-util        $(DESTDIR)$(prefix)/bin/mailmunge-util
+	$(INSTALL) -m 644 ../script/mailmunge-util.1      $(DESTDIR)$(MANDIR)/man1/mailmunge-util.1
+	$(INSTALL) -m 644 ../man/watch-multiple-mailmunges.8 $(DESTDIR)$(MANDIR)/man8/watch-multiple-mailmunges.8
+	$(INSTALL) -m 644 ../man/mailmunge-multiplexor.8 $(DESTDIR)$(MANDIR)/man8/mailmunge-multiplexor.8
+	$(INSTALL) -m 644 ../man/mailmunge-notify.7 $(DESTDIR)$(MANDIR)/man7/mailmunge-notify.7
+	$(INSTALL) -m 644 ../man/mailmunge-protocol.7 $(DESTDIR)$(MANDIR)/man7/mailmunge-protocol.7
+	$(INSTALL) -m 644 ../man/mailmunge.8 $(DESTDIR)$(MANDIR)/man8/mailmunge.8
+	$(INSTALL) -m 644 ../man/mm-mx-ctrl.8 $(DESTDIR)$(MANDIR)/man8/mm-mx-ctrl.8
+	$(INSTALL) -m 644 ../man/watch-multiple-mailmunges.8 $(DESTDIR)$(MANDIR)/man8/watch-multiple-mailmunges.8
+
+
+FORCE:
+
+.phony: FORCE

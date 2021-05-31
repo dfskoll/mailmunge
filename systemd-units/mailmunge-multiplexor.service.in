@@ -1,0 +1,56 @@
+[Unit]
+Description=Mailmunge E-mail Filter (Multiplexor)
+Documentation=man:mailmunge-multiplexor(8)
+After=remote-fs.target
+After=systemd-journald-dev-log.socket
+PartOf=mailmunge.service
+
+[Service]
+Type=simple
+Restart=on-failure
+TimeoutStopSec=30s
+KillMode=mixed
+# Locale should be set to "C" for generating valid date headers
+Environment=LC_ALL=C SPOOLDIR=@SPOOLDIR@ MX_BUSY=600 MX_LOG=yes MX_MAXIMUM=10 MX_MINIMUM=2 MX_SOCKET=@SPOOLDIR@/mailmunge-multiplexor.sock MX_USER=@MMUSER@ MX_GROUP=@MMGROUP@ MM_ALLOW_GROUP_ACCESS=yes
+EnvironmentFile=-/etc/default/mailmunge
+# This can be removed with Mailmunge 2.82, but is required for older versions:
+# SuccessExitStatus=1
+ExecStart=/bin/sh -c 'HOME=${SPOOLDIR:=@SPOOLDIR@} \
+    exec @prefix@/bin/mailmunge-multiplexor -D \
+        `[ "$MX_EMBED_PERL" = "yes" ]            && (echo -n -; echo "E")` \
+        `[ "$MM_ALLOW_GROUP_ACCESS" = "yes" ]    && echo "-G"` \
+        `[ -n "$MX_LISTEN_BACKLOG" ]             && echo "-I $MX_LISTEN_BACKLOG"` \
+        `[ -n "$MX_LOG_WORKER_STATUS_INTERVAL" ] && echo "-L $MX_LOG_WORKER_STATUS_INTERVAL"` \
+        `[ -n "$MX_MAX_AS" ]                     && echo "-M $MX_MAX_AS"` \
+        `[ -n "$MX_MAP_SOCKET" ]                 && echo "-N $MX_MAP_SOCKET"` \
+        `[ -n "$MX_NOTIFIER" ]                   && echo "-O $MX_NOTIFIER"` \
+        `[ -n "$MX_PARALLEL_TICKS" ]             && echo "-P $MX_PARALLEL_TICKS"` \
+        `[ -n "$MX_QUEUE_TIMEOUT" ]              && echo "-Q $MX_QUEUE_TIMEOUT"` \
+        `[ -n "$MX_MAX_RSS" ]                    && echo "-R $MX_MAX_RSS"` \
+        `[ -n "$SYSLOG_FACILITY" ]               && echo "-S $SYSLOG_FACILITY"` \
+        `[ "$MX_STATS_SYSLOG" = "yes" ]          && echo "-T"` \
+        `[ -n "$MX_USER" ]                       && echo "-U $MX_USER"` \
+        `[ -n "$MX_MAX_LIFETIME" ]               && echo "-V $MX_MAX_LIFETIME"` \
+        `[ -n "$MX_MIN_WORKER_DELAY" ]           && echo "-W $MX_MIN_WORKER_DELAY"` \
+        `[ -n "$MX_TICK_INTERVAL" ]              && echo "-X $MX_TICK_INTERVAL"` \
+        `[ -n "$MX_SYSLOG_LABEL" ]               && echo "-Y $MX_SYSLOG_LABEL"` \
+        `[ "$MX_STATUS_UPDATES" = "yes" ]        && echo "-Z"` \
+        `[ -n "$MX_UNPRIV_SOCKET" ]              && echo "-a $MX_UNPRIV_SOCKET"` \
+        `[ -n "$MX_BUSY" ]                       && echo "-b $MX_BUSY"` \
+        `[ -n "$MX_CMD_TIMEOUT" ]                && echo "-c $MX_CMD_TIMEOUT"` \
+        `[ -n "$FILTER" ]                        && echo "-f $FILTER"` \
+        `[ -n "$MX_IDLE" ]                       && echo "-i $MX_IDLE"` \
+        `[ "$MX_LOG" = "yes" ]                   && echo "-l"` \
+        `[ -n "$MX_MINIMUM" ]                    && echo "-m $MX_MINIMUM"` \
+        `[ -n "$MX_PIDFILE" ]                    && echo "-p $MX_PIDFILE"` \
+        `[ -n "$MX_QUEUE_SIZE" ]                 && echo "-q $MX_QUEUE_SIZE"` \
+        `[ -n "$MX_REQUESTS" ]                   && echo "-r $MX_REQUESTS"` \
+        `[ -n "$MX_WORKER_DELAY" ]               && echo "-w $MX_WORKER_DELAY"` \
+        `[ -n "$MX_MAXIMUM" ]                    && echo "-x $MX_MAXIMUM"` \
+        `[ -n "$MX_RECIPOK_PERDOMAIN" ]          && echo "-y $MX_RECIPOK_PERDOMAIN"` \
+        `[ -n "$SPOOLDIR" ]                      && echo "-z $SPOOLDIR"` \
+        -s $MX_SOCKET -o $SPOOLDIR/mailmunge-multiplexor.lock'
+
+ExecStartPre=/bin/rm -f $MX_SOCKET
+ExecStopPost=/bin/rm -f $MX_SOCKET
+ExecReload=/bin/kill -INT $MAINPID

@@ -1,0 +1,537 @@
+=head1 NAME
+
+mailmunge-multiplexor - Process pool controller for mail filters.
+
+=head1 SYNOPSIS
+
+   mailmunge-multiplexor [options]
+
+=head1 DESCRIPTION
+
+C<mailmunge-multiplexor> manages a pool of Perl processes for
+scanning e-mail.  It is designed to work in conjunction with
+C<mailmunge> and your Perl filter program.
+
+C<mailmunge-multiplexor> opens a UNIX-domain socket and listens for
+requests for work from C<mailmunge>.  As requests come in,
+C<mailmunge-multiplexor> creates Perl processes as needed to scan
+mail.  The Perl processes are not killed when scanning is completed, but
+continue to run in a loop.  Perl processes are re-used for subsequent
+e-mail messages.  This eliminates the large overhead of starting a
+new Perl process for each incoming message.
+
+To avoid memory leaks, the Perl processes are killed after they have handled
+some number of scans.
+
+=head1 OPTIONS
+
+=over
+
+=item -U I<user>
+
+Runs the multiplexor as I<user> rather than I<root>.  This
+option is mandatory, and must match the C<-U> option supplied
+to C<mailmunge>.
+
+=item -m I<minWorkers>
+
+The minimum number of Perl processes to keep running at all times.  The
+default is zero.
+
+=item -x I<maxWorkers>
+
+The maximum number of Perl processes to run simultaneously.  If a
+request comes in and all processes are busy, a temporary failure
+is signalled to the SMTP peer.  The default is 2.
+
+=item -r I<maxRequests>
+
+The maximum number of requests a given process handles before it is killed
+and a replacement started.  The default is 500.
+
+=item -i I<idleTime>
+
+The idle time in seconds after which to kill of excess Perl processes.
+That is, if the process is idle for longer than this time, and there
+are more than I<minWorkers> running, the process is killed.  Note that
+this is implemented as a timer which ticks every I<idleTime> seconds;
+therefore, processes may be idle for up to twice this time before they
+are killed.  The default for I<idleTime> is 300 seconds.
+
+=item -V I<maxLifetime>
+
+The maximum lifetime in seconds of a worker before it is killed and a
+replacement started.  The default is -1, which signifies no maximum
+lifetime.  Note that the lifetime check is done only when a worker
+becomes idle after a request, or every time the idle-timeout check is
+made.  On a very quiet system, workers may live for longer than
+I<maxLifetime> by as much as I<idleTime>.  Note also that the
+lifetime is measured not from when the worker started running, but
+from when it was assigned its very first request.  A completely-idle
+worker that has never processed any requests will not be terminated by
+the I<maxLifetime> setting.
+
+=item -b I<busyTime>
+
+The longest a Perl process is allowed to spend scanning an e-mail before
+it is declared hung up and killed.  The default is 120 seconds.
+
+=item -Z
+
+This option specifies that the multiplexor should accept and process
+"status updates" from busy workers.  Note that this consumes one extra
+file descriptor per worker, plus a small amount of CPU time per status
+update.
+
+=item -c I<cmdTime>
+
+The timeout for communication between
+C<mailmunge-multiplexor> and C<mailmunge>, or between
+C<mailmunge-multiplexor> and a Perl scanning process.  The
+default is 10 seconds.  This timeout should be kept quite short.
+
+=item -w I<waitTime>
+
+When C<mailmunge-multiplexor> starts the initial workers, or needs
+to bring the number of running workers up to the number defined by the
+C<-m> option, it does not start all the workers at once, because this
+could overload your server.  Instead, it starts one worker every
+I<waitTime> seconds.  The default value for I<waitTime> is 3.
+
+=item -W I<waitTime>
+
+If you use this option, C<mailmunge-multiplexor> will I<never>
+activate a worker until I<waitTime> seconds have elapsed since the
+last worker activation.  This could result in mail being tempfailed
+if worker activations do not keep pace with incoming mail.  However,
+it may be preferable to tempfail mail rather than allow the load
+on your server to spike up too quickly.  The default value for this
+option is 0, meaning that C<mailmunge-multiplexor> will start
+workers as quickly as necessary to keep up with incoming mail.
+
+=item -z I<spooldir>
+
+Set the spool directory to I<spooldir>.  If this option is omitted,
+the spool directory defaults to @SPOOLDIR@.
+
+=item -s I<pathName>
+
+The UNIX-domain socket on which
+C<mailmunge-multiplexor> listens for requests.  This should be
+specified as an absolute pathname.  If this option is not supplied,
+it defaults to mailmunge-multiplexor.sock under the spool directory.
+
+=item -a I<socket>
+
+A socket for listening for requests.  This is similar to the C<-s>
+socket, except that a restricted set of requests are processed.  On
+this socket, the multiplexor will only process requests asking for
+status; it will not accept any commands to do scanning or that would
+consume a worker.  See the L<SOCKET SPECIFICATION> section for the format
+of I<socket>.
+
+=item -p I<fileName>
+
+Causes C<mailmunge-multiplexor> to write its process-ID (after
+becoming a daemon) to the specified file.  The file will be owned
+by root.
+
+=item -o I<fileName>
+
+Causes \fbmailmunge-multiplexor\fR to use I<fileName> as a lock
+file to avoid multiple instances from running.  If you supply
+C<-p> but not C<-o>, then \fbmailmunge-multiplexor\fR
+constructs a lock file by appending ".lock" to the pid file.  However,
+this is less secure than having a root-owned pid file in a root-owned
+directory and a lock file writable by the user named by the C<-U>
+option.  (The lock file must be writable by the C<-U> user.)
+
+=item -f I<filter_path>
+
+Normally, C<mailmunge-multiplexor> executes a Perl filter script
+called C<@CONFDIR_EVAL@/mailmunge-filter.pl> to scan the e-mail.
+However, you can have it execute any program you like by specifying
+the full path to the program with the C<-f> option.  This program
+must obey the protocol documented in L<mailmunge-protocol>; see
+that manual page for details.
+
+=item -l
+
+Log certain events, including the output of the Perl workers'
+standard-error, using syslog.  Normally, the multiplexor does not log
+much information.
+
+=item -d
+
+Write debugging information about event-handling code in
+/var/log/mailmunge-event-debug.log.  This is only of use to people
+debugging C<mailmunge-multiplexor>.
+
+=item -R I<kbytes>
+
+Limits the resident-set size of the worker filter processes to
+I<kbytes> kilobytes.  This limit is not supported on all operating
+systems; it is known to work on Linux.
+
+=item -M I<kbytes>
+
+Limits the total memory space of worker filter processes to
+I<kbytes> kilobytes.  This limit is supported on all operating
+systems which support the setrlimit system call.  This should
+include most modern UNIX systems.
+
+We recommend that you monitor your worker filter processes and get a feel
+for how much memory they use.  You should then limit the memory to
+two or three times the worst-case that you have observed.  This can
+help mitigate denial-of-service attacks which use complicated MIME
+messages to force your Perl filter to consume lots of memory.
+
+=item -h
+
+Print usage information and exit.
+
+=item -t I<filename>
+
+Log statistical information to I<filename>.  See the section
+L</STATISTICS> for more information.
+
+=item -T
+
+Log statistical information using C<syslog>.  You may use
+any C<-t> and C<-T> together, in which case statistical
+information is logged in a file and using C<syslog>.
+
+=item -u
+
+Flush the statistics file after every write.  Normally,
+C<mailmunge-multiplexor> does not flush the file; this is the best choice
+for minimizing disk I/O on a busy mail server.  However, if you wish to
+watch statistics entries in real-time, you should enable flushing.
+
+=item -D
+
+Do not fork into the background and become a daemon.  Instead, stay
+in the foreground.  Useful mainly for debugging or if you have a
+supervisory process such as C<systemd> managing C<mailmunge-multiplexor>.
+
+=item -q I<queue_size>
+
+Normally, if all workers are busy and C<mailmunge-multiplexor> receives
+another request, it fails it with the error "No free workers."  However,
+if you use the C<-q> option, then up to I<queue_size> requests
+will be queued.  As soon as a worker becomes free, the queued requests
+will be handed off in FIFO order.  If the queue is full and another request
+comes in, then the request is failed with "No free workers".
+
+=item -Q I<queue_timeout>
+
+Queued requests should not stay on the queue indefinitely.  If a queued
+request cannot be processed within I<queue_timeout> (default 30) seconds
+of being placed on the queue, it is failed with a "Queued request timed out"
+message.  See the section L<QUEUEING REQUESTS> for more discussion.
+
+=item -O I<sock>
+
+Listen on a I<notification socket> for connections from I<listeners>.
+C<mailmunge-multiplexor> can inform external programs of state
+changes by sending messages over a notification socket.  The external
+programs connect to this socket and then listen for notifications.  See
+the section L<SOCKET SPECIFICATION> for the format of I<sock>.
+
+See the L<mailmunge-notify> man page for details of the notification
+protocol.
+
+=item -N I<map_sock>
+
+Listen on a I<map socket> for Sendmail SOCKETMAP connections.
+As of Sendmail 8.13, you can define a Sendmail map type that talks
+to a daemon over a socket.  C<mailmunge-multiplexor> implements
+that protocol; see L<Mailmunge::Filter/filter_map> for details.
+
+See the section L<SOCKET SPECIFICATION> for the format of I<map_sock>.
+
+=item -I I<backlog>
+
+When C<mailmunge-multiplexor> creates a listening socket, it
+calculates the "backlog" argument to C<listen> based on the
+maximum number of workers.  However, you can explicitly set this
+backlog with the C<-I> option.  Setting the backlog to a high
+value (around 30-50) may help on a very busy server.  If you see mail
+log messages saying "MXCommand: socket: Connection refused" during
+busy periods, then that's an indication you need a higher listen
+backlog.
+
+=item -L I<interval>
+
+Log the worker status every I<interval> seconds.  This logs a line using
+syslog; the line looks like this:
+
+    Worker status: Stopped=s Idle=i Busy=b Killed=k Queued=q Msgs=m Activations=a
+
+Here, "Stopped" is the number of non-running workers, "Idle" is the
+number of idle workers, "Busy" is the number of busy workers, "Killed"
+is the number of killed workers yet to be reaped, "Queued" is the
+number of queued requests, "Msgs" is the total number of messages
+processed since the multiplexor began running, and "Activations" is
+the number of times a Perl process has been started since the
+multiplexor began running.
+
+If you supply an I<interval> of 0 (which is the default), no periodic
+status logging is performed.  If you supply an I<interval> of less than
+5 seconds, it is silently reset to 5 seconds.
+
+=item -S I<facility>
+
+Specifies the syslog facility for log messages.  The default is
+I<mail>.  See C<openlog> for a list of valid facilities.
+You can use either the short name ("mail") or long name ("LOG_MAIL") for
+the facility name.
+
+=item -E
+
+Specifies that the multiplexor should create an embedded Perl interpreter.
+This can improve performance dramatically.  But see the section
+L<EMBEDDING PERL> for more information.
+
+=item -X I<n>
+
+Specifies that the multiplexor should initiate a "tick" request every
+I<n> seconds.  This causes your I<filter_tick> function (if defined)
+to be called.  Note that you have no control over which worker executes
+I<filter_tick>.  If all workers are busy when a tick occurs,
+that tick request is skipped and a warning message is logged.
+
+=item -P I<n>
+
+Specifies that the multiplexor should run I<n> tick requests in
+parallel.  Each tick is run as often as specified with the
+C<-X> argument.  (If you omit the C<-P> option, then the
+multiplexor behaves as if C<-P 1> had been specified.)
+
+If you run parallel ticks, each tick is assigned an integer
+identifying its "type".  The type ranges from 0 to I<n>-1.  While
+there may be as many as I<n> tick requests running at a time, only
+one tick of each type will be active at any time.
+
+=item -Y I<label>
+
+Sets the tag used in the multiplexor's syslog messages to
+I<label> instead of C<mailmunge-multiplexor>.
+
+=item -G
+
+Normally, C<mailmunge-multiplexor> uses a umask of 027 when
+creating listening sockets.  If you would like the sockets to be
+readable and writeable by the group as well as the owner,
+supply the C<-G> option.  This causes the umask to be 007
+whenever UNIX-domain sockets are created.
+
+=item -y I<n>
+
+Limits the maximum number of concurrent C<recipok> checks
+to I<n> on a per-domain basis.  The value of I<n> can range
+from 0 (in which case no limit is applied) to I<maxWorkers>, where
+I<maxWorkers> is the argument to the C<-x> option.  If I<n> is
+outside that range, it is ignored (and no limit is applied.)
+
+The C<recipok> command ultimately invokes the C<filter_recipient>
+function in your filter.  If you are doing recipient verification against
+servers that may be slow or unreliable, you can use the C<-y> option
+to limit the number of concurrent recipient verifications per domain.
+That way, if one domain's server becomes very slow, it won't consume
+all available workers for recipient verification.  Instead, its
+RCPT commands will be tempfailed and there will be workers available
+to handle RCPT commands for other domains.
+
+=back
+
+=head1 SOCKET SPECIFICATION
+
+The C<-a>, C<-N> and C<-O> options take a socket as an
+argument.  This socket can be specified as:
+
+=over
+
+=item /path/to/socket
+
+A UNIX-domain socket
+
+=item inet:portnum
+
+A TCP socket bound to port I<portnum>, but which accepts connections
+only from the IPv4 loopback address (127.0.0.1).
+
+=item inet_any:portnum
+
+A TCP socket bound to port I<portnum> which will accept connections
+from any address.  I<Use inet_any with caution!>
+
+=item inet6:portnum
+
+A TCP socket bound to port I<portnum> listening on the IPv6 loopback
+address.
+
+=item inet6_any:portnum
+
+A TCP socket bound to port I<portnum> listening on the IPv6 wildcard
+address.
+
+=back
+
+=head1 QUEUEING REQUESTS
+
+Normally, if all workers are busy, any additional requests are failed
+immediately.  However, the C<-q> and C<-Q> options allow you
+to queue requests for a short amount of time.  This facility is intended
+to gracefully handle a temporary overload; most of the time, your queue
+should be empty.
+
+Because C<mailmunge> checks the number of free workers when a
+connection is opened and fails the connection if there are no free
+workers, the intent of the queue is to allow SMTP transactions that are
+already underway to continue if there is a slight overload.  Any new
+connections will be failed if all workers are busy, but existing
+connections are allowed to continue.  Queuing requests may improve
+throughput on extremely busy servers.
+
+Note that if you supply the C<-q> option to C<mailmunge>, then
+even new connections are allowed to queue.  This may improve throughput by
+keeping the worker utilization higher.
+
+The C<-R> option to C<mailmunge> can be used to reserve a
+specified number of workers for connections from the loopback address.  Using
+the C<-R> option has the side-effect of permitting new connections
+from the loopback address to queue.
+
+=head1 EMBEDDING PERL
+
+Normally, when C<mailmunge-multiplexor> activates a worker, it forks
+and execs your Perl filter program.  However, if the multiplexor was
+compiled with embedded Perl support, and you supply the C<-E>
+command-line option, the multiplexor works like this:
+
+=over
+
+=item 1
+
+It creates an embedded Perl interpreter, and sources your Perl filter program
+with a special command-line argument telling it to read the filter, but
+not to enter the main loop.
+
+=item 2
+
+Each time a worker is activated, the multiplexor calls fork() and calls the
+Perl function C<_mailmunge_do_main_loop>.  This invokes C<filter_initialize>
+and then runs your filter's main loop.
+
+=back
+
+On some very old platforms (for example, Red Hat Linux 7.3 with Perl
+5.6.1), it is not safe to destroy and recreate a Perl interpreter
+without causing a memory leak.  On those platforms, if you attempt to
+reread the filter file (by sending the multiplexor a HUP signal or
+reread command), the filter will I<not> be re-read, and a message will
+be logged to syslog.  On those platforms, you must kill and restart
+C<mailmunge-multiplexor> if you change the filter file.
+
+On most platforms, however, a filter reread is accomplished by destroying
+and re-creating the embedded interpreter, re-sourcing your Perl filter
+and killing workers as soon as they are idle.
+
+=head1 STATISTICS
+
+With the C<-t> option, C<mailmunge-multiplexor> logs certain
+events to a file.  This file can be post-processed to gather statistics
+about the multiplexor.  You can use it to tune the number of workers
+you run, adjust timeouts, and so on.
+
+Each line of the file looks like this:
+
+C<YYYY/MM/DD:HH:MM:SS timestamp event key=val key=val...>
+
+Here, YYYY/MM/DD:HH:MM:SS is the local time of day.  Timestamp is
+the number of seconds since January 1, 1970.  Event is the name
+of an event.  The valid events are:
+
+=over
+
+=item StartWorker
+
+A worker process has been started.
+
+=item KillWorker
+
+A worker process has been killed.
+
+=item ReapWorker
+
+A dead worker process has been reaped.  It is possible to have a ReapWorker
+event without a previous KillWorker event if the worker process terminated
+abnormally.
+
+=item StartFilter
+
+A worker process has begun filtering an e-mail message.
+
+=item EndFilter
+
+A worker process has finished filtering an e-mail message.
+
+=back
+
+The possible keys in the key=value pairs are:
+
+=over
+
+=item worker=I<n>
+
+The worker involved in the event.  Every worker is identified by a small
+integer.
+
+=item nworkers=I<n>
+
+The total number of running workers immediately after the event happened.
+
+=item nbusy=I<n>
+
+The number of busy workers (workers which are processing an e-mail message)
+immediately after the event happened.
+
+=item reason="I<string>"
+
+The reason for a StartWorker or KillWorker event.  (Present only for these
+events.)
+
+=item numRequests=I<n>
+
+The number of e-mails processed by the worker.  Present only for an
+EndFilter event.
+
+=back
+
+If you send the C<mailmunge-multiplexor> process a SIGHUP signal (kill
+-1 I<pid>), it closes and reopens the statistics file.  This is useful
+during log file rotation.
+
+If you send the C<mailmunge-multiplexor> process a SIGINT signal (kill
+-INT I<pid>), it terminates all active-but-idle workers.  Also, any
+active-and-busy workers terminate as soon as they finish filtering the
+current message.  This is useful to force a reread of the filter rules
+file without stopping and restarting Sendmail.
+
+If you send the C<mailmunge-multiplexor> process a SIGTERM signal
+(kill I<pid>), it terminates all workers and exits immediately.
+
+=head1 SEE ALSO
+
+L<mailmunge>, L<Mailmunge>, L<Mailmunge::Filter>, L<mailmunge-protocol>,
+L<mailmunge-notify>, L<mm-mx-ctrl>
+
+=head1 AUTHOR
+
+C<mailmunge-multiplexor> was written by Dianne Skoll <dianne@skollsoft.com>.
+
+=head1 LICENSE
+
+This code is licened under the terms of the GNU General Public License,
+version 2.

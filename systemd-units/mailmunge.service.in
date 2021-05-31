@@ -1,0 +1,54 @@
+[Unit]
+Description=Mailmunge E-mail Filter
+Documentation=man:mailmunge(8)
+Before=multi-user.target
+Before=postfix.service
+Before=sendmail.service
+After=remote-fs.target
+After=systemd-journald-dev-log.socket
+BindsTo=mailmunge-multiplexor.service
+After=mailmunge-multiplexor.service
+PropagatesReloadTo=mailmunge-multiplexor.service
+
+[Service]
+Type=simple
+Restart=on-failure
+TimeoutStopSec=30s
+# LC_ALL=C may not be necessary for mailmunge, but it is for
+# mailmunge-multiplexor, so upstream prefers it here also to be consistent.
+Environment=LC_ALL=C SPOOLDIR=@SPOOLDIR@ MX_SOCKET=@SPOOLDIR@/mailmunge-multiplexor.sock MX_USER=@MMUSER@ MM_ALLOW_GROUP_ACCESS=yes MX_GROUP=@MMGROUP@ SOCKET=@SPOOLDIR@/mailmunge.sock USE_SMFI_SETSYMLIST=yes
+EnvironmentFile=-/etc/default/mailmunge
+ExecStartPre=/bin/rm -f $SOCKET
+ExecStart=/bin/sh -c 'HOME=${SPOOLDIR:=@SPOOLDIR@} \
+   exec @prefix@/bin/mailmunge -D \
+        `[ "$MM_CONSERVE_DESCRIPTORS" = "yes" ]    && echo "-C"` \
+        `[ "$MM_ALLOW_GROUP_ACCESS" = "yes" ]      && echo "-G"` \
+        `[ "$MX_HELO_CHECK" = "yes" ]              && echo "-H"` \
+        `[ -n "$MM_EQUIV_TO_LOOPBACK" ]            && echo "-L $MM_EQUIV_TO_LOOPBACK"` \
+        `[ "$MM_SUPPRESS_REJECTED_RCPTS" = "yes" ] && echo "-N"` \
+        `[ -n "$MM_PIDFILE" ]                      && echo "-P $MM_PIDFILE"` \
+        `[ -n "$MM_RESERVED_FOR_LOOPBACK" ]        && echo "-R $MM_RESERVED_FOR_LOOPBACK"` \
+        `[ -n "$SYSLOG_FACILITY" ]                 && echo "-S $SYSLOG_FACILITY"` \
+        `[ "$LOG_FILTER_TIME" = "yes" ]            && echo "-T"` \
+        `[ -n "$MX_USER" ]                         && echo "-U $MX_USER"` \
+        `[ "$SUPPRESS_SCANNED_BY" = "yes" ]        && echo "-X"` \
+        `[ -n "$MM_LISTEN_BACKLOG" ]               && echo "-b $MM_LISTEN_BACKLOG"` \
+        `[ "$STRIP_BARE_CR" = "yes" ]              && echo "-c"` \
+        `[ "$KEEP_FAILED_DIRECTORIES" = "yes" ]    && echo "-k"` \
+        `[ "$ALLOW_CONNECTIONS_TO_QUEUE" = "yes" ] && echo "-q"` \
+	`[ "$MX_RELAY_CHECK" = "yes" ]             && echo "-r"` \
+	`[ "$MX_SENDER_CHECK" = "yes" ]            && echo "-s"` \
+	`[ "$MX_RECIPIENT_CHECK" = "yes" ]         && echo "-t"` \
+	`[ -n "$SCANNED_BY" ]                      && echo "-x \"$SCANNED_BY\""` \
+        `[ "$USE_SMFI_SETSYMLIST" = "yes" ]        && echo "-y"` \
+	`[ -n "$SPOOLDIR" ]                        && echo "-z $SPOOLDIR"` \
+	`[ -n "$MM_EXTRA" ]                        && echo "$MM_EXTRA"` \
+	-p $SOCKET -m $MX_SOCKET -o $SPOOLDIR/mailmunge.lock'
+
+ExecStopPost=/bin/rm -f $SOCKET
+# Make this service eligible for a reload, so we can propagate it to
+# mailmunge-multiplexor.service.
+ExecReload=/bin/true
+
+[Install]
+WantedBy=multi-user.target

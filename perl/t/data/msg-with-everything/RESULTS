@@ -1,0 +1,13 @@
+ISubject 1 [New%20subject]%20addpart%20chgsub%20delhdr%20chghdr%20delallhdrs%20chgsender%20addrcpt%20delrcpt%20addhdr%20smquarantine%20quarantine
+JX-Delete-Me 1
+IX-Change-Me 1 You%20are%20changed!
+JX-Delete-Us-All 2
+JX-Delete-Us-All 1
+f<changed_sender@example.org>
+R<foobarbaz_added@example.org>
+S<bar@example.com>
+HX-Added I%20am%20new!
+QYou%20are%20evil%20and%20bad%20so%20I%20am%20quarantining%20you
+Mmultipart/mixed;%20boundary=%22foo%22
+C
+F

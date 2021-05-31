@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if test "$1" != "" ; then
+    echo "$1" > /etc/apt/apt.conf.d/02proxy
+fi
+exit 0

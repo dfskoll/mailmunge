@@ -1,0 +1,45 @@
+FROM debian:buster
+
+LABEL maintainer="Dianne Skoll <dianne@skollsoft.com>"
+
+ARG APT_PROXY
+
+COPY docker-testfiles/ /root/docker-testfiles/
+
+RUN /bin/bash /root/docker-testfiles/set-apt-proxy "$APT_PROXY"
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+   build-essential \
+   clamav-daemon \
+   cpanminus \
+   perl \
+   perl-modules-5.28 \
+   postfix \
+   procps \
+   libbsd-dev \
+   libjson-any-perl \
+   libmilter-dev \
+   libmilter1.0.1 \
+   libmime-tools-perl \
+   libio-socket-ssl-perl \
+   libhtml-parser-perl \
+   libtest-deep-perl \
+   libfile-find-rule-perl \
+   libdigest-sha-perl \
+   libperl-dev \
+   net-tools \
+   rsyslog \
+   spamassassin
+
+RUN adduser --system --group --home /var/spool/mailmunge mailmunge
+RUN addgroup --system mailmunge
+
+# Add clamav to "mailmunge" group so we can do virus-scanning
+RUN addgroup clamav mailmunge
+
+RUN adduser --home /home/testuser --gecos 'Test User' --disabled-password testuser
+
+# Install File::VirusScan from cpan - not packaged in Debian
+RUN cpanm -n File::VirusScan
+
+CMD tail -f /dev/null

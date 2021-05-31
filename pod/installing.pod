@@ -1,0 +1,336 @@
+=head1 INSTALLING MAILMUNGE
+
+Mailmunge should run on any reasonably-modern UNIX or Linux system.
+This document explains how to install Mailmunge from source and
+configure it.
+
+
+=head2 PREREQUISITES
+
+To use Mailmunge, you need the following:
+
+=over
+
+=item *
+
+A reasonably modern UNIX or Linux system.  Mailmunge development is
+done on Debian GNU Linux, but Red Hat or Ubuntu are good Linux choices
+as well.
+
+=item *
+
+Either the Sendmail or Postfix mail transfer agents.  These are the two
+open-source MTAs that understand the Milter protocol used by Mailmunge.
+
+=item *
+
+A C development environment.
+
+=item *
+
+The Sendmail milter library development files.
+
+=item *
+
+A recent Perl installation
+
+=item *
+
+The following Perl modules:
+
+=over
+
+MIME::Parser 5.509 or newer
+
+Sys::Syslog
+
+Sys::Hostname
+
+Time::Local
+
+Encode
+
+Socket
+
+IO::Socket
+
+IO::Socket::SSL
+
+=back
+
+For running the tests, you will also need:
+
+=over
+
+Mail::Spamassassin
+
+File::VirusScan
+
+File::Find::Rule
+
+Test::More
+
+Test::Deep
+
+ClamAV
+
+=back
+
+=back
+
+On a Debian Linux system, you can install all the prerequisites with:
+
+  apt install libmime-tools-perl libperl-dev perl perl-modules-5.28 \
+              libio-socket-ssl-perl spamassassin libfile-find-rule-perl \
+              libtest-deep-perl cpanminus build-essential
+
+  cpanm -n File::VirusScan
+
+  # Only if you plan on using Postfix...
+  apt install postfix
+
+  # Only if you plan on using Sendmail...
+  apt install sendmail sendmail-bin sendmail-cf
+
+=head2 BUILDING MAILMUNGE
+
+Mailmunge uses the standard UNIX build invocation:
+
+   tar xfz mailmunge-VERSION.tar.gz
+   cd mailmunge-VERSION
+   ./configure
+   make
+   make install    # This one has to be run as root (eg, with "sudo")
+
+Run C<./configure --help> to see the available configuration options.
+The C<make install> target supports the standard C<DESTDIR=/path>
+variable to let you install under a separate directory hierarchy; this
+is of most interest to people interested in packaging Mailmunge.
+
+=head2 UNIT TESTS
+
+You can run Mailmunge's unit tests as follows; the command assumes you're
+currently in the top-level Mailmunge source directory.
+
+  make test
+
+For more verbose output:
+
+  make test TEST_VERBOSE=-v
+
+Don't run the unit tests as I<root>; they will fail.
+
+=head2 REGRESSION TESTS
+
+Mailmunge ships with a couple of Docker files for creating containers
+that do regression tests.  To run the Docker regression tests, you
+must (obviously) have Docker installed and your user-ID must have
+permission to create and run docker images and containers.
+
+To create a Docker container for running regression tests:
+
+  # If you want to run tests with Postfix:
+  cd docker; ./build-docker-container postfix
+
+  # If you want to run tests with Sendmail:
+  cd docker; ./build-docker-container sendmail
+
+It can take quite a while (around 30 minutes) to create the container image.
+
+To run the regression tests:
+
+  # If you want to run tests with Postfix:
+  cd docker; ./run-regression-tests-on-docker postfix
+
+  # If you want to run tests with Sendmail:
+  cd docker; ./run-regression-tests-on-docker sendmail
+
+If a Mailmunge source tree already exists in the container,
+C<run-regression-tests-on-docker> won't rebuild it by default.  To
+force a rebuild, use:
+
+  # If you want to run tests with Postfix:
+  cd docker; ./run-regression-tests-on-docker postfix -f
+
+  # If you want to run tests with Sendmail:
+  cd docker; ./run-regression-tests-on-docker sendmail -f
+
+In addition to C<-f>, you can use C<-v> for more verbose test
+output and C<-c> for colored test output.
+
+=head1 CONFIGURATION
+
+=head2 POSTFIX
+
+Postfix often runs in a I<chroot> environment, which makes using
+a UNIX-domain socket to communicate with C<mailmunge> challenging.
+Instead, use a TCP socket.  In the examples below,
+we're assuming you chose TCP port 8872 for Milter communication,
+but you can choose any available unprivileged port.
+
+Edit your Postfix C<main.cf> file to include the following lines:
+
+  smtpd_milters = inet:127.0.0.1:8872
+  non_smtpd_milters = inet:127.0.0.1:8872
+  milter_default_action = tempfail
+  milter_content_timeout=900s
+
+Again, the above lines assume that C<mailmunge> has been
+configured to listen on the appropriate socket.  In this
+case, the option would be C<-p inet:8872>
+
+=head2 SENDMAIL
+
+To configure Sendmail to use Mailmunge, edit the F<sendmail.mc> file and
+add a line like this:
+
+  INPUT_MAIL_FILTER(`mailmunge', `S=unix:/var/spool/mailmunge/mailmunge.sock, F=T, T=S:360s;R:360s;E:15m')dnl
+
+and regenerate your F<sendmail.cf> file.  The "T=S..." sets
+various timeouts for the Milter code; consult Sendmail's
+reference manual for details.
+
+The above line assumes that C<mailmunge> is listening on the socket
+C</var/spool/mailmunge/mailmunge.sock>; you should use the corresponding
+option C<-p /var/spool/mailmunge/mailmunge.sock> when invoking C<mailmunge>.
+
+=head2 THE SPOOL DIRECTORY
+
+The spool directory (typically F</var/spool/mailmunge>) is performance-critical
+and does not hold any persistent data.  As such, it can (and should) be mounted
+on a RAM disk.  On Linux, you can put this in F</etc/fstab> to put
+F</var/spool/mailmunge> on a RAM disk:
+
+ tmpfs /var/spool/mailmunge tmpfs nosuid,nodev,uid=mailmunge,gid=mailmunge,mode=0750
+
+Note that the C<uid=> and C<gid=> parameters assume that you are running
+Mailmunge as the user C<mailmunge> (which is the default.)  Adjust as
+appropriate if you run Mailmunge as some other user.
+
+=head2 INIT SCRIPTS
+
+Mailmunge ships with both a SYSV-init style init script in
+F<sysvinit/mailmunge> and systemd units in
+F<systemd-units/mailmunge.service> and
+F<systemd-units/mailmunge-multiplexor.service>
+
+Both the sysvinit script and the systemd units read a file called
+C</etc/default/mailmunge> for environment variable settings.
+The following tables show how the environemt variable settings map
+to C<mailmunge> and C<mailmunge-multiplexor> options.
+
+In the tables below, add the setting in the right-hand
+column to C</etc/default/mailmunge> to enable the option
+in the left-hand column.  The word "yes" is literal;
+other words like "num" or "facility" depend on the
+specific option they affect.
+
+=head3 The sysvinit script
+
+Assuming you have installed the C<sysvinit/mailmunge> script in
+C</etc/init.d/>, use the following to control Mailmunge:
+
+  /etc/init.d/mailmunge start    # Start mailmunge and mailmunge multiplexor
+  /etc/init.d/mailmunge stop     # Stop mailmunge and mailmunge multiplexor
+  /etc/init.d/mailmunge restart  # Stop and then start mailmunge and mailmunge multiplexor
+  /etc/init.d/mailmunge status   # Show status of mailmunge and mailmunge-multiplexor
+  /etc/init.d/mailmunge reload   # Tell mailmunge-multiplexor to reload filter rules
+  /etc/init.d/mailmunge reread   # Synonym for reload
+
+=head2 The systemd units
+
+Note that you should only invoke the C<mailmunge> unit; it takes care
+of also invoking C<mailmunge-multiplexor> for you.
+
+  systemctl start mailmunge   # Start mailmunge and mailmunge multiplexor
+  systemctl stop mailmunge    # Start mailmunge and mailmunge multiplexor
+  systemctl restart mailmunge # Stop and then start mailmunge and mailmunge multiplexor
+  systemctl reload mailmunge  # Tell mailmunge-multiplexor to reload filter rules
+  systemctl status mailmunge  # Show status of mailmunge service
+
+=head3 Variables that affect L<mailmunge> options:
+
+ mailmunge option           /etc/default/mailmunge setting
+
+  -C                        MM_CONSERVE_DESCRIPTORS=yes
+  -G                        MM_ALLOW_GROUP_ACCESS=yes
+  -H                        MX_HELO_CHECK=yes
+  -N                        MM_SUPPRESS_REJECTED_RCPTS=yes
+  -P pidfile                MM_PIDFILE=pidfile
+  -R num                    MM_RESERVED_FOR_LOOPBACK=num
+  -S facility               SYSLOG_FACILITY=facility
+  -T                        LOG_FILTER_TIME=yes
+  -U username               MX_USER=username
+  -X                        SUPPRESS_SCANNED_BY=yes
+  -b backlog                MM_LISTEN_BACKLOG=backlog
+  -c                        STRIP_BARE_CR=yes
+  -k                        KEEP_FAILED_DIRECTORIES=yes
+  -m mx_socket              MX_SOCKET=mx_socket (UNIX socket path)
+  -p socket                 SOCKET=socket (UNIX socket path or inet:port)
+  -q                        ALLOW_CONNECTIONS_TO_QUEUE=yes
+  -r                        MX_RELAY_CHECK=yes
+  -s                        MX_SENDER_CHECK=yes
+  -t                        MX_RECIPIENT_CHECK=yes
+  -x string                 SCANNED_BY=string
+  -y                        USE_SMFI_SETSYMLIST=yes
+  -z spooldir               SPOOLDIR=spooldir
+  (extra options)           MM_EXTRA="-a foo -a bar"  # Any extra options
+
+=head3 Variables that affect L<mailmunge-multiplexor> options:
+
+ mailmunge-multiplexor      /etc/default/mailmunge setting
+      option
+  -E                        MX_EMBED_PERL=yes
+  -G                        MM_ALLOW_GROUP_ACCESS=yes
+  -I backlog                MX_LISTEN_BACKLOG=backlog
+  -L secs                   MX_LOG_WORKER_STATUS_INTERVAL=secs
+  -M limit                  MX_MAX_AS=limit
+  -N socket                 MX_MAP_SOCKET=socket
+  -O notify_socket          MX_NOTIFIER=notify_socket
+  -P num                    MX_PARALLEL_TICKS=num
+  -Q timeout                MX_QUEUE_TIMEOUT=timeout
+  -R limit                  MX_MAX_RSS=limit
+  -S facility               SYSLOG_FACILITY=facility
+  -T                        MX_STATS_SYSLOG=yes
+  -U username               MX_USER=username
+  -V lifetime               MX_MAX_LIFETIME=lifetime
+  -W secs                   MX_MIN_WORKER_DELAY=secs
+  -X secs                   MX_TICK_INTERVAL=secs
+  -Y label                  MX_SYSLOG_LABEL=label
+  -Z                        MX_STATUS_UPDATES=yes
+  -a socket                 MX_UNPRIV_SOCKET=socket
+  -b timeout                MX_BUSY=timeout
+  -c timeout                MX_CMD_TIMEOUT=timeout
+  -f path_to_filter         FILTER=path_to_filter
+  -i timeout                MX_IDLE=timeout
+  -l                        MX_LOG=yes
+  -m num                    MX_MINIMUM=num
+  -p pidfile                MX_PIDFILE=pidfile
+  -q size                   MX_QUEUE_SIZE=size
+  -r num                    MX_REQUESTS=num
+  -s socket                 MX_SOCKET=socket
+  -w secs                   MX_WORKER_DELAY=secs
+  -x num                    MX_MAXIMUM=num
+  -y num                    MX_RECIPOK_PERDOMAIN=num
+  -z path_to_spooldir       SPOOLDIR=path_to_spooldir
+
+=head3 Defaults
+
+The init scripts use the following defaults for
+environment variable settings (which may be overridden
+in F</etc/default/mailmunge>
+
+  MX_USER=mailmunge                              # Or whatever ./configure picked
+  MX_GROUP=mailmunge                             # Or whatever ./configure picked
+  SPOOLDIR=/var/spool/mailmunge                  # Or whatever ./configure picked
+  MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
+  MM_PIDFILE=/var/run/mailmunge.pid
+  MM_ALLOW_GROUP_ACCESS=yes
+  MX_BUSY=600
+  MX_LOG=yes
+  MX_MINIMUM=2
+  MX_MAXIMUM=10
+  USE_SMFI_SETSYMLIST=yes
+  MX_SOCKET=$SPOOLDIR/mailmunge-multiplexor.sock
+  SOCKET=$SPOOLDIR/mailmunge.sock
+

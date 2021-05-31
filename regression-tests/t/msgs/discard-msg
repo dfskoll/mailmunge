@@ -1,0 +1,10 @@
+From: <user1@example.com>
+To: <user1@example.com>
+Subject: begin-discard
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Hello.
+
+This message will be discarded.  Goodbye.
+

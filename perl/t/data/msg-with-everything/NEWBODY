@@ -1,0 +1,40 @@
+This is a multipart message in MIME format.
+
+--foo
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!
+
+--foo
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+Replaced replace_with_warning.exe
+
+--foo
+Content-Type: application/octet-stream;
+              name="warn.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="warn.txt"
+
+d29va2llcG9vCg==
+
+--foo
+Content-Type: text/html
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+<html><head><title>Foo</title></head><body><p>Wookie</p></body></html>
+
+--foo
+Content-Type: text/plain; charset="utf-8"; name="warnings.txt"
+Content-Disposition: inline; filename="warnings.txt"
+Content-Transfer-Encoding: 7bit
+
+Attachments of type EXE are not accepted
+I reluctantly accepted warn.txt
+
+--foo--

@@ -1,0 +1,97 @@
+From continue@example.com  Fri May 28 00:31:22 2021
+Return-Path: <continue@example.com>
+X-Original-To: user1@example.com
+Delivered-To: user1@example.com
+Received: from continue (2e00919ea2bc.example.com [172.17.0.2])
+	by 1dface8f3646.skoll.ca (Postfix) with ESMTP id 7A0886037F
+	for <user1@example.com>; Fri, 28 May 2021 00:31:22 +0000 (UTC)
+From: <foo@example.com>
+To: <bar@example.com>
+Subject: will be ignored
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="foo"
+Message-Id: <20210528003122.7A0886037F@1dface8f3646.skoll.ca>
+Date: Fri, 28 May 2021 00:31:22 +0000 (UTC)
+X-Last-QID: 7A0886037F
+X-Scanned-By: mailmunge 3.00 on 172.17.0.2
+X-MM-Delivered: user1
+
+This is a multipart message in MIME format.
+
+--foo
+Content-Type: multipart/mixed; boundary="bar"
+
+--bar
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the first text/plain part
+Some plaintext boilerplate at end - one part only
+
+--bar
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the second text/plain part
+
+
+--bar
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+<p>Hi there!  This is the first text/html part</p>
+<p>Some <b>HTML</b> boilerplate at end - one part only</p>
+</body>
+
+--bar
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+Hi there!  This is the second text/html part
+</body>
+
+--bar--
+
+--foo
+Content-Type: multipart/mixed; boundary="quux"
+
+--quux
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the first text/plain part
+
+--quux
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the second text/plain part
+
+
+--quux
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+<p>Hi there!  This is the first text/html part</p>
+</body>
+
+--quux
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+Hi there!  This is the second text/html part
+</body>
+
+--quux--
+
+--foo
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="foo.bin"
+
+Blort!
+
+--foo--

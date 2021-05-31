@@ -1,0 +1,135 @@
+=head1 NAME
+
+watch-multiple-mailmunges.tcl - Keep an eye on a cluster of Mailmunge machines
+
+=head1 SYNOPSIS
+
+ watch-multiple-mailmunges.tcl [-n] [-r] [-s] [-t] [-archive] machine-1 machine-2 ... machine-N
+
+=head1 DESCRIPTION
+
+C<watch-multiple-mailmunges.tcl> is a Tk script that graphically
+displays the status of L<mailmunge-multiplexor> on a cluster of
+machines.  Note that Tcl/Tk 8.4 or higher is required to run
+C<watch-multiple-mailmunges.tcl>.
+
+If you supply the C<-archive> command-line option, then
+C<watch-multiple-mailmunges.tcl> logs the output of
+C<mm-mx-ctrl rawload> for each machine.  The output for I<machine_name> is logged in:
+
+F<$HOME/.watch-multiple-mailmunges/I<machine_name>/data>
+
+If you supply any of C<-n>, C<-r>, C<-s> or C<-t>
+options, then C<watch-multiple-mailmunges.tcl> uses the
+C<rawload1> command rather than C<rawload> command to read
+performance data.
+
+The C<-n>, C<-r>, C<-s>, and C<-t> options enable
+monitoring of scan times, filter_relay times, filter_sender times
+and filter_recipient times, respectively.
+
+=head1 PREREQUISITES
+
+To use C<watch-multiple-mailmunges.tcl> to monitor a cluster of machines,
+you must have the following prerequisites:
+
+=over
+
+=item *
+
+A UNIX-like machine with Tcl/Tk 8.4, the X window system and an SSH client.
+You also need "xterm" to use some of the features.
+
+=item *
+
+The ability to SSH I<as root> to all of the machines you want to monitor.
+Ideally, you should be using the SSH agent so that you can SSH to the
+monitored machines as root without being prompted for a password or
+pass phrase.
+
+=item *
+
+The program C<mm-mx-ctrl> on root's path on all the machines you want
+to monitor.
+
+=back
+
+=head1 DISPLAY
+
+For each machine specified on the command line,
+C<watch-multiple-mailmunges.tcl> creates a chart with five columns.
+The columns are:
+
+=over
+
+=item 1
+
+A button with the name of the machine.  Clicking the button pops up
+a menu that lets you take various actions, as described later.  If all workers
+on the machine are busy, the button turns yellow.
+
+=item 2
+
+A label showing the number of busy workers in the form "busy/total", where
+total is the total number of workers.
+
+=item 3
+
+A label showing the average number of messages per second over the last
+10 seconds.
+
+=item 4
+
+A label showing the average number of milliseconds per scan over the
+last 10 seconds.
+
+=item 5
+
+A chart that graphs the average number of busy workers, the average
+number of messages per second and the average scan time in milliseconds,
+all averaged over the last 10 seconds.
+
+=back
+
+=head1 MACHINE MENU
+
+If you click on a machine name, a menu with three options pops up:
+
+=over
+
+=item SSH
+
+Open an xterm session and ssh as root to the machine.
+
+=item Busy Workers
+
+Monitor the busy workers on the machine.  If you click on the
+process-ID of a worker, an xterm will open up and the command
+C<strace -s 100 -t -p pid> will be executed on the remote machine.  This is
+Linux-specific, but you can edit C<watch-multiple-mailmunges.tcl> to
+replace the command with your particular system's command for tracing
+system calls.
+
+=item Delete
+
+Remove the machine from the list of machines being monitored.
+
+=back
+
+=head1 ADDING A MACHINE
+
+If you need to add a machine to the display, simply type the name of the
+machine in the "Add Machine:" box and press Enter.
+
+=head1 SEE ALSO
+
+L<mailmunge>, L<mailmunge-protocol>, L<mm-mx-ctrl>
+
+=head1 AUTHOR
+
+C<watch-multiple-mailmunges.tcl> was written by Dianne Skoll.
+
+=head1 LICENSE
+
+This code is licened under the terms of the GNU General Public License,
+version 2.

@@ -1,0 +1,49 @@
+Return-Path: <foo@example.com>
+From: <foo@example.com>
+To: <bar@example.com>
+Subject: Hello
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="foo"
+
+This is a multipart message in MIME format.
+
+--foo
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!
+
+--foo
+Content-Type: application/octet-stream;
+              name="drop_with_warning.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="drop_with_warning.exe"
+
+d29va2llcG9vCg==
+
+--foo
+Content-Type: application/octet-stream;
+              name="replace_with_warning.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="replace_with_warning.exe"
+
+d29va2llcG9vCg==
+
+--foo
+Content-Type: application/octet-stream;
+              name="drop.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="drop.exe"
+
+d29va2llcG9vCg==
+
+--foo
+Content-Type: application/octet-stream;
+              name="warn.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="warn.txt"
+
+d29va2llcG9vCg==
+
+--foo--

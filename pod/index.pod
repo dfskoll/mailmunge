@@ -1,0 +1,92 @@
+=head1 MAILMUNGE DOCUMENTATION
+
+This is an index to the Mailmunge documentation.
+
+=head2 Overview
+
+Start with the overview document before reading anything else.
+
+L<Mailmunge>
+
+=head2 Installation
+
+A guide to installing Mailmunge from source and configuring your MTA
+and Mailmunge.
+
+L<Installation|installing>
+
+=head2 Perl Modules
+
+=head3 The Most Important Perl Modules
+
+You I<must> be familiar with these modules to write your filter policy.
+
+L<Mailmunge::Filter>
+
+L<Mailmunge::Filter::Compat> (especially if you are migrating from MIMEDefang)
+
+L<Mailmunge::Context>
+
+L<Mailmunge::Response>
+
+L<Mailmunge::Constants>
+
+=head3 More Perl Modules for Writing Filters
+
+Thes are handy modules that give additional capabilities to your filter.
+
+L<Mailmunge::Action::Boilerplate>
+
+L<Mailmunge::Action::Stream>
+
+L<Mailmunge::Test::GetMX>
+
+L<Mailmunge::Test::SMTPForward>
+
+L<Mailmunge::Test::SpamAssassin>
+
+=head2 Command-Line Program Man Pages
+
+The man pages for the various command-line tools.
+
+L<mailmunge>
+
+L<mailmunge-multiplexor>
+
+L<mm-mx-ctrl>
+
+L<watch-multiple-mailmunges>
+
+=head2 Protocol Internals
+
+Internal details about how Perl workers communicate with C<mailmunge>
+
+L<mailmunge-protocol>
+
+L<mailmunge-notify>
+
+=head2 Perl Modules of Interest to Developers Only
+
+L<Mailmunge::Base>
+
+L<Mailmunge::Action>
+
+L<Mailmunge::Test>
+
+=head2 Perl Modules for Writing Unit Tests
+
+L<Test::Mailmunge::Filter>
+
+L<Test::Mailmunge::Utils>
+
+L<Test::Mailmunge::SMTPServer>
+
+L<Test::Mailmunge::Tmpdir>
+
+=head2 Perl Modules for Writing Regression Tests
+
+L<Test::Mailmunge::RegressionUtils>
+
+
+
+

@@ -1,0 +1,78 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+# DO NOT USE THIS FILTER AS-IS.
+# MODIFY IT FOR YOUR DESIRED POLICY
+
+package Mailmunge::Filter::Example;
+
+use base qw(Mailmunge::Filter::Compat);
+
+use Mailmunge::Response;
+use Mailmunge::Test::SpamAssassin;
+
+sub filter_begin
+{
+        my ($self, $ctx) = @_;
+
+        # Scan for viruses using Clamd
+        my $scanner = File::VirusScan->new({
+                engines => {'-Daemon::ClamAV::Clamd' => {
+                        socket_name => '/var/run/clamav/clamd.ctl'}
+                }});
+        my $result_set = $scanner->scan($self->inputmsg_absolute($ctx));
+        my @contents = $result_set->contents();
+        my $result = $contents[0];
+        if ($result->is_error()) {
+                $self->action_tempfail($ctx, 'Error running virus-scanner: ' . $result->get_data());
+        } elsif ($result->is_virus()) {
+                $self->action_bounce($ctx, 'Found virus: ' . $result->get_data());
+        }
+}
+
+sub filter
+{
+        my ($self, $ctx, $part, $fname, $extension, $mime_type) = @_;
+
+        # MIME type message/partial is a security hazard
+        if (lc($mime_type) eq 'message/partial') {
+                $self->action_bounce($ctx, 'We do not accept messages of type message/partial');
+                return;
+        }
+
+        # Do not allow:
+        # - CLSIDs  {foobarbaz}
+        # - bad extensions (possibly with trailing dots) at end
+        my $bad_exts = '(ade|adp|app|asd|asf|asx|bas|bat|chm|cmd|com|cpl|crt|dll|exe|fxp|hlp|hta|hto|inf|ini|ins|isp|jse?|lib|lnk|mdb|mde|msc|msi|msp|mst|ocx|pcd|pif|prg|reg|scr|sct|sh|shb|shs|sys|url|vb|vbe|vbs|vcs|vxd|wmd|wms|wmz|wsc|wsf|wsh|\{[^\}]+\})';
+        my $re = '\.' . $bad_exts . '\.*$';
+
+        if ($extension =~ /$re/i) {
+                $self->action_drop_with_warning($ctx, "An attachment named '$fname' was deleted as it constitutes a hazard");
+        }
+        
+}
+sub filter_end
+{
+        my ($self, $ctx) = @_;
+
+        # Tag messages scoring >= 5.0 with SpamAssassin
+        # with '[Spam]'
+        my $sa = Mailmunge::Test::SpamAssassin->new($self);
+        my $status = $sa->spam_assassin_status($ctx, 1);
+        if ($status) {
+                $self->action_add_header($ctx, 'X-Spam-Result', 'score=' . $status->get_score() . '; tests=' . $status->get_names_of_tests_hit());
+                if ($status->get_score() >= 5.0) {
+                        $self->action_change_header('Subject', '[Spam] ' . $ctx->subject);
+                        $self->action_change_header('X-Spam-Status', 'Yes');
+                } else {
+                        $self->action_delete_all_headers('X-Spam-Status');
+                }
+                $status->finish();
+        }
+}
+
+my $filter = Mailmunge::Filter::Example->new();
+$filter->run();
+
+1;

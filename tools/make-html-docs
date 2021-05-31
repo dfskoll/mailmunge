@@ -1,0 +1,44 @@
+#!/bin/sh
+
+if ! test -f perl/lib/Mailmunge.pm; then
+    echo "*** Please run $0 from the top-level mailmunge directory"
+    echo "*** after you have run ./configure"
+    exit 1
+fi
+
+rm -rf htmldocs
+rm -f pod2htmd.tmp
+
+mkdir htmldocs
+mkdir htmldocs/css
+mkdir htmldocs/images
+cp docs/style.css htmldocs/css/
+cp docs/architecture.svg htmldocs/images/
+
+PMS=`find perl/lib -name '*.pm' -type f | sort`
+for i in $PMS; do
+    j=`echo $i | sed -e 's|^perl/lib/||' -e 's|/|__|g' -e 's/\.pm$/\.html/'`
+    title=`echo $j | sed -e 's/__/::/g' -e 's/\.html$//'`
+    pod2html --title="$title" --htmldir=htmldocs --podroot=. --podpath=pod:perl/lib --noindex --noheader --css=css/style.css < $i | sed -e 's|href="/perl/lib/|href="|g' -e 's|href="/pod/|href="pod_|g' | perl tools/fix-links.pl  > htmldocs/$j
+done
+
+PODS=`find pod -name '*.pod' -type f | sort`
+for i in $PODS; do
+    j=`echo $i | sed -e 's|^pod/||' -e 's|/|__|g' -e 's/\.pod$/\.html/'`
+    title=`echo $j | sed -e 's/.html$//'`
+    if test "$title" = "index" ; then
+        title="Mailmunge Documentation Index"
+    elif test "$title" = "installing"; then
+        title="Mailmunge Installation and Configuration"
+    fi
+    pod2html --title="$title" --htmldir=htmldocs --podroot=. --podpath=pod:perl/lib --noindex --noheader --css=css/style.css < $i | sed -e 's|href="/perl/lib/|href="|g' -e 's|href="/pod/|href="pod_|g' | perl tools/fix-links.pl  > htmldocs/pod_$j
+done
+
+rm -f pod2htmd.tmp
+
+# Fix the anchors
+cd htmldocs && ../tools/fix-anchors.pl *.html
+
+# Rename pod_index.html to index.html
+
+mv pod_index.html index.html

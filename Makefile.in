@@ -1,0 +1,106 @@
+# DO NOT EDIT MAKEFILE; EDIT MAKEFILE.IN INSTEAD
+# Makefile.in for mailmunge
+
+# Needed for autoconf to behave properly...
+datarootdir=@datarootdir@
+srcdir=@srcdir@
+top_srcdir=@top_srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+sysconfdir=@sysconfdir@
+CONFSUBDIR=@CONFSUBDIR@
+CONFDIR=${sysconfdir}${CONFSUBDIR}
+MMUSER=@MMUSER@
+MMGROUP=@MMGROUP@
+MANDIR=@mandir@
+
+MINCLUDE=@MINCLUDE@
+DEFS=-D_POSIX_PTHREAD_SEMANTICS \
+	@EMBPERLDEFS@ \
+	@ENABLE_DEBUGGING@ @CLEANUP_DEFS@ -DPERL_PATH=\"@PERL@\" \
+	-DRM=\"@RM@\" \
+	-DVERSION=\"@PACKAGE_VERSION@\" \
+	-DSPOOLDIR=\"@SPOOLDIR@\" \
+	-DQDIR=\"@QDIR@\" \
+	-DCONFDIR=\"${CONFDIR}\"
+
+CC=@CC@
+PERL=@PERL@
+INSTALL=@INSTALL@
+
+CFLAGS=@CFLAGS@
+EMBPERLCFLAGS=@EMBPERLCFLAGS@
+PTHREAD_FLAG=@PTHREAD_FLAG@
+EMBPERLOBJS=@EMBPERLOBJS@
+EMBPERLLDFLAGS=@EMBPERLLDFLAGS@
+EMBPERLLIBS=@EMBPERLLIBS@
+LIBS_WITHOUT_PTHREAD=@LIBS_WITHOUT_PTHREAD@
+LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@
+SPOOLDIR=@SPOOLDIR@
+QDIR=@QDIR@
+VERSION=@PACKAGE_VERSION@
+
+INSTALL_STRIP_FLAG=-s
+
+## NO MORE ./configure substitutions beyond this point!
+
+all: c/mailmunge pod2man perl/Makefile perl/blib/lib/Mailmunge.pm
+
+perl/Makefile:
+	cd perl && @PERL@ Makefile.PL
+
+perl/blib/lib/Mailmunge.pm: perl/Makefile
+	$(MAKE) -C perl
+
+c/mailmunge:
+	$(MAKE) -C c all
+
+clean:: FORCE
+	$(MAKE) -C c clean
+	$(MAKE) -C perl clean
+	rm -f pod2htmd.tmp
+	rm -f perl/Makefile.old
+	rm -f mailmunge-*.tar.gz
+	rm -f pod/*~
+	rm -rf man
+
+pod2man:: script/mailmunge-util.1
+
+script/mailmunge-util.1: script/mailmunge-util
+	$(PERL) "-MExtUtils::Command::MM" -e pod2man "--" --section=1 --perm_rw=644 \
+		--center="Mailmunge Documentation" \
+		--release=$(VERSION) \
+		script/mailmunge-util script/mailmunge-util.1
+
+distclean:: clean
+	rm -f config.log config.status Makefile config.cache config.h \
+	script/mailmunge-util \
+	script/mailmunge-util.1 c/Makefile c/config.h \
+	perl/lib/Mailmunge.pm perl/lib/Mailmunge/Constants.pm \
+	perl/lib/pod2htmd.tmp pod/mailmunge.pod pod/mailmunge-multiplexor.pod \
+        pod/mm-mx-ctrl.pod systemd-units/mailmunge-multiplexor.service \
+	systemd-units/mailmunge.service sysvinit/mailmunge
+
+	rm -rf autom4te.cache
+
+install: all
+	$(MAKE) -C c install DESTDIR=$(DESTDIR)
+	$(MAKE) -C perl install DESTDIR=$(DESTDIR)
+
+dist: FORCE
+	./tools/make-dist.sh $(VERSION)
+
+htmldocs: FORCE
+	./tools/make-html-docs
+
+DIST-CONTENTS: FORCE
+	git ls-files > DIST-CONTENTS
+
+test: all
+	cd perl && prove -l $(TEST_VERBOSE) t/*.t
+
+FORCE:
+
+.phony: FORCE

@@ -1,0 +1,114 @@
+package Mailmunge::Constants;
+use strict;
+use warnings;
+
+my $constants = {
+        'Path:SENDMAIL'      => '@SENDMAILPROG@',
+        'Path:QUARANTINEDIR' => '@QDIR@',
+        'Path:SPOOLDIR'      => '@SPOOLDIR@',
+        'Path:CONFDIR'       => '@CONFDIR_EVAL@',
+};
+
+my $prog_paths = {
+        'sendmail' => {key => 'Path:SENDMAIL'},
+};
+
+sub get
+{
+        my ($class, $const) = @_;
+        return $constants->{$const} if exists($constants->{$const});
+        return undef;
+}
+
+
+sub get_program_path
+{
+        my ($class, $prog) = @_;
+        my $p = $prog_paths->{$prog};
+        if ($p) {
+                return $p->{path} if $p->{path};
+                my $x = $constants->{$p->{key}};
+                if (-x $x) {
+                        $p->{path} = $x;
+                        return $x;
+                }
+        }
+
+        # Search PATH
+        foreach my $dir (split(/:/, $ENV{PATH})) {
+                if (-x "$dir/$prog") {
+                        $prog_paths->{$prog} = {path => "$dir/$prog"};
+                        return "$dir/$prog";
+                }
+        }
+        return undef;
+}
+
+
+# Private function: Set a constant [sic].  This is meant to be
+# used *only* by test code!
+sub _set
+{
+        my ($class, $const, $val) = @_;
+        $constants->{$const} = $val;
+        return $val;
+}
+
+1;
+
+
+__END__
+
+=head1 NAME
+
+Mailmunge::Constants - Holds constants defined at build time
+
+=head1 SYNOPSIS
+
+    my $sendmail_prog = Mailmunge::Constants->get('Path:SENDMAIL'); # or..
+    my $sendmail_prog = Mailmunge::Constants->get_program_path('sendmail');
+    my $qdir = Mailmunge::Constants->get('Path:QUARANTINEDIR');
+    my $spooldir = Mailmunge::Constants->get('Path:SPOOLDIR');
+    my $confdir = Mailmunge::Constants->get('Path:CONFDIR');
+
+=head1 CLASS METHODS
+
+=head2 get($const_name)
+
+Returns the value of a build-time constant.  The available names and
+their default values on this installation are:
+
+=over 4
+
+=item Path:SENDMAIL
+
+@SENDMAILPROG@
+
+=item Path:QUARANTINEDIR
+
+@QDIR@
+
+=item Path:SPOOLDIR
+
+@SPOOLDIR@
+
+=item Path:CONFDIR
+
+@CONFDIR_EVAL@
+
+=back
+
+=head2 get_program_path($program)
+
+Returns the full path to the executable C<$program> if it could be found
+by searching $PATH, or was configured correctly at build time.  Returns
+undef if the program could not be found.
+
+=head1 AUTHOR
+
+Dianne Skoll <dianne@skollsoft.com>
+
+=head1 LICENSE
+
+This code is licened under the terms of the GNU General Public License,
+version 2.

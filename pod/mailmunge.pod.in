@@ -1,0 +1,268 @@
+=head1 NAME
+
+mailmunge - Milter for writing mail policy in Perl
+
+=head1 SYNOPSIS
+
+    mailmunge prcap
+
+    mailmunge -p connection -m mx_socket_name -U user [options]
+
+=head1 DESCRIPTION
+
+C<mailmunge> is a filter built around Sendmail 8.11 and later's I<Milter>
+API for mail filters.  It lets you write Milter filtering policy
+in Perl.
+
+C<mailmunge> does not actually run the Perl filter; instead, it
+communicates with C<mailmunge-multiplexor>, which manages a pool of
+persistent Perl processes.  See the L<mailmunge-multiplexor> man page
+for additional information.
+
+=head1 OPTIONS
+
+If you invoke C<mailmunge> with the single argument
+C<prcap>, it prints information about the version of Milter
+it is linked against and exits.  Otherwise, you should invoke
+C<mailmunge> as shown in the second line of the SYNOPSIS.
+
+=over 4
+
+=item -C
+
+Conserve file descriptors by opening and closing disk files more
+often.  Disk files will be closed when a Milter callback ends and
+reopened when another callback is invoked.  While this shortens the
+length of time a file descriptor is open, it also leaves more
+opportunities for the open to fail.  We do not recommend the use of
+this flag except on very busy systems that exhibit failures due to a
+shortage of file descriptors.
+
+=item -D
+
+Do not fork into the background and become a daemon.  Instead, stay
+in the foreground.  Useful mainly for debugging or if you have a
+supervisory process such as C<systemd> managing C<mailmunge>.
+
+=item -G
+
+Normally, C<mailmunge> uses a umask of 077 when creating the
+milter socket and files.  If you would like the socket to be readable
+and writeable by the group and files to be group-readable, supply the
+C<-G> option.  This causes the umask to be 007 whenever
+UNIX-domain sockets are created and 027 whenever files are created.
+I<Note>: if your milter library is too old to have the
+smfi_opensocket() function, the C<-G> option causes
+C<mailmunge> to use a umask of 007 throughout its execution.
+
+=item -H
+
+Causes C<mailmunge> to perform a HELO check when the SMTP client
+issues a HELO or EHLO command.  It causes the filter's C<filter_helo>
+method to be invoked.  (See L<Mailmunge::Filter> for details.)
+
+=item -N
+
+Normally, C<mailmunge> sees all envelope recipients, even ones that
+Sendmail knows to be invalid.  If you don't want Sendmail to perform
+a milter callback for recipients it knows to be invalid, invoke
+C<mailmunge> with the -N flag.  I<Please note that this
+flag only works with Sendmail and Milter 8.14.0 and newer.  It has
+no effect if you're running an older version of Sendmail or Milter.>
+
+=item -P I<fileName>
+
+Causes C<mailmunge> to write its process-ID (after
+becoming a daemon) to the specified file.  The file will be
+owned by root.
+
+=item -R I<num>
+
+Normally, C<mailmunge> tempfails a new SMTP connection if
+there are no free workers.  Supplying the C<-R> I<num> option
+makes C<mailmunge> tempfail new connections if there are fewer
+than I<num> free workers, I<unless> the connection is from the
+local host.  This allows you to favour connections from localhost so
+your clientmqueue doesn't build up.  Note that supplying C<-R 0>
+is subtly different from omitting the option; in this case, C<mailmunge>
+permits new connections from localhost to queue, but not connections
+from other hosts (unless you also supply the C<-q> option.)
+
+The purpose of the C<-R> option is to reserve resources for
+clientmqueue runs.  Otherwise, on a very busy mail server, clientmqueue
+runs can starve for a long time, leading to delays for locally-generated
+or streamed mail.  We recommend using a small number for I<num>;
+probably no more than 3 or 10% of the total number of workers (whichever
+is smaller.)
+
+Note that this option and the C<-q> option are mutually-exclusive.
+If you supply C<-q>, then C<-R> is ignored.
+
+=item -S I<facility>
+
+Specifies the syslog facility for log messages.  The default is
+I<mail>.  See the C<openlog> man page for a list of valid facilities.
+You can use either the short name ("mail") or long name ("LOG_MAIL") for
+the facility name.
+
+=item -T
+
+Causes C<mailmunge> to log the run-time of the Perl filter using
+syslog.
+
+=item -U I<user>
+
+Runs C<mailmunge> as I<user> rather than I<root>.  The
+I<user> argument must match the argument to
+C<mailmunge-multiplexor>'s C<-U> option as well.
+
+=item -X
+
+Do not add an X-Scanned-By: header.  Specifying -X is equivalent to
+specifying -x "".
+
+=item -a I<macro>
+
+Pass the value of the specified Sendmail macro through to the Perl filter.
+You can repeat the -a option to write more macros than the built-in
+defaults.  Note that in addition to asking C<mailmunge> to pass the
+macro value to the filter, you must configure Sendmail to pass the
+macro through to C<mailmunge> using the confMILTER_MACROS_ENVFROM
+definition in Sendmail's m4 configuration file.
+
+=item -b I<backlog>
+
+Sets the "backlog" argument to the C<listen> system call
+to I<backlog>.  If this option is omitted, then the operating-system
+default backlog is used.
+
+=item -c
+
+Strip "bare" carriage-returns (CR) characters from the message body.
+A bare CR should never appear in an e-mail message.  Older versions
+of C<mailmunge> used to strip them out automatically, but now they
+are left in by default.  The C<-c> option enables the older behavior.
+
+=item -d
+
+The C<-d> switch causes C<mailmunge> I<not> to delete the temporary
+spool files it creates for incoming messages.  This is for debugging
+purposes only and should I<never> be used on a production mail server.
+
+=item -h
+
+Print usage information and exit.
+
+=item -k
+
+Causes C<mailmunge> I<not> to delete working directories if
+a filter fails.  This lets you obtain the message which caused the
+filter to fail and determine what went wrong.  C<mailmunge> logs
+the directory containing the failed message using syslog.
+
+=item -m I<mx_socket_name>
+
+Specifies the socket for communicating with C<mailmunge-multiplexor>.
+The I<mx_socket_name> specifies the path of the UNIX-domain socket.
+See L<mailmunge-multiplexor> for details.
+
+=item -o I<fileName>
+
+Causes C<mailmunge> to use I<fileName> as a lock file to avoid
+multiple instances from running.  If you supply C<-P> but not C<-o>,
+then C<mailmunge> constructs a lock file by appending ".lock" to the
+pid file.  However, this is less secure than having a root-owned pid
+file in a root-owned directory and a lock file writable by the user
+named by the C<-U> option.  (The lock file must be writable by the
+C<-U> user.)
+
+=item -p I<connection>
+
+The C<-p> switch is required and specifies the I<milter> connection
+type.  Typically, you should run C<mailmunge> on the same computer as
+C<sendmail>.  Therefore, you may use a UNIX-domain socket or an INET
+socket for the connection type.  The suggested value for the C<-p>
+switch is C<mailmunge.sock> under the spool directory if you are
+running Sendmail, or an INET socket on a convenient port if you are
+running Postfix.  Postfix often runs in a chroot environment, so
+using UNIX-domain sockets is a problem if the socket is not in
+Postfix's chroot jail.
+
+=item -q
+
+Permits the multiplexor to queue new connections.  See the section
+QUEUEING REQUESTS in the mailmunge-multiplexor man page.  Note that
+this option and the C<-R> option are mutually-exclusive.  If you
+supply C<-q>, then C<-R> is ignored.
+
+=item -r
+
+Causes C<mailmunge> to perform a relay check before processing any
+messages.  It causes the filter's C<filter_relay> method to be
+invoked.  (See L<Mailmunge::Filter> for details.)
+
+=item -s
+
+Causes C<mailmunge> to perform a sender check before processing the
+message body.  It causes the filter's C<filter_sender> method to be
+invoked.  (See L<Mailmunge::Filter> for details.)
+
+=item -t
+
+Causes C<mailmunge> to perform recipient checks before processing the
+message body.  It causes the filter's C<filter_recipient> method to be
+invoked.  (See L<Mailmunge::Filter> for details.)
+
+=item -x I<string>
+
+Add I<string> as the content of the X-Scanned-By: header.  If you
+set I<string> to the empty string (i.e. -x ""), then no X-Scanned-By:
+header will be added.
+
+=item -y
+
+If the C<-y> command-line option is given, Mailmunge will
+call smfi_setsymlist to set the list of macros it wants.  I<This function
+leaked memory in versions of Sendmail prior to 8.14.4> so by default
+we do not call it.  If you are running an older version of sendmail,
+you should explicitly set the list of macros you want in the Sendmail
+configuration file.
+
+=item -z I<spooldir>
+
+Set the spool directory to I<spooldir>.  If this option is omitted,
+the spool directory defaults to @SPOOLDIR@.
+
+=back
+
+=head1 OPERATION
+
+When C<mailmunge> starts, it creates a listening socket to
+which Sendmail or Postfix can connect; the MTA communicates with
+C<mailmunge> using the Milter protocol.
+
+For each incoming message, C<mailmunge> creates a temporary directory
+and saves information in the directory.  At various phases during the
+SMTP conversation, C<mailmunge> communicates with
+C<mailmunge-multiplexor> to perform various operations.
+C<mailmunge-multiplexor> manages a pool of persistent Perl processes
+that actually perform the mail scanning operations.  C<mailmunge>
+then communicates the results of those operations back to the MTA
+over the milter socket.
+
+When a Perl process scans an e-mail, the temporary spool directory
+contains certain files; details of the communication protocol between
+C<mailmunge> and the Perl script are in L<mailmunge-protocol>.
+
+=head1 SEE ALSO
+
+L<Mailmunge>, L<mailmunge-multiplexor>, L<mailmunge-protocol>
+
+=head1 AUTHOR
+
+C<mailmunge> was written by Dianne Skoll <dianne@skollsoft.com>.
+
+=head1 LICENSE
+
+This code is licened under the terms of the GNU General Public License,
+version 2.

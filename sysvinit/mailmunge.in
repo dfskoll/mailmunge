@@ -1,0 +1,319 @@
+#!/bin/sh
+
+##########################################################################
+# Copyright (C) 2002, Roaring Penguin Software Inc.
+# Copyright (C) 2021, Dianne Skoll
+#
+# Author      : Michael McLagan <Michael.McLagan@linux.org>
+# Creation    : 30-Apr-2002 13:42
+# Description : This is the init script for the RedHat RPM.  It lives
+#               in /etc/rc.d/init.d as mailmunge and is called by
+#               init during system startup.
+#
+#               Uses redhat/mailmunge-sysconfig (/etc/sysconfig/mailmunge)
+#               to set various variables used as parameters to start the 
+#               mailmunge and mailmunge-multiplexor daemons.
+#
+#               Based on init scripts provided by RedHat and others.
+#
+#               mailmunge should be started before sendmail and stopped
+#               after sendmail.  The values in the chkconfig: line below
+#               are based on those in the default (RedHat issued) sendmail
+#               script as /etc/rc.d/init.d/sendmail (80 30)
+#
+##########################################################################
+
+# These comments are used by chkconfig and supporting programs
+#
+# chkconfig: - 79 31
+# description: mailmunge is a sendmail milter designed to perform virus \
+#              scans on incoming mail messages.
+# processname: mailmunge
+# config: @CONFDIR_EVAL@/mailmunge-filter.pl
+# pidfile: /var/run/mailmunge.pid
+
+### BEGIN INIT INFO
+# Provides:          mailmunge
+# Required-Start:    $local_fs $network $named $remote_fs $syslog $time
+# Required-Stop:     $local_fs $network $named $remote_fs $syslog $time
+# Default-Start:
+# Default-Stop:
+# Short-Description: Start and stop mailmunge.
+# Description:       Mailmunge is a framework for filtering e-mail.  It uses
+#     Sendmail's "Milter" API, some C glue code, and some Perl code to let you
+#     write high-performance mail filters in Perl.
+### END INIT INFO
+
+RETVAL=0
+prog="mailmunge"
+
+# Find the program
+if [ -x @prefix@/bin/$prog ] ; then
+    PROGDIR="@prefix@/bin"
+elif [ -x /usr/local/bin/$prog ] ; then
+    PROGDIR=/usr/local/bin
+elif [ -x /usr/bin/$prog ] ; then
+    PROGDIR=/usr/bin
+else
+    exit 0
+fi
+
+# Set a few defaults that can be overridden
+# by /etc/sysconfig/$prog or /etc/default/$prog
+export LC_ALL=C
+MX_USER=@MMUSER@
+MX_GROUP=@MMGROUP@
+MX_PIDFILE=/var/run/$prog-multiplexor.pid
+MM_PIDFILE=/var/run/$prog.pid
+SPOOLDIR="@SPOOLDIR@"
+MM_ALLOW_GROUP_ACCESS=yes
+MX_BUSY=600
+MX_LOG=yes
+MX_MINIMUM=2
+MX_MAXIMUM=10
+USE_SMFI_SETSYMLIST=yes
+
+# Source configuration
+if [ -f /etc/sysconfig/$prog ] ; then
+    . /etc/sysconfig/$prog
+fi
+
+if [ -f /etc/default/$prog ] ; then
+    . /etc/default/$prog
+fi
+
+if test -z "$MX_SOCKET" ; then
+    export MX_SOCKET="$SPOOLDIR/$prog-multiplexor.sock"
+fi
+if test -z "$SOCKET" ; then
+    export SOCKET="$SPOOLDIR/$prog.sock"
+fi
+
+
+# These lines keep SpamAssassin happy.  Not needed if you
+# aren't using SpamAssassin.
+HOME=$SPOOLDIR
+export HOME
+
+# Locale should be set to "C" for generating valid date headers
+LC_ALL=C
+export LC_ALL
+
+start() {
+
+    # Since $SPOOLDIR might be tmpfs, ensure that it is properly
+    # initialized.
+    test -d $SPOOLDIR || mkdir -p $SPOOLDIR
+    chown $MX_USER $SPOOLDIR < /dev/null > /dev/null 2>&1
+    chgrp $MX_GROUP $SPOOLDR < /dev/null > /dev/null 2>&1
+    chmod 750 $SPOOLDIR < /dev/null > /dev/null 2>&1
+
+    RETVAL=0
+    echo -n "Starting $prog-multiplexor: "
+    [ -e $MX_SOCKET ] && rm -f $MX_SOCKET
+    $PROGDIR/$prog-multiplexor \
+        `[ "$MX_EMBED_PERL" = "yes" ]            && (echo -n -; echo "E")` \
+        `[ "$MM_ALLOW_GROUP_ACCESS" = "yes" ]    && echo "-G"` \
+        `[ -n "$MX_LISTEN_BACKLOG" ]             && echo "-I $MX_LISTEN_BACKLOG"` \
+        `[ -n "$MX_LOG_WORKER_STATUS_INTERVAL" ] && echo "-L $MX_LOG_WORKER_STATUS_INTERVAL"` \
+        `[ -n "$MX_MAX_AS" ]                     && echo "-M $MX_MAX_AS"` \
+        `[ -n "$MX_MAP_SOCKET" ]                 && echo "-N $MX_MAP_SOCKET"` \
+        `[ -n "$MX_NOTIFIER" ]                   && echo "-O $MX_NOTIFIER"` \
+        `[ -n "$MX_PARALLEL_TICKS" ]             && echo "-P $MX_PARALLEL_TICKS"` \
+        `[ -n "$MX_QUEUE_TIMEOUT" ]              && echo "-Q $MX_QUEUE_TIMEOUT"` \
+        `[ -n "$MX_MAX_RSS" ]                    && echo "-R $MX_MAX_RSS"` \
+        `[ -n "$SYSLOG_FACILITY" ]               && echo "-S $SYSLOG_FACILITY"` \
+        `[ "$MX_STATS_SYSLOG" = "yes" ]          && echo "-T"` \
+        `[ -n "$MX_USER" ]                       && echo "-U $MX_USER"` \
+        `[ -n "$MX_MAX_LIFETIME" ]               && echo "-V $MX_MAX_LIFETIME"` \
+        `[ -n "$MX_MIN_WORKER_DELAY" ]           && echo "-W $MX_MIN_WORKER_DELAY"` \
+        `[ -n "$MX_TICK_INTERVAL" ]              && echo "-X $MX_TICK_INTERVAL"` \
+        `[ -n "$MX_SYSLOG_LABEL" ]               && echo "-Y $MX_SYSLOG_LABEL"` \
+        `[ "$MX_STATUS_UPDATES" = "yes" ]        && echo "-Z"` \
+        `[ -n "$MX_UNPRIV_SOCKET" ]              && echo "-a $MX_UNPRIV_SOCKET"` \
+        `[ -n "$MX_BUSY" ]                       && echo "-b $MX_BUSY"` \
+        `[ -n "$MX_CMD_TIMEOUT" ]                && echo "-c $MX_CMD_TIMEOUT"` \
+        `[ -n "$FILTER" ]                        && echo "-f $FILTER"` \
+        `[ -n "$MX_IDLE" ]                       && echo "-i $MX_IDLE"` \
+        `[ "$MX_LOG" = "yes" ]                   && echo "-l"` \
+        `[ -n "$MX_MINIMUM" ]                    && echo "-m $MX_MINIMUM"` \
+        `[ -n "$MX_PIDFILE" ]                    && echo "-p $MX_PIDFILE"` \
+        `[ -n "$MX_QUEUE_SIZE" ]                 && echo "-q $MX_QUEUE_SIZE"` \
+        `[ -n "$MX_REQUESTS" ]                   && echo "-r $MX_REQUESTS"` \
+        `[ -n "$MX_WORKER_DELAY" ]               && echo "-w $MX_WORKER_DELAY"` \
+        `[ -n "$MX_MAXIMUM" ]                    && echo "-x $MX_MAXIMUM"` \
+        `[ -n "$MX_RECIPOK_PERDOMAIN" ]          && echo "-y $MX_RECIPOK_PERDOMAIN"` \
+        `[ -n "$SPOOLDIR" ]                      && echo "-z $SPOOLDIR"` \
+        `[ -n "$MX_RECIPOK_PERDOMAIN_LIMIT" ]    && echo "-y $MX_RECIPOK_PERDOMAIN_LIMIT"` \
+        -s $MX_SOCKET -o $SPOOLDIR/$prog-multiplexor.lock
+
+    if test $? = 0 ; then
+        echo "OK"
+    else
+        echo "FAILED"
+        RETVAL=1
+    fi
+    echo -n "Starting $prog: "
+    [ -e $SOCKET ] && rm -f $SOCKET
+
+    # NOTE: You should limit the stack size on Linux, or
+    # thread-creation will fail on a very busy server.
+    ulimit -s 2048
+
+    $PROGDIR/$prog \
+        `[ "$MM_CONSERVE_DESCRIPTORS" = "yes" ]    && echo "-C"` \
+        `[ "$MM_ALLOW_GROUP_ACCESS" = "yes" ]      && echo "-G"` \
+        `[ "$MX_HELO_CHECK" = "yes" ]              && echo "-H"` \
+        `[ -n "$MM_EQUIV_TO_LOOPBACK" ]            && echo "-L $MM_EQUIV_TO_LOOPBACK"` \
+        `[ "$MM_SUPPRESS_REJECTED_RCPTS" = "yes" ] && echo "-N"` \
+        `[ -n "$MM_PIDFILE" ]                      && echo "-P $MM_PIDFILE"` \
+        `[ -n "$MM_RESERVED_FOR_LOOPBACK" ]        && echo "-R $MM_RESERVED_FOR_LOOPBACK"` \
+        `[ -n "$SYSLOG_FACILITY" ]                 && echo "-S $SYSLOG_FACILITY"` \
+        `[ "$LOG_FILTER_TIME" = "yes" ]            && echo "-T"` \
+        `[ -n "$MX_USER" ]                         && echo "-U $MX_USER"` \
+        `[ "$SUPPRESS_SCANNED_BY" = "yes" ]        && echo "-X"` \
+        `[ -n "$MM_LISTEN_BACKLOG" ]               && echo "-b $MM_LISTEN_BACKLOG"` \
+        `[ "$STRIP_BARE_CR" = "yes" ]              && echo "-c"` \
+        `[ "$KEEP_FAILED_DIRECTORIES" = "yes" ]    && echo "-k"` \
+        `[ "$ALLOW_CONNECTIONS_TO_QUEUE" = "yes" ] && echo "-q"` \
+	`[ "$MX_RELAY_CHECK" = "yes" ]             && echo "-r"` \
+	`[ "$MX_SENDER_CHECK" = "yes" ]            && echo "-s"` \
+	`[ "$MX_RECIPIENT_CHECK" = "yes" ]         && echo "-t"` \
+	`[ -n "$SCANNED_BY" ]                      && echo "-x '$SCANNED_BY'"` \
+        `[ "$USE_SMFI_SETSYMLIST" = "yes" ]        && echo "-y"` \
+	`[ -n "$SPOOLDIR" ]                        && echo "-z $SPOOLDIR"` \
+	`[ -n "$MM_EXTRA" ]                        && echo "$MM_EXTRA"` \
+	-p $SOCKET -m $MX_SOCKET -o $SPOOLDIR/$prog.lock
+    if test $? = 0 ; then
+        echo "OK"
+    else
+        echo "FAILED"
+        RETVAL=1
+    fi
+
+    return $RETVAL
+}
+
+status() {
+    MXPID=0
+    MMPID=0
+
+    PID=`cat $MX_PIDFILE 2>/dev/null`
+    if test -n "$PID" ; then
+        if kill -0 $PID 2>/dev/null 2>&1; then
+            MX=1
+            MXPID=$PID
+        fi
+    fi
+
+    PID=`cat $MM_PIDFILE 2>/dev/null`
+    if test -n "$PID" ; then
+        if kill -0 $PID 2>/dev/null 2>&1; then
+            MM=1
+            MMPID=$PID
+        fi
+    fi
+
+    RET=0
+
+    if test "$MXPID" != 0 ; then
+        echo "mailmunge-multiplexor: Running: PID $MXPID"
+    else
+        echo "mailmunge-multiplexor: Not running"
+        RET=1
+    fi
+
+    if test "$MMPID" != 0 ; then
+        echo "            mailmunge: Running: PID $MMPID"
+    else
+        echo "            mailmunge: Not running"
+        RET=1
+    fi
+    return $RET
+}
+
+stop() {
+    PID=`cat $MX_PIDFILE 2>/dev/null`
+    MM=0
+    MX=0
+    if test -n "$PID" ; then
+        if kill -0 $PID 2>/dev/null 2>&1; then
+            echo "Stopping $prog-multiplexor: OK"
+            kill $PID
+            MX=1
+        else
+            echo "$prog-multiplexor does not appear to be running"
+        fi
+    else
+        echo "$prog-multiplexor does not appear to be running"
+    fi
+    NEED_OK=0
+    PID=`cat $MM_PIDFILE 2>/dev/null`
+    if test -n "$PID" ; then
+        if kill -0 $PID 2>/dev/null 2>&1; then
+            echo -n "Stopping $prog: "
+            NEED_OK=1
+            kill $PID
+            MM=1
+        else
+            echo "$prog does not appear to be running"
+        fi
+    else
+        echo "$prog does not appear to be running"
+    fi
+
+    # Wait for everything to stop
+    for i in `seq 1 80` ; do
+        if test "$MM" = 0 -a "$MX" = 0  ; then
+            break
+        fi
+        kill -0 `cat $MX_PIDFILE 2>/dev/null` 2>/dev/null || MX=0
+        kill -0 `cat $MM_PIDFILE 2>/dev/null` 2>/dev/null || MM=0;
+        sleep 0.2
+    done
+    if test "$NEED_OK" = "1" ; then
+        echo "OK"
+    fi
+    rm -f "$MX_PIDFILE"
+    rm -f "$MM_PIDFILE"
+    return 0
+}
+
+# See how we were called.
+case "$1" in
+    start)
+	start
+	RETVAL=$?
+	;;
+    stop)
+	stop
+	RETVAL=$?
+	;;
+
+    status)
+        status
+        RETVAL=$?
+        ;;
+    restart)
+	stop
+	start
+	RETVAL=$?
+	;;
+    reread|reload)
+	if [ -x $PROGDIR/mm-mx-ctrl ] ; then
+	    $PROGDIR/mm-mx-ctrl -s $MX_SOCKET reread > /dev/null 2>&1
+	    RETVAL=$?
+	    if [ $RETVAL = 0 ] ; then
+		echo "Told $prog-multiplexor to force reread of filter rules."
+	    else
+		echo "Could not communicate with $prog-multiplexor"
+	    fi
+	fi
+	;;
+
+    *)
+	echo "Usage: $0 {start|stop|restart|reread|reload|status}"
+	exit 1
+esac
+
+exit $RETVAL

@@ -1,0 +1,86 @@
+This is a multipart message in MIME format.
+
+--foo
+Content-Type: multipart/mixed; boundary="bar"
+
+--bar
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the first text/plain part
+Some plaintext boilerplate at end - all parts
+
+--bar
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the second text/plain part
+
+Some plaintext boilerplate at end - all parts
+
+--bar
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+<p>Hi there!  This is the first text/html part</p>
+<p>Some <b>HTML</b> boilerplate at end - all parts</p>
+</body>
+
+--bar
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+Hi there!  This is the second text/html part
+<p>Some <b>HTML</b> boilerplate at end - all parts</p>
+</body>
+
+--bar--
+
+--foo
+Content-Type: multipart/mixed; boundary="quux"
+
+--quux
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the first text/plain part
+Some plaintext boilerplate at end - all parts
+
+--quux
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hi there!  This is the second text/plain part
+
+Some plaintext boilerplate at end - all parts
+
+--quux
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+<p>Hi there!  This is the first text/html part</p>
+<p>Some <b>HTML</b> boilerplate at end - all parts</p>
+</body>
+
+--quux
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body>
+Hi there!  This is the second text/html part
+<p>Some <b>HTML</b> boilerplate at end - all parts</p>
+</body>
+
+--quux--
+
+--foo
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="foo.bin"
+
+Blort!
+
+--foo--
+

@@ -1,0 +1,314 @@
+use strict;
+use warnings;
+package Mailmunge;
+
+our $VERSION = '@PACKAGE_VERSION@';
+
+1;
+
+__END__
+
+=head1 NAME
+
+Mailmunge - A milter-based email filtering tool.
+
+=head1 INTRODUCTION
+
+Mailmunge is an email filtering tool that uses the Milter library to
+interface with either Sendmail or Postfix.  The milter interface then
+uses its own protocol to interface with a Perl program; this permits
+you to write your mail filtering policies in Perl rather than C.
+Additionally, the Perl worker processes are single-threaded (unlike the
+multithreaded milter library) which greatly simplifies the coding.
+
+=head1 THE 10KM VIEW TO GETTING STARTED
+
+Here's what you'll need to get up and running.
+
+=over
+
+=item 1
+
+Build and install Mailmunge.
+
+=item 2
+
+Set configuration variables in F</etc/default/mailmunge>
+
+=item 3
+
+Configure Sendmail or Postfix to communicate with the L<mailmunge> Milter.
+
+=item 4
+
+Write your Perl filter in F</etc/mailmunge/mailmung-filter.pl>
+
+=item 5
+
+Restart your MTA and Mailmunge
+
+=item 6
+
+Profit!
+
+=back
+
+=head1 ARCHITECTURE
+
+=for html <p><img alt="Architecture Diagram" src="images/architecture.svg"></p>
+
+Mailmunge consists of four components:
+
+=over 4
+
+=item 1.
+
+L<mailmunge>
+
+C<mailmunge> is a multi-threaded C program that interfaces with Postfix or
+Sendmail via the Milter protocol.
+
+=item 2.
+
+L<mailmunge-multiplexor>
+
+C<mailmunge-multiplexor> talks to C<mailmunge> via a socket.
+C<mailmunge-multiplexor> manages a pool of worker processes that actually
+perform the filtering.
+
+=item 3.
+
+The Perl filter
+
+The Perl filter is a Perl program that you write.  Instances of this
+program are managed by C<mailmunge-multiplexor>; your filter communicates
+with C<mailmunge-multiplexor> via its STDIN and STDOUT descriptors.
+
+Mailmunge ships with Perl libraries that hide the protocol details from
+you, allowing to write your filters without knowing the details of the
+communication protocol.  These Perl libraries offer many convenience functions
+for writing email filtering policies.
+
+=item 4.
+
+L<mm-mx-ctrl>
+
+C<mm-mx-ctrl> talks to C<mailmunge-multiplexor> over the same socket used
+by C<mailmunge> and lets you obtains statistics about worker processes
+and ask C<mailmunge-multiplexor> to terminate and restart worker processes
+gracefully (in a way that does not interfere with ongoing mail filtering.)
+
+=back
+
+=head1 OVERVIEW OF MILTER
+
+The Milter library and protocol permit an external program to modify
+the responses to various SMTP commands.  They also permit an external
+program to modify the message header and/or body before it is delivered.
+
+The milter library features a number of I<callbacks> that are invoked
+at various stages in the SMTP session.  These callbacks can modify the MTA's
+response to the SMTP commands.
+
+=head1 IMPORTANT MAILMUNGE PERL MODULES
+
+Mailmunge has a number of Perl modules.  The most important ones are described
+below.
+
+=head2 Mailmunge::Filter
+
+L<Mailmunge::Filter> is the base class for writing filtering policies.
+To write policies, derive a class from C<Mailmunge::Filter> and override the
+callback methods (described in L</CALLBACKS>) to implement your policy.
+
+Your filter file should be called F<@CONFDIR_EVAL@/mailmunge-filter.pl>.
+It will typically look something like this:
+
+    package MyFilter;
+    use strict;
+    use warnings;
+    use base qw(Mailmunge::Filter);
+
+    # Add methods and callbacks as required
+
+    my $filter = MyFilter->new();    # Instantiate the filter
+    $filter->run();                  # and run the filter
+    1;
+
+Of course, if your filter gets complicated, you can split it out
+as one or more Perl module files, and then the filter program
+could look like this:
+
+    use strict;
+    use warnings;
+    use Mailmunge::Filter::MyComplicatedFilter;
+
+    my $filter = Mailmunge::Filter::MyComplicatedFilter->new();
+    $filter->run();
+    1;
+
+Writing your filter as a proper Perl module is good practice; it makes
+it easier to write unit tests for your filter.
+
+=head2 Mailmunge::Context
+
+A L<Mailmunge::Context> object holds the I<context> for the current
+email message.  For example, it holds the sender, recipients, message
+subject, and a C<MIME::Entity> object representing the message itself.
+
+Not all pieces of context are available in every callback; the documentation
+for each callback function will specify which pieces of context are available
+for that callback.
+
+=head2 Mailmunge::Response
+
+A L<Mailmunge::Response> object represents the desired response to an SMTP
+command.  This includes the response code (for example, "250"), the response
+DSN (for example, "2.1.0") and the response text.
+
+=head1 CALLBACKS
+
+Callbacks are C<Mailmunge::Filter> methods invoked by Mailmunge at various
+points in the SMTP session.  They are passed two arguments:  The usual
+C<$self> argument that is the C<Mailmunge::Filter> object, and a
+C<$ctx> argument that is a C<Mailmunge::Context> object.
+
+Most callbacks must return a C<Mailmunge::Response> object.  However,
+the message-oriented callbacks C<filter_message> and C<filter_wrapup>
+don't return anything special (and their return values are ignored.)
+
+=head2 $filter-E<gt>filter_relay($ctx)
+
+This callback is called when an SMTP client connects to the MTA.
+The following C<$ctx> fields are available:
+
+    $ctx->hostip       IP address of connecting host
+    $ctx->hostname     Hostname of the connecting host
+    $ctx->client_port  Client TCP port
+    $ctx->my_ip        Server's IP address
+    $ctx->my_port      Server's TCP port
+    $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
+
+The function should return an Mailmunge::Response object instructing the MTA how
+to handle the connection attempt.
+
+For example, if you wish to reject connections from 192.168.44.2,
+you could use:
+
+    sub filter_relay {
+        my ($self, $ctx) = @_;
+        if ($ctx->hostip eq '192.168.44.2') {
+            return Mailmunge::Response->REJECT(message => 'Your IP is banned.');
+        }
+        return Mailmunge::Response->CONTINUE();
+    }
+
+=head2 $filter-E<gt>filter_helo($ctx)
+
+This callback is called after the SMTP client issues its EHLO or HELO
+command.  The following C<$ctx> fields are available:
+
+    $ctx->hostip       IP address of connecting host
+    $ctx->hostname     Hostname of the connecting host
+    $ctx->helo         The argument to the EHLO/HELO command
+    $ctx->client_port  Client TCP port
+    $ctx->my_ip        Server's IP address
+    $ctx->my_port      Server's TCP port
+    $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
+
+The function should return an Mailmunge::Response object instructing the MTA how
+to respond to the HELO/EHLO
+
+For example, if you wish to reject connections from a host that
+uses your domain (example.com) in its HELO, you could use:
+
+    sub filter_helo {
+        my ($self, $ctx) = @_;
+        if ($ctx->helo =~ /\.example\.com$/i)
+            return Mailmunge::Response->REJECT(message => "You aren't one of us!");
+        }
+        return Mailmunge::Response->CONTINUE();
+    }
+
+=head2 $filter-E<gt>filter_sender($ctx)
+
+This callback is called when an SMTP client issues a MAIL From: command.
+The following C<$ctx> fields are available:
+
+    $ctx->sender       Envelope sender address
+    $ctx->hostip       IP address of connecting host
+    $ctx->hostname     Hostname of the connecting host
+    $ctx->helo         The argument to the EHLO/HELO command
+    $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
+    $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
+
+The function should return an Mailmunge::Response object instructing the MTA how
+to handle the MAIL From: command.
+
+Here is a simple example:
+
+    sub filter_sender {
+        my ($self, $ctx) = @_;
+        if ($ctx->sender eq '<spammer@nogood.example>') {
+            return Mailmunge::Response->REJECT(message => "We don't like spammers");
+        }
+        return Mailmunge::Response::CONTINUE();
+    }
+
+=head2 $filter-E<gt>filter_recipient($ctx)
+
+This callback is called when an SMTP client issues a RCPT To: command.
+The following C<$ctx> fields are available:
+
+    $ctx->recipients   An arrayref consisting of a single recipient
+    $ctx->sender       Envelope sender address
+    $ctx->hostip       IP address of connecting host
+    $ctx->hostname     Hostname of the connecting host
+    $ctx->first_recip  The recipient from the I<first> RCPT To: command
+    $ctx->helo         The argument to the EHLO/HELO command
+    $ctx->cwd          The current working directory
+    $ctx->qid          Queue ID
+    $ctx->rcpt_mailer  The ${rcpt_mailer} macro value for this recipient
+    $ctx->rcpt_host    The ${rcpt_host} macro value for this recipient
+    $ctx->rcpt_addr    The ${rcpt_addr} macro value for this recipient
+    $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
+
+The function should return an Mailmunge::Response object instructing the MTA how
+to handle the RCPT To: command.
+
+Here is a simple example:
+
+    sub filter_recipient {
+        my ($self, $ctx) = @_;
+        if ($ctx->recipients->[0] eq '<moved@example.org>') {
+            return Mailmunge::Response->REJECT(message => 'Moved; try <newaddress@example.com>');
+        }
+        return Mailmunge::Response::CONTINUE();
+    }
+
+=head2 $filter-E<gt>filter_message($ctx)
+
+This callback is called when the filter should scan a message body.
+See L<Mailmunge::Filter/filter_message> for more details.
+
+=head2 $filter-E<gt>filter_wrapup($ctx)
+
+This callback is called when the filter has finished scanning a message
+body, but wants one last change to modify the message headers or disposition.
+See L<Mailmunge::Filter/filter_wrapup> for more details.
+
+=head1 SEE ALSO
+
+L<mailmunge>, L<mailmunge-multiplexor>, L<mm-mx-ctrl>,
+L<mailmunge-protocol>, L<Mailmunge::Filter>, L<Mailmunge::Context>,
+L<Mailmunge::Response>, L<Mailmunge::Constants>
+
+
+=head1 AUTHOR
+
+Dianne Skoll <dianne@skollsoft.com>
+
+=head1 LICENSE
+
+This code is licened under the terms of the GNU General Public License,
+version 2.

@@ -1,0 +1,96 @@
+#!/bin/sh
+if test "$1" != "sendmail" -a "$1" != "postfix" ; then
+    echo "Usage: $0 sendmail"
+    echo "   or: $0 postfix"
+    exit 1
+fi
+
+MTA="$1"
+IMAGE=mm-$MTA-image
+CONTAINER=mm-test-$MTA
+FORCE_REBUILD=0
+VERBOSE=
+COLOR=
+INTERACTIVE=
+for arg in "$@" ; do
+    if test "$arg" = "-f" ; then
+        FORCE_REBUILD=1
+    fi
+    if test "$arg" = "-v" ; then
+        VERBOSE="-v"
+    fi
+    if test "$arg" = "-c" ; then
+        COLOR="-c"
+        INTERACTIVE="-it"
+    fi
+done
+
+bailout () {
+    echo "FATAL: $@"
+    exit 1
+}
+
+# Get version
+VERSION=`grep '^PACKAGE_VERSION=' ../configure | sed -e 's/PACKAGE_VERSION=//' -e "s/'//g"`
+
+if test -z "$VERSION" ; then
+    bailout "Could not determine Mailmunge version!"
+fi
+
+# Check if container is running.  If not, start it
+docker exec "$CONTAINER" true > /dev/null 2>&1
+
+if test $? != 0 ; then
+    RUNNING=0
+    echo "Container $CONTAINER doesn't seem to be running; starting it..."
+    docker start "$CONTAINER"
+    for i in `seq 1 10` ; do
+        docker exec "$CONTAINER" true > /dev/null 2>&1
+        if test $? = 0; then
+            RUNNING=1
+            break;
+        fi
+        sleep 1
+    done
+    if test "$RUNNING" = 0 ; then
+        bailout "Could not start $CONTAINER"
+    fi
+fi
+
+REBUILD=1
+# Check if we already have a mailmunge dir there
+docker exec "$CONTAINER" test -d "/root/mailmunge-$VERSION"
+
+if test $? = 0 ; then
+    if test "$FORCE_REBUILD" = 0 ; then
+        REBUILD=0
+        echo "NOTE: /root/mailmunge-$VERSION exists; not rebuilding."
+        echo "Use '$0 -f' to force a rebuild."
+    fi
+fi
+
+if test "$REBUILD" = 1 ; then
+    # Create a tarball of mailmunge and copy it to the container
+    make -C .. dist || bailout "make dist failed"
+
+    docker cp ../mailmunge-$VERSION.tar.gz "$CONTAINER:/root/" || bailout "docker cp failed"
+    docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -rf mailmunge-$VERSION && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure && make && make install" || bailout "docker exec failed"
+fi
+
+# Copy the test filter
+docker exec "$CONTAINER" /bin/sh -c "mkdir -p /etc/mailmunge"
+docker cp ../regression-tests/filter/mailmunge-filter.pl "$CONTAINER:/etc/mailmunge/"
+docker exec "$CONTAINER" /bin/sh -c "chmod a+rx /etc/mailmunge/mailmunge-filter.pl"
+docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
+docker exec "$CONTAINER" /bin/sh -c "pgrep clamd > /dev/null 2>&1 || /etc/init.d/clamav-daemon start"
+docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rsyslog start"
+
+if test "$MTA" = "postfix" ; then
+    docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"
+else
+    docker exec "$CONTAINER" /bin/sh -c "pkill sendmail"
+    docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/sendmail restart"
+fi
+
+docker exec $INTERACTIVE "$CONTAINER" /bin/sh -c "cd /root/mailmunge-$VERSION/regression-tests && prove $VERBOSE $COLOR -l t/*.t" || bailout "Tests failed"
+
