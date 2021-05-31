@@ -63,10 +63,10 @@ sub filter_end
         if ($status) {
                 $self->action_add_header($ctx, 'X-Spam-Result', 'score=' . $status->get_score() . '; tests=' . $status->get_names_of_tests_hit());
                 if ($status->get_score() >= 5.0) {
-                        $self->action_change_header('Subject', '[Spam] ' . $ctx->subject);
-                        $self->action_change_header('X-Spam-Status', 'Yes');
+                        $self->action_change_header($ctx, 'Subject', '[Spam] ' . $ctx->subject);
+                        $self->action_change_header($ctx, 'X-Spam-Status', 'Yes');
                 } else {
-                        $self->action_delete_all_headers('X-Spam-Status');
+                        $self->action_delete_all_headers($ctx, 'X-Spam-Status');
                 }
                 $status->finish();
         }
