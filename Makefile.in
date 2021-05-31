@@ -96,7 +96,7 @@ htmldocs: FORCE
 	./tools/make-html-docs
 
 DIST-CONTENTS: FORCE
-	git ls-files > DIST-CONTENTS
+	git ls-files | fgrep -v .github > DIST-CONTENTS
 
 test: all
 	cd perl && prove -l $(TEST_VERBOSE) t/*.t
