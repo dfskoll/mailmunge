@@ -22,5 +22,6 @@ jobs:
           sudo chown -R testuser .
       - name: Run Unit tests
         run: |
-          sudo su -c './configure && make && make test'
+          sudo su -c './configure && make && make test' testuser
+
 
