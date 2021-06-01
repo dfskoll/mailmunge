@@ -54,7 +54,7 @@ and a replacement started.  The default is 500.
 The idle time in seconds after which to kill of excess Perl processes.
 That is, if the process is idle for longer than this time, and there
 are more than I<minWorkers> running, the process is killed.  Note that
-this is implemented as a timer which ticks every I<idleTime> seconds;
+this is implemented as a timer that ticks every I<idleTime> seconds;
 therefore, processes may be idle for up to twice this time before they
 are killed.  The default for I<idleTime> is 300 seconds.
 
@@ -119,7 +119,7 @@ the spool directory defaults to @SPOOLDIR@.
 The UNIX-domain socket on which
 C<mailmunge-multiplexor> listens for requests.  This should be
 specified as an absolute pathname.  If this option is not supplied,
-it defaults to mailmunge-multiplexor.sock under the spool directory.
+it defaults to F<mailmunge-multiplexor.sock> under the spool directory.
 
 =item -a I<socket>
 
@@ -138,9 +138,9 @@ by root.
 
 =item -o I<fileName>
 
-Causes \fbmailmunge-multiplexor\fR to use I<fileName> as a lock
+Causes C<mailmunge-multiplexor> to use I<fileName> as a lock
 file to avoid multiple instances from running.  If you supply
-C<-p> but not C<-o>, then \fbmailmunge-multiplexor\fR
+C<-p> but not C<-o>, then C<mailmunge-multiplexor>
 constructs a lock file by appending ".lock" to the pid file.  However,
 this is less secure than having a root-owned pid file in a root-owned
 directory and a lock file writable by the user named by the C<-U>
@@ -177,13 +177,13 @@ systems; it is known to work on Linux.
 
 Limits the total memory space of worker filter processes to
 I<kbytes> kilobytes.  This limit is supported on all operating
-systems which support the setrlimit system call.  This should
+systems that support the setrlimit system call.  This should
 include most modern UNIX systems.
 
 We recommend that you monitor your worker filter processes and get a feel
 for how much memory they use.  You should then limit the memory to
 two or three times the worst-case that you have observed.  This can
-help mitigate denial-of-service attacks which use complicated MIME
+help mitigate denial-of-service attacks that use complicated MIME
 messages to force your Perl filter to consume lots of memory.
 
 =item -h
@@ -358,12 +358,12 @@ A UNIX-domain socket
 
 =item inet:portnum
 
-A TCP socket bound to port I<portnum>, but which accepts connections
+A TCP socket bound to port I<portnum>, but that accepts connections
 only from the IPv4 loopback address (127.0.0.1).
 
 =item inet_any:portnum
 
-A TCP socket bound to port I<portnum> which will accept connections
+A TCP socket bound to port I<portnum> that will accept connections
 from any address.  I<Use inet_any with caution!>
 
 =item inet6:portnum
@@ -494,7 +494,7 @@ The total number of running workers immediately after the event happened.
 
 =item nbusy=I<n>
 
-The number of busy workers (workers which are processing an e-mail message)
+The number of busy workers (workers that are processing an e-mail message)
 immediately after the event happened.
 
 =item reason="I<string>"
