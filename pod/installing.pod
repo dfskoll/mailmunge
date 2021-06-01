@@ -32,7 +32,7 @@ The Sendmail milter library development files.
 
 =item *
 
-A recent Perl installation
+A recent Perl installation (Perl version 5.14.0 or newer.)
 
 =item *
 

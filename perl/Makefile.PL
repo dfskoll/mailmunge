@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use lib '.';
-
+use 5.14.0;     # Required for getaddrinfo() in Socket
 use inc::Module::Install;
 
 name           'Mailmunge';

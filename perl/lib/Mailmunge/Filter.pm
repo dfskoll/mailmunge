@@ -58,8 +58,8 @@ use Sys::Syslog;
 use Sys::Hostname;
 use Time::Local;
 
-# For AF_INET constant...
-use Socket;
+# For getaddrinfo, etc.
+use Socket qw(:addrinfo SOCK_RAW);
 
 
 =head1 CLASS METHODS
@@ -86,6 +86,26 @@ sub new
         $self->_parse_cmdline_args();
 
         return $self;
+}
+
+=head2 ip_to_hostname ($ip)
+
+Converts a human-readable IPv4 or IPv6 to a hostname if reverse-dns
+exists.  If it does not reverse-resolves, returns "[$ip]"
+
+=cut
+sub ip_to_hostname
+{
+        my ($self, $ip) = @_;
+        my ($err, @res) = getaddrinfo($ip, '', {socktype => SOCK_RAW});
+        return "[$ip]" if $err;
+
+        foreach my $ai (@res) {
+                my ($err, $host) = getnameinfo($ai->{addr}, 0, NIx_NOSERV);
+                next if $err;
+                return $host;
+        }
+        return "[$ip]";
 }
 
 =head2 mailmunge_version
@@ -1526,13 +1546,7 @@ sub _handle_scan
                         if ($ip && $qid && !$bogus) {
                                 $self->log($ctx, 'info', "Resent from queue-ID: $qid; original IP: $ip");
                                 $ctx->hostip($ip);
-                                my $iaddr = inet_aton($ip);
-                                my $iname = gethostbyaddr($iaddr, AF_INET);
-                                if (defined($iname)) {
-                                        $ctx->hostname($iname);
-                                } else {
-                                        $ctx->hostname("[$ip]");
-                                }
+                                $ctx->hostname($self->ip_to_hostname($ip));
                                 $ctx->was_resent(1);
                         }
                 }
