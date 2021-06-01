@@ -1,0 +1,25 @@
+# language: bash
+# services: docker
+---
+
+name: Mailmunge Continuous Integration
+
+on:
+  push
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Mailmunge
+        uses: actions/checkout@v2
+      - name: Install Prerequisites
+        run: |
+          apt update
+          apt install libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam
+          cpanm -n File::VirusScan
+          adduser --home /home/testuser --gecos 'Test User' --disabled-password testuser
+          chown -R testuser .
+      - name: Run Unit tests
+      - run: |
+          sudo testuser ./configure && make && make test
