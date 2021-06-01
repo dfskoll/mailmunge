@@ -31,6 +31,8 @@ L<Mailmunge::Response>
 
 L<Mailmunge::Constants>
 
+L<MIME::Entity|https://metacpan.org/pod/MIME::Entity>
+
 =head3 More Perl Modules for Writing Filters
 
 Thes are handy modules that give additional capabilities to your filter.

@@ -417,7 +417,7 @@ Available in C<filter_message> and C<filter_wrapup>.
 
 =head2 mime_entity
 
-Returns a MIME::Entity object representing the parsed input mail message.
+Returns a L<MIME::Entity|https://metacpan.org/pod/MIME::Entity> object representing the parsed input mail message.
 Available in C<filter_message> and C<filter_wrapup>.
 
 =head2 my_ip
