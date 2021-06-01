@@ -56,11 +56,11 @@ sub ip4_is_reserved
 	return 1 if ($octets[0] >= 224 && $octets[0] <= 239);
 
 	# Class E ("Don't Use")
-	return 1 if ($octets[0] >= 240 && $octets[0] <= 247);
+	return 1 if ($octets[0] >= 240);
 
-	# 0.0.0.0 and 255.255.255.255 are bogus
+	# 0.0.0.0 and 255.255.255.255 are bogus; 255.255.255.255 is covered
+        # by class E above.
 	return 1 if (($octets[0] | $octets[1] | $octets[2] | $octets[3]) == 0);
-	return 1 if (($octets[0] & $octets[1] & $octets[2] & $octets[3]) == 255);
 
 	return 0;
 }
