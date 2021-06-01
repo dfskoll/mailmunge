@@ -83,6 +83,8 @@ sub filter_begin
                         return;
                 } else {
                         $self->log($ctx, 'info', 'post stream_by_domain: Recipient list: ' . join(', ', @{$ctx->recipients}));
+                        $self->log($ctx, 'info', 'post stream_by_domain: Hostname: ' . $ctx->hostname);
+                        $self->log($ctx, 'info', 'post stream_by_domain: Hostip: ' . $ctx->hostip);
                 }
         }
         if ($subj =~ /\bstream_by_recipient\b/) {
@@ -92,7 +94,9 @@ sub filter_begin
                         $self->action_discard($ctx);
                         return;
                 } else {
-                        $self->log($ctx, 'info', 'post stream_by_sender: Recipient list: ' . join(', ', @{$ctx->recipients}));
+                        $self->log($ctx, 'info', 'post stream_by_recipient: Recipient list: ' . join(', ', @{$ctx->recipients}));
+                        $self->log($ctx, 'info', 'post stream_by_recipient: Hostname: ' . $ctx->hostname);
+                        $self->log($ctx, 'info', 'post stream_by_recipient: Hostip: ' . $ctx->hostip);
                 }
         }
 
