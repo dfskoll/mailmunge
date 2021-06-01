@@ -91,7 +91,11 @@ sub new
 =head2 ip_to_hostname ($ip)
 
 Converts a human-readable IPv4 or IPv6 to a hostname if reverse-dns
-exists.  If it does not reverse-resolves, returns "[$ip]"
+exists.  If it does not reverse-resolve, returns "[$ip]"
+
+This function does not do a check on the returned hostname to make
+sure one of its IP addresses matches $ip.  In other words, it
+does not perform Forward-confirmed reverse-DNS (FCrDNS).
 
 =cut
 sub ip_to_hostname
