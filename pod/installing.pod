@@ -83,7 +83,7 @@ On a Debian Linux system, you can install all the prerequisites with:
   apt install libmime-tools-perl libperl-dev perl perl-modules-5.28 \
               libio-socket-ssl-perl spamassassin libfile-find-rule-perl \
               libtest-deep-perl cpanminus build-essential \
-              clamav-base clamav-daemon clamav-freshclam
+              libmilter-dev clamav-base clamav-daemon clamav-freshclam
 
   cpanm -n File::VirusScan
 
