@@ -1368,7 +1368,7 @@ sub _handle_recipok
         # If this is Postfix, we cannot tempfail or reject recipients
         # coming into the non_smtpd_milter which we detect with a
         # connecting_ip of 127.0.0.1
-        if ($hostip eq '127.0.0.1' && $self->mta_is_postfix) {
+        if (($hostip eq '127.0.0.1' || $hostip eq '::1') && $self->mta_is_postfix) {
                 if (!$resp->is_success_or_discard) {
                         $self->log($ctx, 'warning', 'Converting ' . $resp->status . " to CONTINUE for Postfix mail on loopback");
                         $resp->status('CONTINUE');
