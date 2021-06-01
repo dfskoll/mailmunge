@@ -88,27 +88,49 @@ sub new
         return $self;
 }
 
-=head2 ip_to_hostname ($ip)
+=head2 ip_to_hostname ($ip [, $fcrdns])
 
 Converts a human-readable IPv4 or IPv6 to a hostname if reverse-dns
 exists.  If it does not reverse-resolve, returns "[$ip]"
 
-This function does not do a check on the returned hostname to make
-sure one of its IP addresses matches $ip.  In other words, it
-does not perform Forward-confirmed reverse-DNS (FCrDNS).
+If $fcrdns is true (the default if not supplied), then this function
+performs Forward-confirmed reverse DNS to make sure that the hostname
+include $ip in one of its forward-resolving records.  If FCrDNS fails,
+then "[$ip]" is returned.
 
 =cut
 sub ip_to_hostname
 {
-        my ($self, $ip) = @_;
-        my ($err, @res) = getaddrinfo($ip, '', {socktype => SOCK_RAW});
+        my ($self, $ip, $fcrdns) = @_;
+
+        $fcrdns = 1 unless defined($fcrdns);
+
+        my ($err, @res);
+
+        ($err, @res) = getaddrinfo($ip, '', {socktype => SOCK_RAW});
         return "[$ip]" if $err;
 
+        my $found;
+        my $found_ai;
         foreach my $ai (@res) {
                 my ($err, $host) = getnameinfo($ai->{addr}, 0, NIx_NOSERV);
                 next if $err;
-                return $host;
+                $found = $host;
+                $found_ai = $ai;
+                last;
         }
+        return "[$ip]" unless defined($found);
+        return $found unless $fcrdns;
+
+        # Caller asked for FCrDNS
+        ($err, @res) = getaddrinfo($found, '', {socktype => SOCK_RAW});
+        return "[$ip]" if $err;
+
+        foreach my $ai (@res) {
+                return $found if ($ai->{addr} eq $found_ai->{addr});
+        }
+
+        # FCrDNS failed; don't return hostname
         return "[$ip]";
 }
 
