@@ -2,6 +2,27 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2020-06-01 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.01 RELEASED
+
+	* Many fixes to documentation
+
+	* Added continuous integration using Github Actions
+
+	* BUGFIX: Mailmunge::Test::GetMX: Fix incorrect test for
+	  class E networks
+
+	* Use getaddrinfo to resolve IP->hostnames so it works with both
+	  IPv4 and IPv6
+
+	* Add Mailmunge::Filter->ip_to_hostname() function
+
+	* Check both 127.0.0.1 and ::1 when checking for loopback address
+
+	* Proper generation of man pages from POD (include man page name;
+	  put pages in proper section.)
+
 2020-05-18 Dianne Skoll <dianne@skollsoft.com>
 
 	* Initial fork from the MIMEDefang project
