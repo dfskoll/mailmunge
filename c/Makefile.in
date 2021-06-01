@@ -120,27 +120,27 @@ manpages: ../man/mailmunge-multiplexor.8 ../man/mailmunge-notify.7 ../man/mailmu
 
 ../man/mailmunge-multiplexor.8: ../pod/mailmunge-multiplexor.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 ../man/mailmunge-notify.7: ../pod/mailmunge-notify.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 ../man/mailmunge-protocol.7: ../pod/mailmunge-protocol.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 ../man/mailmunge.8: ../pod/mailmunge.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 ../man/mm-mx-ctrl.8: ../pod/mm-mx-ctrl.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 ../man/watch-multiple-mailmunges.8: ../pod/watch-multiple-mailmunges.pod
 	-test -d ../man || mkdir ../man > /dev/null 2>&1
-	pod2man < $< > $@
+	pod2man $< > $@
 
 clean:: FORCE
 	rm -f *~ *.o mailmunge mailmunge-multiplexor mm-mx-ctrl xs_init.c
