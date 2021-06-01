@@ -15,11 +15,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Prerequisites
         run: |
-          apt update
-          apt install libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam
+          sudo apt update
+          sudo apt install libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam
           cpanm -n File::VirusScan
-          adduser --home /home/testuser --gecos 'Test User' --disabled-password testuser
-          chown -R testuser .
+          sudo adduser --home /home/testuser --gecos 'Test User' --disabled-password testuser
+          sudo chown -R testuser .
       - name: Run Unit tests
         run: |
-          sudo testuser ./configure && make && make test
+          sudo su -c './configure && make && make test'
+
