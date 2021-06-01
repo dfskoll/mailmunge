@@ -256,7 +256,7 @@ true if it's in one of the following ranges:
 
 =item Class E
 
-224.0.0.0/4
+240.0.0.0/4
 
 =item Bogus
 
