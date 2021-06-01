@@ -18,7 +18,7 @@ my $ans = $getmx->get_mx_hosts('bogus-all.mailmunge.org');
 cmp_deeply($ans,
            {
                    'routable' => [
-                           '144.217.161.9'
+                           '42.42.42.42'
                        ],
                        'loopback' => [
                                '127.0.0.1'
