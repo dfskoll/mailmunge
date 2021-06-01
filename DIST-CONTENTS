@@ -94,6 +94,7 @@ perl/t/80-add-entity.t
 perl/t/81-addhdr.t
 perl/t/90-add-part.t
 perl/t/91-getmx.t
+perl/t/92-rdns.t
 perl/t/data/boilerplate/RESULTS
 perl/t/data/boilerplate/all_atend/NEWBODY
 perl/t/data/boilerplate/all_atstart/NEWBODY
