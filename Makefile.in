@@ -62,7 +62,7 @@ clean:: FORCE
 	$(MAKE) -C perl clean
 	rm -f pod2htmd.tmp
 	rm -f perl/Makefile.old
-	rm -f mailmunge-*.tar.gz
+	rm -f mailmunge-*.tar.gz mailmunge-*.tar.gz.sig
 	rm -f pod/*~
 	rm -rf man
 
