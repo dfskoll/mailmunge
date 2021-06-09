@@ -11,6 +11,7 @@ use base qw(Mailmunge::Filter::Compat);
 
 use Mailmunge::Response;
 use Mailmunge::Test::SpamAssassin;
+use File::VirusScan;
 
 sub filter_begin
 {
@@ -50,7 +51,7 @@ sub filter
         if ($extension =~ /$re/i) {
                 $self->action_drop_with_warning($ctx, "An attachment named '$fname' was deleted as it constitutes a hazard");
         }
-        
+
 }
 sub filter_end
 {
