@@ -31,4 +31,4 @@ jobs:
           cd docker && sudo ./build-docker-container sendmail && sudo ./run-regression-tests-on-docker sendmail
       - name: Fix permissions so Github does not warn
         run: |
-          chmod -R a+rwX .
+          sudo chmod -R a+rwX .
