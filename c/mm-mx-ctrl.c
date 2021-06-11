@@ -555,10 +555,10 @@ usage(char const *sock)
     char ans[SMALLBUF];
     fprintf(stderr, "Usage: mm-mx-ctrl [options] command\n\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "-h              -- Display help\n");
-    fprintf(stderr, "-s path         -- Specify path to multiplexor socket\n");
-    fprintf(stderr, "-i              -- Read commands from stdin\n");
-    fprintf(stderr, "-b              -- Bracket responses with < and >\n");
+    fprintf(stderr, "-h               -- Display help\n");
+    fprintf(stderr, "-s path          -- Specify path to multiplexor socket\n");
+    fprintf(stderr, "-i               -- Read commands from stdin\n");
+    fprintf(stderr, "-b               -- Bracket responses with < and >\n");
 
     if (!sock) {
 	sock = SPOOLDIR "/mailmunge-multiplexor.sock";

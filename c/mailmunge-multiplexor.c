@@ -3801,9 +3801,9 @@ doHelp(EventSelector *es, int fd, int unpriv)
 	"status           -- Display worker status\n"
 	"histo            -- Display histogram of busy workers\n"
 	"msgs             -- Display number of messages processed since startup\n"
-	"workers           -- Display workers with process-IDs\n"
-	"busyworkers       -- Display busy workers with process-IDs\n"
-        "workerinfo n      -- Display information about a particular worker\n"
+	"workers          -- Display workers with process-IDs\n"
+	"busyworkers      -- Display busy workers with process-IDs\n"
+        "workerinfo n     -- Display information about a particular worker\n"
 	"(Analagous hload commands provide hourly information)\n");
     } else {
 	reply_to_mailmunge(es, fd,
@@ -3825,9 +3825,9 @@ doHelp(EventSelector *es, int fd, int unpriv)
 	"histo            -- Display histogram of busy workers\n"
 	"msgs             -- Display number of messages processed since startup\n"
 	"reread           -- Force a re-read of filter rules\n"
-	"workers           -- Display workers with process-IDs\n"
-	"busyworkers       -- Display busy workers with process-IDs\n"
-	"workerinfo n      -- Display information about a particular worker\n"
+	"workers          -- Display workers with process-IDs\n"
+	"busyworkers      -- Display busy workers with process-IDs\n"
+	"workerinfo n     -- Display information about a particular worker\n"
 	"scan /path       -- Run a scan (do not invoke using md-mx-ctrl)\n"
 	"(Analagous hload commands provide hourly information)\n");
     }
