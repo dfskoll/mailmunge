@@ -6,7 +6,7 @@ use base qw(Mailmunge::Test);
 
 use Socket;
 use IO::Socket;
-use IO::Socket::SSL;
+use IO::Socket::SSL 1.994;
 
 sub _get_smtp_extensions {
         my($self, $recip, $server, $sock, $exts) = @_;
@@ -233,6 +233,13 @@ $ctx->connecting_name as the HELO argument and $ctx->sender as the
 MAIL From: argument.
 
 C<Mailmunge::Test::SMTPForward> is a subclass of C<Mailmunge::Test>.
+
+=head1 PREREQUISITES
+
+This class requires C<IO::Socket::SSL> version 1.994 or greater.  Some
+Linux distros such as CentOS 7 ship with an older version of C<IO::Socket::SSL>;
+on those distros, you will need to install a newer version of
+C<IO::Socket::SSL> from CPAN.
 
 =head1 SYNOPSIS
 
