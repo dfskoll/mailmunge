@@ -8,7 +8,7 @@ Homepage: https://www.mailmunge.org/
 
 Package: mailmunge
 Architecture: all
-Depends: mailmunge-base, libmailmunge-perl
+Depends: mailmunge-base (= ${binary:Version}), libmailmunge-perl (= ${binary:Version})
 Suggests: libtest-mailmunge-perl, libmailmunge-action-boilerplate-perl, libmailmunge-test-smtpforward-perl, libmailmunge-test-getmx-perl, libmailmunge-test-spamassassin-perl
 Description: Meta-package for the Mailmunge email filtering framework
  This package pulls in mailmunge-base and libmailmunge-perl, providing the
@@ -29,14 +29,14 @@ Description: Perl code for writing Mailmunge email filters
 
 Package: libtest-mailmunge-perl
 Architecture: all
-Depends: ${perl:Depends}, libmailmunge-perl, mailmunge-base, libjson-any-perl
+Depends: ${perl:Depends}, libmailmunge-perl (= ${binary:Version}), mailmunge-base (= ${binary:Version}), libjson-any-perl
 Description: Test::Mailmunge modules for writing unit tests for mailmunge filters
  This package contains code in the Test::Mailmunge namespace for writing
  unit tests for Mailmunge modules
 
 Package: libmailmunge-action-boilerplate-perl
 Architecture: all
-Depends: ${perl:Depends}, libhtml-parser-perl, libmailmunge-perl
+Depends: ${perl:Depends}, libhtml-parser-perl, libmailmunge-perl (= ${binary:Version})
 Description: A Mailmunge action to add boilerplate to emails
  This package contains a module that lets you add plain-text or
  HTML boilerplate to the beginning or end of text/plain or text/html
@@ -44,7 +44,7 @@ Description: A Mailmunge action to add boilerplate to emails
 
 Package: libmailmunge-test-smtpforward-perl
 Architecture: all
-Depends: ${perl:Depends}, libio-socket-ssl-perl, libmailmunge-perl
+Depends: ${perl:Depends}, libio-socket-ssl-perl, libmailmunge-perl (= ${binary:Version})
 Description: Have Mailmunge make SMTP call-aheads before accepting recipients
  This package contains a module that lets you make an SMTP call-ahead to
  another SMTP server from Mailmunge.  It permits you to reject recipients
@@ -52,14 +52,14 @@ Description: Have Mailmunge make SMTP call-aheads before accepting recipients
 
 Package: libmailmunge-test-getmx-perl
 Architecture: all
-Depends: ${perl:Depends}, libnet-dns-perl, libmailmunge-perl
+Depends: ${perl:Depends}, libnet-dns-perl, libmailmunge-perl (= ${binary:Version})
 Description: Get and classify MX records in a Mailmunge filter
  This package contains a module that lets you look up the MX IP addresses
  for a given domain and classify them as routable or non-routable addresses.
 
 Package: libmailmunge-test-spamassassin-perl
 Architecture: all
-Depends: ${perl:Depends}, spamassassin, libmailmunge-perl
+Depends: ${perl:Depends}, spamassassin, libmailmunge-perl (= ${binary:Version})
 Description: Scan email with SpamAssassin from a Mailmunge filter
  This package contains a module for integrating SpamAssassin into your
  Mailmunge filter
