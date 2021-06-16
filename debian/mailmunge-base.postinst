@@ -34,6 +34,9 @@ case "$1" in
         fi
         chown 750 /var/spool/mm-quarantine
         chown mailmunge:mailmunge /var/spool/mm-quarantine
+
+        # Reload systemd daemon, but don't barf if it fails
+        systemctl daemon-reload > /dev/null 2>&1 || true
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
