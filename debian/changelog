@@ -1,0 +1,5 @@
+mailmunge (3.01) stable; urgency=low
+
+  * Initial Debian Packaging
+
+ -- Dianne Skoll <dianne@skollsoft.com>  Wed, 16 Jun 2021 15:35:48 -0400

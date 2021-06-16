@@ -1,0 +1,79 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DH_COMPAT=9
+VERSION := $(shell grep AC_INIT $(CURDIR)/configure.ac | awk '{print $$2}' | sed -e 's/,//')
+
+config.status:
+	dh_testdir
+	touch config.status
+
+build-arch:  config.status build-arch-stamp
+
+build-arch-stamp:
+	dh_testdir
+
+	PERLINSTALLDIRS=vendor ./configure --prefix=/usr --sysconfdir=/etc --with-user=mailmunge --with-group=mailmunge
+	make
+	make htmldocs
+
+	touch build-arch-stamp
+
+build-indep: config.status  build-indep-stamp
+
+build-indep-stamp:
+	dh_testdir
+	touch build-indep-stamp
+
+build: build-arch build-indep
+
+clean:
+	dh_testdir
+
+	rm -f build-stamp build-arch-stamp build-indep-stamp
+
+	rm -rf $(CURDIR)/debian/tmp
+	rm -rf $(CURDIR)/debian/files
+	rm -rf $(CURDIR)/debian/*.log
+	rm -rf $(CURDIR)/debian/*.substvars
+	rm -rf $(CURDIR)/debian/mailmunge
+	rm -rf $(CURDIR)/debian/mailmunge-base
+	rm -rf $(CURDIR)/debian/libmailmunge*-perl
+	rm -rf $(CURDIR)/debian/libtest-mailmunge-perl
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	make install DESTDIR=$(CURDIR)/debian/tmp/
+
+binary: build install
+	dh_testdir
+	dh_testroot
+	dh_installdebconf
+	dh_installdeb
+	dh_installdirs
+	dh_install
+
+	dh_shlibdeps
+	dh_perl
+
+	dh_gencontrol -pmailmunge
+	dh_gencontrol -pmailmunge-base
+	dh_gencontrol -plibmailmunge-perl
+	dh_gencontrol -plibtest-mailmunge-perl
+	dh_gencontrol -plibmailmunge-action-boilerplate-perl
+	dh_gencontrol -plibmailmunge-test-smtpforward-perl
+	dh_gencontrol -plibmailmunge-test-getmx-perl
+	dh_gencontrol -plibmailmunge-test-spamassassin-perl
+
+	dh_compress
+	dh_fixperms
+	dh_md5sums
+	dh_builddeb
+
+,PHONY: build clean binary install

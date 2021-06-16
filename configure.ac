@@ -561,7 +561,7 @@ AC_OUTPUT(Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmu
 
 HERE=`pwd`
 echo "*** Switching to perl/ directory and running $PERL Makefile.PL..."
-cd perl && $PERL Makefile.PL
+cd perl && $PERL Makefile.PL INSTALLDIRS=${PERLINSTALLDIRS-site}
 if test "$?" != 0 ; then
    echo "*** $PERL Makefile.PL failed!"
    exit 0

@@ -1,0 +1,10 @@
+debian/tmp/usr/share/man/man3/Test::Mailmunge::Filter.3pm
+debian/tmp/usr/share/man/man3/Test::Mailmunge::RegressionUtils.3pm
+debian/tmp/usr/share/man/man3/Test::Mailmunge::SMTPServer.3pm
+debian/tmp/usr/share/man/man3/Test::Mailmunge::Tmpdir.3pm
+debian/tmp/usr/share/man/man3/Test::Mailmunge::Utils.3pm
+debian/tmp/usr/share/perl5/Test/Mailmunge/Filter.pm
+debian/tmp/usr/share/perl5/Test/Mailmunge/RegressionUtils.pm
+debian/tmp/usr/share/perl5/Test/Mailmunge/SMTPServer.pm
+debian/tmp/usr/share/perl5/Test/Mailmunge/Tmpdir.pm
+debian/tmp/usr/share/perl5/Test/Mailmunge/Utils.pm

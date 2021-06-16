@@ -12,10 +12,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
    build-essential \
    clamav-daemon \
    cpanminus \
+   debhelper \
    perl \
    perl-modules-5.28 \
    postfix \
    procps \
+   psmisc \
    libbsd-dev \
    libjson-any-perl \
    libmilter-dev \

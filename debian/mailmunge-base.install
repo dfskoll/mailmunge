@@ -1,0 +1,11 @@
+debian/tmp/etc/systemd/system/mailmunge-multiplexor.service
+debian/tmp/etc/systemd/system/mailmunge.service
+debian/tmp/etc/init.d/mailmunge
+debian/tmp/usr/bin/mailmunge
+debian/tmp/usr/bin/mailmunge-multiplexor
+debian/tmp/usr/bin/mm-mx-ctrl
+debian/tmp/usr/share/man/man7/mailmunge-notify.7
+debian/tmp/usr/share/man/man7/mailmunge-protocol.7
+debian/tmp/usr/share/man/man8/mailmunge-multiplexor.8
+debian/tmp/usr/share/man/man8/mailmunge.8
+debian/tmp/usr/share/man/man8/mm-mx-ctrl.8

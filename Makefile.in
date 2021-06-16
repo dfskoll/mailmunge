@@ -60,6 +60,7 @@ c/mailmunge:
 clean:: FORCE
 	$(MAKE) -C c clean
 	$(MAKE) -C perl clean
+	$(MAKE) -fdebian/rules clean
 	rm -f pod2htmd.tmp
 	rm -f perl/Makefile.old
 	rm -f mailmunge-*.tar.gz mailmunge-*.tar.gz.sig
@@ -100,6 +101,9 @@ DIST-CONTENTS: FORCE
 
 test: all
 	cd perl && prove -l $(TEST_VERBOSE) t/*.t
+
+debs:
+	dpkg-buildpackage -rfakeroot
 
 FORCE:
 
