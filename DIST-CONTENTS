@@ -41,6 +41,7 @@ debian/mailmunge-base.install
 debian/mailmunge-base.postinst
 debian/mailmunge-base.postrm
 debian/rules
+debian/watch-multiple-mailmunges.install
 docker/Dockerfile.postfix
 docker/Dockerfile.sendmail
 docker/build-docker-container

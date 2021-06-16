@@ -41,6 +41,7 @@ clean:
 	rm -rf $(CURDIR)/debian/mailmunge
 	rm -rf $(CURDIR)/debian/mailmunge-base
 	rm -rf $(CURDIR)/debian/libmailmunge*-perl
+	rm -rf $(CURDIR)/debian/watch-multiple-mailmunges
 	rm -rf $(CURDIR)/debian/libtest-mailmunge-perl
 
 install: build
@@ -65,11 +66,12 @@ binary: build install
 	dh_gencontrol -pmailmunge
 	dh_gencontrol -pmailmunge-base
 	dh_gencontrol -plibmailmunge-perl
-	dh_gencontrol -plibtest-mailmunge-perl
 	dh_gencontrol -plibmailmunge-action-boilerplate-perl
-	dh_gencontrol -plibmailmunge-test-smtpforward-perl
 	dh_gencontrol -plibmailmunge-test-getmx-perl
+	dh_gencontrol -plibmailmunge-test-smtpforward-perl
 	dh_gencontrol -plibmailmunge-test-spamassassin-perl
+	dh_gencontrol -plibtest-mailmunge-perl
+	dh_gencontrol -pwatch-multiple-mailmunges
 
 	dh_compress
 	dh_fixperms

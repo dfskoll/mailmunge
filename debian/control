@@ -63,3 +63,11 @@ Depends: ${perl:Depends}, spamassassin, libmailmunge-perl
 Description: Scan email with SpamAssassin from a Mailmunge filter
  This package contains a module for integrating SpamAssassin into your
  Mailmunge filter
+
+Package: watch-multiple-mailmunges
+Architecture: all
+Depends: tk, openssh-client
+Description: watch-multiple-mailmunges is a Tcl/Tk GUI for monitoring Mailmunge
+ watch-multiple-mailmunges can monitor a cluster of Mailmunge filtering
+ servers; it uses SSH to access the remote machines and runs mm-mx-ctrl
+ on each machine to obtain monitoring data

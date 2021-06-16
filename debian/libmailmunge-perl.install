@@ -1,4 +1,6 @@
 debian/tmp/etc/mailmunge/mailmunge-filter.pl.example
+debian/tmp/usr/bin/mailmunge-util
+debian/tmp/usr/share/man/man1/mailmunge-util.1
 debian/tmp/usr/share/man/man3/Mailmunge.3pm
 debian/tmp/usr/share/man/man3/Mailmunge::Action.3pm
 debian/tmp/usr/share/man/man3/Mailmunge::Action::Stream.3pm
