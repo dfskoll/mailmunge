@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "libmilter/mfapi.h"
 #include "milter_cap.h"
+#include "config.h"
 
 /**********************************************************************
 * %FUNCTION: milter_version_ok
@@ -139,4 +140,9 @@ dump_milter_buildlib_info(void)
 #else
     printf("%-30s 0\n", "MILTER_BUILDLIB_HAS_VERSION");
 #endif
+    printf("\n%-30s %s\n", "PERL_PATH", PERL_PATH);
+    printf("%-30s %s\n", "SPOOLDIR", SPOOLDIR);
+    printf("%-30s %s\n", "QDIR", QDIR);
+    printf("%-30s %s\n", "CONFDIR", CONFDIR);
+    printf("%-30s %s\n", "VERSION", VERSION);
 }
