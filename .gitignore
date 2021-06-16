@@ -38,6 +38,9 @@ debian/mailmunge-base/
 debian/mailmunge.debhelper.log
 debian/mailmunge.substvars
 debian/tmp/
+debian/watch-multiple-mailmunges.debhelper.log
+debian/watch-multiple-mailmunges.substvars
+debian/watch-multiple-mailmunges/
 examples/init-script
 htmldocs/
 mailmunge
