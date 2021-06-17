@@ -16,7 +16,7 @@ requires       'Encode' => 0;
 requires       'Carp' => 0;
 requires       'Socket' => 0;
 requires       'IO::Socket' => 0;
-requires       'IO::Socket::SSL' => 0;
+requires       'IO::Socket::SSL' => '1.994';
 
 recommends     'Mail::SpamAssassin' => 3.4.2;
 recommends     'File::VirusScan' => 0.103;
