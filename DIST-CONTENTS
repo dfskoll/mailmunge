@@ -32,6 +32,7 @@ debian/changelog
 debian/compat
 debian/control
 debian/libmailmunge-action-boilerplate-perl.install
+debian/libmailmunge-perl.docs
 debian/libmailmunge-perl.install
 debian/libmailmunge-test-getmx-perl.install
 debian/libmailmunge-test-smtpforward-perl.install

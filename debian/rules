@@ -18,7 +18,6 @@ build-arch-stamp:
 	PERLINSTALLDIRS=vendor ./configure --prefix=/usr --sysconfdir=/etc --with-user=mailmunge --with-group=mailmunge
 	make
 	make htmldocs
-
 	touch build-arch-stamp
 
 build-indep: config.status  build-indep-stamp
@@ -59,6 +58,7 @@ binary: build install
 	dh_installdeb
 	dh_installdirs
 	dh_install
+	dh_installdocs
 
 	dh_shlibdeps
 	dh_perl
