@@ -95,6 +95,7 @@ docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rsyslog start"
 if test "$MTA" = "postfix" ; then
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"
 else
+    docker exec "$CONTAINER" /bin/sh /root/docker-testfiles/qualify-hostname.sh
     docker exec "$CONTAINER" /bin/sh -c "pkill sendmail"
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/sendmail restart"
 fi

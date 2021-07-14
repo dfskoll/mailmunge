@@ -48,6 +48,7 @@ docker/Dockerfile.sendmail
 docker/build-docker-container
 docker/docker-testfiles/etc-default-mailmunge
 docker/docker-testfiles/mailmunge-test-savemail.pl
+docker/docker-testfiles/qualify-hostname.sh
 docker/docker-testfiles/set-apt-proxy
 docker/docker-testfiles/setup-tests.sh
 docker/run-regression-tests-on-docker
