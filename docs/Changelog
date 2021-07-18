@@ -2,6 +2,12 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2020-07-18 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.02 RELEASED
+
+	* Adds Mailmunge::Test::Greylist - an implementation of greylisting
+
 2020-06-01 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.01 RELEASED
