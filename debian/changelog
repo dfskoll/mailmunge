@@ -1,3 +1,9 @@
+mailmunge (3.02) stable; urgency=low
+
+  * Package upstreadm 3.02 release
+
+ -- Dianne Skoll <dianne@skollsoft.com>  Sun, 18 Jul 2021 12:38:48 -0400
+
 mailmunge (3.01) stable; urgency=low
 
   * Initial Debian Packaging

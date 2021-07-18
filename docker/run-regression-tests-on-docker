@@ -74,7 +74,7 @@ fi
 
 if test "$REBUILD" = 1 ; then
     # Purge any existing .debs
-    docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt-get --assume-yes purge libmailmunge-action-boilerplate-perl libmailmunge-perl libmailmunge-test-getmx-perl libmailmunge-test-smtpforward-perl libmailmunge-test-spamassassin-perl libtest-mailmunge-greylist-perl libtest-mailmunge-perl mailmunge-base mailmunge"
+    docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt-get --assume-yes purge libmailmunge-action-boilerplate-perl libmailmunge-perl libmailmunge-test-getmx-perl libmailmunge-test-smtpforward-perl libmailmunge-test-spamassassin-perl libmailmunge-test-greylist-perl libtest-mailmunge-perl mailmunge-base mailmunge"
     # Create a tarball of mailmunge and copy it to the container
     make -C .. dist || bailout "make dist failed"
 
