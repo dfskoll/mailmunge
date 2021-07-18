@@ -106,7 +106,7 @@ Constructs and returns a new Mailmunge::Test::Greylist object
 
 =head1 METHODS
 
-=head2 evaluate($dbh, $min_delay, $max_dalay, $ip, @remaining_args)
+=head2 evaluate($dbh, $min_delay, $max_delay, $ip, @remaining_args)
 
 Evaluates greylisting and returns a C<Mailmunge::Response> object that
 will either be CONTINUE or TEMPFAIL.
