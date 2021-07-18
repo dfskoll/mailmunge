@@ -28,11 +28,6 @@ sub initialize
         $dbh->do(q{CREATE TABLE ips_known_to_retry(ip TEXT PRIMARY KEY NOT NULL, last_seen INTEGER)});
 }
 
-sub cleanup
-{
-        unlink($db_file);
-}
-
 my $filter = MyFilter->new();
 $filter->run();
 exit(0);
