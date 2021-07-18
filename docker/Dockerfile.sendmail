@@ -28,6 +28,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
    libfile-find-rule-perl \
    libdigest-sha-perl \
    libperl-dev \
+   libdbd-sqlite3-perl \
    net-tools \
    rsyslog \
    spamassassin \

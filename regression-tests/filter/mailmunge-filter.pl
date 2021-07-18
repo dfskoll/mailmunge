@@ -5,12 +5,33 @@ use warnings;
 package MyFilter;
 use base qw(Mailmunge::Filter::Compat);
 use Mailmunge::Response;
+use Mailmunge::Constants;
 use Mailmunge::Test::SpamAssassin;
+use Mailmunge::Test::Greylist;
 use Mailmunge::Action::Stream;
 use Mailmunge::Action::Boilerplate;
+use DBI;
 
 use MIME::Entity;
 use File::VirusScan;
+
+my $dbh;
+my $db_file = ':memory:';
+
+sub initialize
+{
+        # Create the greylist database
+        unlink($db_file);
+
+        $dbh = DBI->connect("dbi:SQLite:dbname=$db_file");
+        $dbh->do(q{CREATE TABLE greylist(hash TEXT PRIMARY KEY NOT NULL, last_seen INTEGER)});
+        $dbh->do(q{CREATE TABLE ips_known_to_retry(ip TEXT PRIMARY KEY NOT NULL, last_seen INTEGER)});
+}
+
+sub cleanup
+{
+        unlink($db_file);
+}
 
 my $filter = MyFilter->new();
 $filter->run();
@@ -61,6 +82,11 @@ sub filter_recipient
 {
         my ($self, $ctx) = @_;
         my $recipient = $ctx->recipients->[0];
+
+        if ($ctx->sender =~ /greylist/i) {
+                my $gl = Mailmunge::Test::Greylist->new($self);
+                return $gl->evaluate($dbh, 0, 0, $ctx->hostip, $ctx->sender, $ctx->recipients->[0]);
+        }
 
         return Mailmunge::Response->CONTINUE() if ($recipient =~ /continue/i);
         return Mailmunge::Response->TEMPFAIL(message => "I tempfail your recipient") if ($recipient =~ /tempfail/i);
@@ -230,5 +256,6 @@ sub filter_end
                 $action->add_html_boilerplate($ctx, $ctx->mime_entity, "<p>Some <b>HTML</b> boilerplate at end - all parts</p>", 0, 1);
         }
 }
+
 
 1;

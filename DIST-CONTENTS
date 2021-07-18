@@ -35,6 +35,7 @@ debian/libmailmunge-action-boilerplate-perl.install
 debian/libmailmunge-perl.docs
 debian/libmailmunge-perl.install
 debian/libmailmunge-test-getmx-perl.install
+debian/libmailmunge-test-greylist-perl.install
 debian/libmailmunge-test-smtpforward-perl.install
 debian/libmailmunge-test-spamassassin-perl.install
 debian/libtest-mailmunge-perl.install
@@ -83,6 +84,7 @@ perl/lib/Mailmunge/Filter/Compat.pm
 perl/lib/Mailmunge/Response.pm
 perl/lib/Mailmunge/Test.pm
 perl/lib/Mailmunge/Test/GetMX.pm
+perl/lib/Mailmunge/Test/Greylist.pm
 perl/lib/Mailmunge/Test/SMTPForward.pm
 perl/lib/Mailmunge/Test/SpamAssassin.pm
 perl/lib/Test/Mailmunge/Filter.pm
@@ -111,6 +113,7 @@ perl/t/81-addhdr.t
 perl/t/90-add-part.t
 perl/t/91-getmx.t
 perl/t/92-rdns.t
+perl/t/93-greylist.t
 perl/t/data/boilerplate/RESULTS
 perl/t/data/boilerplate/all_atend/NEWBODY
 perl/t/data/boilerplate/all_atstart/NEWBODY
@@ -152,6 +155,7 @@ regression-tests/t/14-change-hdr.t
 regression-tests/t/15-delete-all-hdrs.t
 regression-tests/t/16-chgsender.t
 regression-tests/t/17-add-hdr.t
+regression-tests/t/18-greylist.t
 regression-tests/t/expected/boilerplate-end-all
 regression-tests/t/expected/boilerplate-end-one
 regression-tests/t/expected/boilerplate-start-all

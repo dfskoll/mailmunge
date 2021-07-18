@@ -70,6 +70,7 @@ binary: build install
 	dh_gencontrol -plibmailmunge-test-getmx-perl
 	dh_gencontrol -plibmailmunge-test-smtpforward-perl
 	dh_gencontrol -plibmailmunge-test-spamassassin-perl
+	dh_gencontrol -plibmailmunge-test-greylist-perl
 	dh_gencontrol -plibtest-mailmunge-perl
 	dh_gencontrol -pwatch-multiple-mailmunges
 

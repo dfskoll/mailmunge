@@ -74,13 +74,16 @@ fi
 
 if test "$REBUILD" = 1 ; then
     # Purge any existing .debs
-    docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt-get --assume-yes purge libmailmunge-action-boilerplate-perl libmailmunge-perl libmailmunge-test-getmx-perl libmailmunge-test-smtpforward-perl libmailmunge-test-spamassassin-perl libtest-mailmunge-perl mailmunge-base mailmunge"
+    docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt-get --assume-yes purge libmailmunge-action-boilerplate-perl libmailmunge-perl libmailmunge-test-getmx-perl libmailmunge-test-smtpforward-perl libmailmunge-test-spamassassin-perl libtest-mailmunge-greylist-perl libtest-mailmunge-perl mailmunge-base mailmunge"
     # Create a tarball of mailmunge and copy it to the container
     make -C .. dist || bailout "make dist failed"
 
     docker cp ../mailmunge-$VERSION.tar.gz "$CONTAINER:/root/" || bailout "docker cp failed"
-    docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -f *.deb && rm -rf mailmunge-$VERSION && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure && dpkg-buildpackage --no-sign && dpkg -i ../libmailmunge-action-boilerplate-perl_${VERSION}_all.deb ../libmailmunge-perl_${VERSION}_all.deb ../libmailmunge-test-getmx-perl_${VERSION}_all.deb ../libmailmunge-test-smtpforward-perl_${VERSION}_all.deb ../libmailmunge-test-spamassassin-perl_${VERSION}_all.deb ../libtest-mailmunge-perl_${VERSION}_all.deb ../mailmunge-base_${VERSION}_amd64.deb ../mailmunge_${VERSION}_all.deb" || bailout "docker exec failed"
+    docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -f *.deb && rm -rf mailmunge-$VERSION && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure && dpkg-buildpackage --no-sign && dpkg -i ../libmailmunge-action-boilerplate-perl_${VERSION}_all.deb ../libmailmunge-perl_${VERSION}_all.deb ../libmailmunge-test-getmx-perl_${VERSION}_all.deb ../libmailmunge-test-smtpforward-perl_${VERSION}_all.deb ../libmailmunge-test-spamassassin-perl_${VERSION}_all.deb ../libmailmunge-test-greylist-perl_${VERSION}_all.deb ../libtest-mailmunge-perl_${VERSION}_all.deb ../mailmunge-base_${VERSION}_amd64.deb ../mailmunge_${VERSION}_all.deb" || bailout "docker exec failed"
 fi
+
+# Copy all the test files
+docker cp docker-testfiles "$CONTAINER:/root/"
 
 # Copy the test filter
 docker exec "$CONTAINER" /bin/sh -c "mkdir -p /etc/mailmunge"

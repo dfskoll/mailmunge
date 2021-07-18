@@ -45,6 +45,8 @@ L<Mailmunge::Test::GetMX>
 
 L<Mailmunge::Test::SMTPForward>
 
+L<Mailmunge::Test::Greylist>
+
 L<Mailmunge::Test::SpamAssassin>
 
 =head2 Command-Line Program Man Pages

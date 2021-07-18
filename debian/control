@@ -64,6 +64,13 @@ Description: Scan email with SpamAssassin from a Mailmunge filter
  This package contains a module for integrating SpamAssassin into your
  Mailmunge filter
 
+Package: libmailmunge-test-greylist-perl
+Architecture: all
+Depends: ${perl:Depends}, libdbi-perl
+Description: Implementation of greylisting
+ This package contains a module for implementing greylisting in your
+ Mailmunge filter
+
 Package: watch-multiple-mailmunges
 Architecture: all
 Depends: tk, openssh-client
