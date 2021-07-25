@@ -824,7 +824,7 @@ sub _main_loop
         } elsif ($self->mta_is_sendmail) {
                 $self->log('NOQUEUE', 'info', 'MTA appears to be: Sendmail');
         } else {
-                $self->log('NOQUEUE', 'info', 'MTA could not me identified');
+                $self->log('NOQUEUE', 'info', 'MTA could not be identified');
         }
 
         while (my $line = <STDIN>) {
