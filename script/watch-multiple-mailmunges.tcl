@@ -1,9 +1,10 @@
 #!/bin/sh
 # -*-Mode: TCL;-*-
 #
-# Copyright (C) 2007 Roaring Penguin Software Inc.  This file may be
-# distributed under the terms of the GNU General Public License, Version 2,
-# or (at your option) any later version.
+# Copyright (C) 2007 Roaring Penguin Software Inc.
+# Copyright (C) 2021 Dianne Skoll.
+# This file may be distributed under the terms of the GNU General
+# Public License, Version 2,
 
 # Next line restarts using wish \
 exec wish "$0" -- "$@" ; clear; echo "*****"; echo "Cannot find 'wish' -- you need Tcl/Tk installed to run this program"; exit 1

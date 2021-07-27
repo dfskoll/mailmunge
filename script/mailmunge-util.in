@@ -1,4 +1,9 @@
 #!@PERL@
+#
+# Copyright (C) 2010 Roaring Penguin Software Inc.
+# This file may be distributed under the terms of the GNU General
+# Public License, Version 2,
+
 use strict;
 use warnings;
 use Getopt::Long;
