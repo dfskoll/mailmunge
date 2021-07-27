@@ -3334,7 +3334,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the -fPIE compiler option is accepted" >&5
 $as_echo_n "checking if the -fPIE compiler option is accepted... " >&6; }
 OLD_CFLAGS="$CFLAGS"
-CFLAGS="-fPIE -Werror"
+CFLAGS="-fPIE -Werror -pie"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3359,6 +3359,7 @@ $as_echo "$ac_have_fpie" >&6; }
 
 if test "$ac_have_fpie" = "yes" ; then
    CFLAGS="$OLD_CFLAGS -fPIE"
+   LDFLAGS="$LDFLAGS -pie"
 else
    CFLAGS="$OLD_CFLAGS"
 fi

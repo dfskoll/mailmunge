@@ -37,7 +37,7 @@ fi
 dnl Check for -fPIE
 AC_MSG_CHECKING(if the -fPIE compiler option is accepted)
 OLD_CFLAGS="$CFLAGS"
-CFLAGS="-fPIE -Werror"
+CFLAGS="-fPIE -Werror -pie"
 AC_TRY_COMPILE([
 #include <stdio.h>
 ], [int x;], ac_have_fpie=yes, ac_have_fpie=no)
@@ -45,6 +45,7 @@ AC_MSG_RESULT($ac_have_fpie)
 
 if test "$ac_have_fpie" = "yes" ; then
    CFLAGS="$OLD_CFLAGS -fPIE"
+   LDFLAGS="$LDFLAGS -pie"
 else
    CFLAGS="$OLD_CFLAGS"
 fi
