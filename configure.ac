@@ -132,21 +132,8 @@ AC_ARG_WITH(quarantinedir,
 			  (/var/spool/mm-quarantine)],
 	QDIR=$with_quarantinedir, QDIR=/var/spool/mm-quarantine)
 
-AC_ARG_ENABLE(cleanup-with-rm,
-[  --enable-cleanup-with-rm
-			  Fork/exec "/bin/rm" to clean up instead of
-			  using built-in C code], ac_cv_cleanup_with_rm=$enableval, ac_cv_cleanup_with_rm=no)
-
 AC_ARG_ENABLE(pthread-flag,
 [  --enable-pthread-flag   Supply the -pthread flag to the C compiler], FORCE_PTHREAD_FLAG=-pthread, FORCE_PTHREAD_FLAG="")
-
-if test "$ac_cv_cleanup_with_rm" = "yes" ; then
-   CLEANUP_DEFS="-DEXEC_RM_FOR_CLEANUP"
-else
-   CLEANUP_DEFS=""
-fi
-
-AC_SUBST(CLEANUP_DEFS)
 
 AC_ARG_ENABLE(check-perl-modules,
 [  --disable-check-perl-modules

@@ -651,7 +651,6 @@ EMBPERLOBJS
 EMBPERLLIBS
 EMBPERLLDFLAGS
 EMBPERLCFLAGS
-CLEANUP_DEFS
 CONFSUBDIR
 MMGROUP
 MMUSER
@@ -722,7 +721,6 @@ with_milterlib
 with_confsubdir
 with_spooldir
 with_quarantinedir
-enable_cleanup_with_rm
 enable_pthread_flag
 enable_check_perl_modules
 enable_debugging
@@ -1357,9 +1355,6 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-embedded-perl Disable embedded Perl interpreter
-  --enable-cleanup-with-rm
-			  Fork/exec "/bin/rm" to clean up instead of
-			  using built-in C code
   --enable-pthread-flag   Supply the -pthread flag to the C compiler
   --disable-check-perl-modules
 			  Disable compile-time checks for Perl modules
@@ -3973,28 +3968,12 @@ else
 fi
 
 
-# Check whether --enable-cleanup-with-rm was given.
-if test "${enable_cleanup_with_rm+set}" = set; then :
-  enableval=$enable_cleanup_with_rm; ac_cv_cleanup_with_rm=$enableval
-else
-  ac_cv_cleanup_with_rm=no
-fi
-
-
 # Check whether --enable-pthread-flag was given.
 if test "${enable_pthread_flag+set}" = set; then :
   enableval=$enable_pthread_flag; FORCE_PTHREAD_FLAG=-pthread
 else
   FORCE_PTHREAD_FLAG=""
 fi
-
-
-if test "$ac_cv_cleanup_with_rm" = "yes" ; then
-   CLEANUP_DEFS="-DEXEC_RM_FOR_CLEANUP"
-else
-   CLEANUP_DEFS=""
-fi
-
 
 
 # Check whether --enable-check-perl-modules was given.

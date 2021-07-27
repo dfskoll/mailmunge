@@ -24,11 +24,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef EXEC_RM_FOR_CLEANUP
-#include <sys/wait.h>
-#endif
-
-
 #ifdef ENABLE_DEBUGGING
 extern void *malloc_debug(void *, size_t, char const *fname, int);
 extern char *strdup_debug(void *, char const *, char const *, int);
@@ -43,7 +38,6 @@ extern void free_debug(void *, void *, char const *, int);
 #define strdup_with_log(x) strdup_debug(ctx, x, __FILE__, __LINE__)
 #endif
 
-#ifndef EXEC_RM_FOR_CLEANUP
 /**********************************************************************
 * %FUNCTION: rm_r
 * %ARGUMENTS:
@@ -114,46 +108,3 @@ rm_r(char const *qid, char const *dir)
     }
     return retcode;
 }
-
-#else /* EXEC_RM_FOR_CLEANUP */
-/**********************************************************************
-* %FUNCTION: rm_r
-* %ARGUMENTS:
-*  dir -- directory or file name
-* %RETURNS:
-*  -1 on error, 0 otherwise.
-* %DESCRIPTION:
-*  Deletes dir and recursively deletes contents.  Does so by forking and
-*  exec'ing "rm".
-***********************************************************************/
-int
-rm_r(char const *qid, char const *dir)
-{
-    pid_t pid;
-
-    if (!qid || !*qid) {
-	qid = "NOQUEUE";
-    }
-
-
-    pid = fork();
-    if (pid == (pid_t) -1) {
-	syslog(LOG_WARNING, "%s: fork() failed -- cannot clean up: %m", qid);
-	return -1;
-    }
-
-    if (pid == 0) {
-	/* In the child */
-	execl(RM, "rm", "-r", "-f", dir, NULL);
-	_exit(EXIT_FAILURE);
-    }
-
-    /* In the parent */
-    if (waitpid(pid, NULL, 0) < 0) {
-	syslog(LOG_ERR, "%s: waitpid() failed -- cannot clean up: %m", qid);
-	return -1;
-    }
-
-    return 0;
-}
-#endif  /* EXEC_RM_FOR_CLEANUP */
