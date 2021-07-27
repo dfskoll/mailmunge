@@ -60,8 +60,6 @@ rm_r(char const *qid, char const *dir)
     struct stat sbuf;
     DIR *d;
     struct dirent *entry;
-    struct dirent *result = NULL;
-    int n;
     int retcode = 0;
 
     if (!qid || !*qid) {
@@ -82,39 +80,26 @@ rm_r(char const *qid, char const *dir)
 	return 0;
     }
 
-    /* Allocate room for entry */
-#ifdef HAVE_PATHCONF
-    entry = (struct dirent *) malloc(sizeof(struct dirent) + pathconf(dir, _PC_NAME_MAX) + 1);
-#else
-    /* Can't use _POSIX_NAME_MAX because it's often defined as 14...
-       useless... */
-    entry = (struct dirent *) malloc(sizeof(struct dirent) + 257);
-#endif
-    if (!entry) {
-	syslog(LOG_WARNING, "%s: Unable to allocate space for dirent entry: %m", qid);
-	return -1;
-    }
-
     d = opendir(dir);
     if (!d) {
 	int errno_save = errno;
 	syslog(LOG_WARNING, "%s: opendir(%s) failed: %m", qid, dir);
-	free(entry);
 	errno = errno_save;
 	return -1;
     }
 
     for (;;) {
-	n = readdir_r(d, entry, &result);
-	if (n != 0) {
-	    errno = n;
-	    syslog(LOG_WARNING, "%s: readdir_r failed: %m", qid);
-	    closedir(d);
-	    free(entry);
-	    errno = n;
-	    return -1;
+        errno = 0;
+        entry = readdir(d);
+        if (!entry) {
+            if (errno != 0) {
+                syslog(LOG_WARNING, "%s: readdir_r failed: %m", qid);
+                closedir(d);
+                return -1;
+            }
+            /* Reached end of dir */
+            break;
 	}
-	if (!result) break;
 	if (!strcmp(entry->d_name, ".") ||
 	    !strcmp(entry->d_name, "..")) {
 	    continue;
@@ -124,7 +109,6 @@ rm_r(char const *qid, char const *dir)
 	    retcode = -1;
 	}
     }
-    free(entry);
     closedir(d);
     if (rmdir(dir) < 0) {
 	syslog(LOG_WARNING, "%s: rmdir(%s) failed: %m", qid, dir);
