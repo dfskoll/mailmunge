@@ -1,3 +1,7 @@
+/*
+ * This program may be distributed according to the terms of the GNU
+ * General Public License, version 2.
+ */
 #include "mailmunge.h"
 #include <pthread.h>
 

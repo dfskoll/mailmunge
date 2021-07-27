@@ -1,6 +1,9 @@
 # DO NOT EDIT MAKEFILE; EDIT MAKEFILE.IN INSTEAD
 # Makefile.in for C code.
 
+# This program may be distributed under the terms of the GNU General
+# Public License, Version 2.
+
 # Needed for autoconf to behave properly...
 datarootdir=@datarootdir@
 srcdir=@srcdir@

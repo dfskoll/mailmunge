@@ -6,6 +6,10 @@
 *
 * Copyright (C) 2002-2005 by Roaring Penguin Software Inc.
 * Copyright (C) 2021 by Dianne Skoll
+*
+* This program may be distributed under the terms of the GNU General
+* Public License, Version 2.
+*
 ***********************************************************************/
 
 #ifndef MAILMUNGE_H

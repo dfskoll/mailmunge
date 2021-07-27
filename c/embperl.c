@@ -6,6 +6,9 @@
 *
 * Copyright (C) 2003 by Roaring Penguin Software Inc.
 *
+*  This program may be distributed under the terms of the GNU
+*  General Public License, Version 2.
+*
 ***********************************************************************/
 
 #ifdef EMBED_PERL

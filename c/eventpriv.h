@@ -9,7 +9,7 @@
 * Copyright (C) 2001-2003 Roaring Penguin Software Inc.
 *
 * This program may be distributed according to the terms of the GNU
-* General Public License, version 2 or (at your option) any later version.
+* General Public License, version 2.
 *
 ***********************************************************************/
 

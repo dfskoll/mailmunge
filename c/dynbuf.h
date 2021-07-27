@@ -8,6 +8,9 @@
 /*  Copyright (C) 1992-1998 by Dianne Skoll                    */
 /*  Copyright (C) 1999-2007 by Roaring Penguin Software Inc.   */
 /*                                                             */
+/*  This program may be distributed under the terms of the GNU */
+/*  General Public License, Version 2.                         */
+/*                                                             */
 /***************************************************************/
 
 #ifndef DYNBUF_H
