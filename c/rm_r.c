@@ -82,9 +82,7 @@ rm_r(char const *qid, char const *dir)
 
     d = opendir(dir);
     if (!d) {
-	int errno_save = errno;
 	syslog(LOG_WARNING, "%s: opendir(%s) failed: %m", qid, dir);
-	errno = errno_save;
 	return -1;
     }
 
