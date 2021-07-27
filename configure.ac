@@ -34,6 +34,21 @@ if test "$ac_have_socklen_t" = "yes" ; then
    AC_DEFINE(HAVE_SOCKLEN_T,[],["Whether we have the variable type socklen_t"])
 fi
 
+dnl Check for -fPIE
+AC_MSG_CHECKING(if the -fPIE compiler option is accepted)
+OLD_CFLAGS="$CFLAGS"
+CFLAGS="-fPIE -Werror"
+AC_TRY_COMPILE([
+#include <stdio.h>
+], [int x;], ac_have_fpie=yes, ac_have_fpie=no)
+AC_MSG_RESULT($ac_have_fpie)
+
+if test "$ac_have_fpie" = "yes" ; then
+   CFLAGS="$OLD_CFLAGS -fPIE"
+else
+   CFLAGS="$OLD_CFLAGS"
+fi
+
 for thing in prefix siteprefix vendorprefix installarchlib installprivlib installbin installman1dir installman3dir installscript installsitearch installsitelib; do
     AC_MSG_CHECKING([for Perl installation variable $thing])
     val=`$PERL -V:$thing | sed -e "s/^.*='//" -e "s/';$//"`
