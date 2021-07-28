@@ -76,6 +76,8 @@ L<Test::Deep|https://metacpan.org/pod/Test::Deep>
 
 L<ClamAV|https://www.clamav.net/>
 
+L<DBD::SQLite|https://metacpan.org/pod/DBD::SQLite>
+
 =back
 
 =back
@@ -85,7 +87,7 @@ On a Debian Linux system, you can install all the prerequisites with:
   apt install libmime-tools-perl libperl-dev perl perl-modules-5.28 \
               libio-socket-ssl-perl spamassassin libfile-find-rule-perl \
               libtest-deep-perl cpanminus build-essential libjson-any-perl \
-              libmilter-dev clamav-base clamav-daemon clamav-freshclam
+              libmilter-dev clamav-base clamav-daemon clamav-freshclam libdbd-sqlite3-perl
 
   cpanm -n File::VirusScan
 
@@ -94,6 +96,27 @@ On a Debian Linux system, you can install all the prerequisites with:
 
   # Only if you plan on using Sendmail...
   apt install sendmail sendmail-bin sendmail-cf
+
+The recipe for Rocky Linux 8 and probably other Red Hat 8 derivatives is:
+
+  dnf -y group install --setopt group_package_types=mandatory "Development Tools"
+  dnf -y install epel-release
+  dnf config-manager --set-enabled powertools
+
+  dnf -y install perl-MIME-tools perl-Sys-Syslog sendmail-milter     \
+     perl-ExtUtils-MakeMaker sendmail-milter-devel perl-Test         \
+     perl-Test-Simple perl-Test-Deep perl-HTML-Parser perl-Net-DNS   \
+     perl-File-Find-Rule spamassassin perl-JSON-Any perl-DBD-SQLite  \
+     perl-Test-Pod perl-Test-Pod-Coverage clamav clamav-data         \
+     perl-App-cpanminus
+
+  cpanm -n File::VirusScan
+
+  # If you plan on using postfix
+  dnf -y install postfix
+
+  # If you plan on using Sendmail
+  dnf -y install sendmail
 
 =head2 BUILDING MAILMUNGE
 
