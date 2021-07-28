@@ -118,7 +118,7 @@ The recipe for Rocky Linux 8 and probably other Red Hat 8 derivatives is:
   dnf -y install postfix
 
   # If you plan on using Sendmail
-  dnf -y install sendmail
+  dnf -y install sendmail sendmail-cf
 
 =head2 BUILDING MAILMUNGE
 
