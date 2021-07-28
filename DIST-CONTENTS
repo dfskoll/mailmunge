@@ -44,8 +44,8 @@ debian/mailmunge-base.postinst
 debian/mailmunge-base.postrm
 debian/rules
 debian/watch-multiple-mailmunges.install
-docker/Dockerfile.postfix
-docker/Dockerfile.sendmail
+docker/Dockerfile.debian.postfix
+docker/Dockerfile.debian.sendmail
 docker/build-docker-container
 docker/docker-testfiles/etc-default-mailmunge
 docker/docker-testfiles/mailmunge-test-savemail.pl

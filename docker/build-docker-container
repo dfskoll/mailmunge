@@ -1,14 +1,18 @@
 #!/bin/sh
 
 if test "$1" != "sendmail" -a "$1" != "postfix" ; then
-    echo "Usage: $0 sendmail"
-    echo "   or: $0 postfix"
+    echo "Usage: $0 sendmail|postfix debian|rocky"
+    exit 1
+fi
+if test "$2" != "debian" -a "$1" != "rocky" ; then
+    echo "Usage: $0 sendmail|postfix debian|rocky"
     exit 1
 fi
 
 MTA="$1"
-IMAGE=mm-$MTA-image
-CONTAINER=mm-test-$MTA
+OS="$2"
+IMAGE=mm-$MTA-$OS-image
+CONTAINER=mm-$MTA-$OS
 
 bailout () {
     echo "FATAL: $@"
@@ -32,9 +36,9 @@ if test $? = 0 ; then
    echo "If you wish to rebuild, please remove $IMAGE first."
 else
     if test "$PROXY" = "" ; then
-        docker build -t "$IMAGE" -f "Dockerfile.$MTA" . || bailout "docker build failed"
+        docker build -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
     else
-        docker build --build-arg "APT_PROXY=$PROXY" -t "$IMAGE" -f "Dockerfile.$MTA" . || bailout "docker build failed"
+        docker build --build-arg "APT_PROXY=$PROXY" -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
     fi
 fi
 
