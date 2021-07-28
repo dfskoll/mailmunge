@@ -29,7 +29,7 @@ build-indep-stamp:
 build: build-arch build-indep
 
 clean:
-	dh_testdir
+	if ! test -d debian ; then echo "There is no debian/ directory"; exit 1; fi
 
 	rm -f build-stamp build-arch-stamp build-indep-stamp
 
