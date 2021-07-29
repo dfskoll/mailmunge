@@ -43,11 +43,11 @@ eval {
 };
 
 ok($ret->{response}, "We have a 'response' element");
-ok($ret->{response}->{status}, "And the response elemenet has a 'status' element");
+ok($ret->{response}->{status}, "And the response element has a 'status' element");
 ok($ret->{results}, "We have a 'results' element");
-ok($ret->{results}->{symbols}->{RCPT_COUNT_ONE}. 'RCPT_COUNT_ONE test fired');
-ok($ret->{results}->{symbols}->{TO_EQ_FROM} . 'TO_EQ_FROM test fired');
-ok($ret->{results}->{symbols}->{PRECEDENCE_BULK} . 'PRECEDENCE_BULK test fired');
+ok($ret->{results}->{symbols}->{RCPT_COUNT_ONE}, 'RCPT_COUNT_ONE test fired');
+ok($ret->{results}->{symbols}->{TO_EQ_FROM}, 'TO_EQ_FROM test fired');
+ok($ret->{results}->{symbols}->{PRECEDENCE_BULK}, 'PRECEDENCE_BULK test fired');
 
 END: {
         stop_multiplexor($d);
