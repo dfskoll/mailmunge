@@ -2178,6 +2178,11 @@ doWorkerCommandAux(EventSelector *es, int fd, char *cmd, int queueable)
 
     /* Set the qid */
     switch(cmdno) {
+    case RELAYOK_CMD:
+        /* relayok ip name port myip daemon_port qid */
+        sscanf(cmd, "relayok %*s %*s %*s %*s %*s %" STR(MAX_QID_LEN) "s", s->qid);
+	s->qid[MAX_QID_LEN] = 0;
+	break;
     case SENDEROK_CMD:
 	/* senderok sender ip name helo dir qid */
 	sscanf(cmd, "senderok %*s %*s %*s %*s %*s %" STR(MAX_QID_LEN)  "s", s->qid);
