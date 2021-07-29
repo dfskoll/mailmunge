@@ -23,9 +23,9 @@ debian/libmailmunge-perl/
 debian/libmailmunge-test-getmx-perl.debhelper.log
 debian/libmailmunge-test-getmx-perl.substvars
 debian/libmailmunge-test-getmx-perl/
-debian/libmailmunge-test-greylist-perl/
 debian/libmailmunge-test-greylist-perl.debhelper.log
 debian/libmailmunge-test-greylist-perl.substvars
+debian/libmailmunge-test-greylist-perl/
 debian/libmailmunge-test-smtpforward-perl.debhelper.log
 debian/libmailmunge-test-smtpforward-perl.substvars
 debian/libmailmunge-test-smtpforward-perl/
@@ -44,6 +44,7 @@ debian/tmp/
 debian/watch-multiple-mailmunges.debhelper.log
 debian/watch-multiple-mailmunges.substvars
 debian/watch-multiple-mailmunges/
+etc/default/mailmunge.sample
 examples/init-script
 htmldocs/
 mailmunge
