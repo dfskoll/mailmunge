@@ -147,7 +147,7 @@
 # MX_UNPRIV_SOCKET=
 
 ### The "X-Scanned-By:" header to add
-# SCANNED_BY=mailmunge @PACKAGE_VERSION@
+# SCANNED_BY="mailmunge @PACKAGE_VERSION@"
 
 ### Strip bare carriage-returns from message bodies
 # STRIP_BARE_CR=no
