@@ -2272,28 +2272,6 @@ main(int argc, char **argv)
     MyIPAddress = NULL;
     EquivToLoopback = NULL;
 
-    /* Determine my IP address */
-    if (gethostname(buf, sizeof(buf)) >= 0) {
-	struct hostent *he = gethostbyname(buf);
-	struct in_addr in;
-	if (he && he->h_addr) {
-	    memcpy(&in.s_addr, he->h_addr, sizeof(in.s_addr));
-#ifdef HAVE_INET_NTOP
-	    if (inet_ntop(AF_INET, &in.s_addr, buf, sizeof(buf))) {
-		if (*buf) MyIPAddress = strdup_with_log(buf);
-	    }
-#else
-	    {
-		char *s = inet_ntoa(in);
-		if (s && *s) MyIPAddress = strdup_with_log(s);
-	    }
-#endif
-	} else {
-	    syslog(LOG_WARNING, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS", buf);
-	    fprintf(stderr, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS\n", buf);
-	}
-    }
-
     /* Process command line options */
     while ((c = getopt(argc, argv, "GNCDHL:MP:o:R:S:TU:Xa:b:cdhkm:p:qrstvx:z:y")) != -1) {
 	switch (c) {
@@ -2660,6 +2638,32 @@ main(int argc, char **argv)
     }
 
     openlog("mailmunge", LOG_PID, facility);
+
+    /* Determine my IP address */
+    if (gethostname(buf, sizeof(buf)) >= 0) {
+        syslog(LOG_INFO, "My hostname appears to be: %s", buf);
+	struct hostent *he = gethostbyname(buf);
+	struct in_addr in;
+	if (he && he->h_addr) {
+	    memcpy(&in.s_addr, he->h_addr, sizeof(in.s_addr));
+#ifdef HAVE_INET_NTOP
+	    if (inet_ntop(AF_INET, &in.s_addr, buf, sizeof(buf))) {
+		if (*buf) MyIPAddress = strdup_with_log(buf);
+	    }
+#else
+	    {
+		char *s = inet_ntoa(in);
+		if (s && *s) MyIPAddress = strdup_with_log(s);
+	    }
+#endif
+            syslog(LOG_INFO, "My IP address appears to be: %s", MyIPAddress);
+	} else {
+	    syslog(LOG_WARNING, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS", buf);
+	    fprintf(stderr, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS\n", buf);
+	}
+    } else {
+        syslog(LOG_WARNING, "gethostbyname failed: %m");
+    }
 
     /* Open the milter socket if library has smfi_opensocket */
 #ifdef MILTER_BUILDLIB_HAS_OPENSOCKET
