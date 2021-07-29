@@ -88,6 +88,8 @@ distclean:: clean
 install: all
 	$(MAKE) -C c install DESTDIR=$(DESTDIR)
 	$(MAKE) -C perl install DESTDIR=$(DESTDIR)
+	$(INSTALL) -d 755 $(DESTDIR)/etc/default
+	$(INSTALL) -m 644 etc/default/mailmunge.sample $(DESTDIR)/etc/default/mailmunge.sample
 
 dist: FORCE
 	./tools/make-dist.sh $(VERSION)

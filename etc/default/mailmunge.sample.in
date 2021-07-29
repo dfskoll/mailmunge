@@ -1,0 +1,66 @@
+# These are the default settings for Mailmunge startup variables.
+# Uncomment and change any that you want to set to a non-default value; then
+# copy the result to /etc/default/mailmunge
+
+# Anything that looks like:
+# VAR=
+# simply has an empty default value.
+
+# MX_GROUP=@MMGROUP@
+# MX_USER=@MMUSER@
+# SPOOLDIR="@SPOOLDIR@
+# SOCKET="@SPOOLDIR@/mailmunge.sock"
+# MX_SOCKET="@SPOOLDIR@/mailmung-multiplexor.sock"
+
+# MX_RELAY_CHECK=no
+# MX_HELO_CHECK=no
+# MX_SENDER_CHECK=no
+# MX_RECIPIENT_CHECK=no
+
+# ALLOW_CONNECTIONS_TO_QUEUE=no
+# MX_QUEUE_SIZE=
+# MX_QUEUE_TIMEOUT=
+
+# MX_MINIMUM=2
+# MX_MAXIMUM=10
+# MX_WORKER_DELAY=
+# MX_MIN_WORKER_DELAY=
+
+# MX_MAX_LIFETIME=
+# MX_REQUESTS=
+
+# KEEP_FAILED_DIRECTORIES=no
+# LOG_FILTER_TIME=no
+# MM_ALLOW_GROUP_ACCESS=yes
+# MM_CONSERVE_DESCRIPTORS=no
+# MM_EQUIV_TO_LOOPBACK=
+# MM_EXTRA=
+# MM_LISTEN_BACKLOG=
+# MM_PIDFILE=/var/run/mailmunge.pid
+# MM_RESERVED_FOR_LOOPBACK=
+# MM_SUPPRESS_REJECTED_RCPTS=no
+# MX_BUSY=600
+# MX_CMD_TIMEOUT=
+# MX_EMBED_PERL=no
+# MX_FILTER=
+# MX_IDLE=
+# MX_LISTEN_BACKLOG=
+# MX_LOG=yes
+# MX_LOG_WORKER_STATUS_INTERVAL=
+# MX_MAP_SOCKET=
+# MX_MAX_AS=
+# MX_MAX_RSS=
+# MX_NOTIFIER=
+# MX_PARALLEL_TICKS=
+# MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
+# MX_RECIPOK_PERDOMAIN=
+# MX_STATS_SYSLOG=no
+# MX_STATUS_UPDATES=no
+# MX_SYSLOG_LABEL=
+# MX_UNPRIV_SOCKET=
+# SCANNED_BY=
+# STRIP_BARE_CR=no
+# SUPPRESS_SCANNED_BY=no
+# SYSLOG_FACILITY=
+# USE_SMFI_SETSYMLIST=yes
+

@@ -147,7 +147,6 @@ start() {
         `[ -n "$MX_MAXIMUM" ]                    && echo "-x $MX_MAXIMUM"` \
         `[ -n "$MX_RECIPOK_PERDOMAIN" ]          && echo "-y $MX_RECIPOK_PERDOMAIN"` \
         `[ -n "$SPOOLDIR" ]                      && echo "-z $SPOOLDIR"` \
-        `[ -n "$MX_RECIPOK_PERDOMAIN_LIMIT" ]    && echo "-y $MX_RECIPOK_PERDOMAIN_LIMIT"` \
         -s $MX_SOCKET -o $SPOOLDIR/$prog-multiplexor.lock
 
     if test $? = 0 ; then
