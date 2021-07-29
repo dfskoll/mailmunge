@@ -1,6 +1,6 @@
 # These are the default settings for Mailmunge startup variables.
-# Uncomment and change any that you want to set to a non-default value; then
-# copy the result to /etc/default/mailmunge
+# If you want to change any of them, copy this file to /etc/default/mailmunge
+# and then edit that file as appropriate.
 
 # Anything that looks like:        VAR=
 # simply has an empty default value.
