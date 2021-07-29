@@ -45,7 +45,7 @@ sub _mailmunge_do_main_loop
                 print STDERR "No filter has been registered.\n";
                 print STDERR "Check your filter file for syntax errors by running it through\n";
                 print STDERR "perl -c\n";
-                exit(1);
+                exit(42);
         }
         return $MAILMUNGE_FILTER->_main_loop();
 }

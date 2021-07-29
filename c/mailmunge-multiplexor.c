@@ -3268,6 +3268,9 @@ logWorkerReaped(Worker *s, int status)
 	syslog(level, "Reap: worker %d (pid %lu) exited normally with status %d%s",
 	       WORKERNO(s), (unsigned long) s->pid, WEXITSTATUS(status),
 	       extra);
+        if (WEXITSTATUS(status) == 42) {
+            syslog(level, "You may have a syntax error in your filter file.  Check it with 'perl -c'");
+        }
 	return;
     }
     if (WIFSIGNALED(status)) {
