@@ -4649,12 +4649,10 @@ fi
 
 
 if test "$SENDMAILPROG" = "no" ; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Oops.. I couldn't find the 'sendmail' program.  Please install it." >&5
-$as_echo "$as_me: WARNING: Oops.. I couldn't find the 'sendmail' program.  Please install it." >&2;}
-    PROBLEM=1
-fi
-
-if test "$PROBLEM" = 1 ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Oops.. I couldn't find the 'sendmail' program.  Please install" >&5
+$as_echo "$as_me: WARNING: Oops.. I couldn't find the 'sendmail' program.  Please install" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: either Sendmail or Postfix" >&5
+$as_echo "$as_me: WARNING: either Sendmail or Postfix" >&2;}
     exit 1
 fi
 

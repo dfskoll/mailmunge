@@ -452,11 +452,8 @@ AC_DEFUN([MM_MILTER_SM],[
 ])
 
 if test "$SENDMAILPROG" = "no" ; then
-    AC_MSG_WARN([Oops.. I couldn't find the 'sendmail' program.  Please install it.])
-    PROBLEM=1
-fi
-
-if test "$PROBLEM" = 1 ; then
+    AC_MSG_WARN([Oops.. I couldn't find the 'sendmail' program.  Please install])
+    AC_MSG_WARN([either Sendmail or Postfix])
     exit 1
 fi
 
