@@ -10,7 +10,6 @@ dnl the default to other than ${prefix}/etc
 echo $* | fgrep -e '--sysconfdir' > /dev/null 2>&1 || sysconfdir='/etc'
 
 AC_PROG_CC                      dnl Find C compiler
-AC_CHECK_PROGS(AR, ar, no)
 AC_CONFIG_HEADER(c/config.h)
 
 dnl Add some common directories to PATH in case they are not there
@@ -35,7 +34,7 @@ if test "$ac_have_socklen_t" = "yes" ; then
 fi
 
 dnl Check for -fPIE
-AC_MSG_CHECKING(if the -fPIE compiler option is accepted)
+AC_MSG_CHECKING(whether the -fPIE compiler option is accepted)
 OLD_CFLAGS="$CFLAGS"
 CFLAGS="-fPIE -Werror -pie"
 AC_TRY_COMPILE([
@@ -370,13 +369,7 @@ AC_CHECK_LIB(pthread, pthread_once)
 
 dnl Do we have initgroups?
 AC_CHECK_FUNCS(initgroups)
-dnl How about getpwnam_r?
-AC_CHECK_FUNCS(getpwnam_r)
 AC_CHECK_FUNCS(setrlimit)
-AC_CHECK_FUNCS(snprintf)
-AC_CHECK_FUNCS(vsnprintf)
-AC_CHECK_FUNCS(readdir_r)
-AC_CHECK_FUNCS(pathconf)
 AC_CHECK_FUNCS(inet_ntop)
 AC_CHECK_FUNCS(setproctitle)
 
@@ -476,12 +469,6 @@ fi
 
 AC_SUBST(ENABLE_DEBUGGING)
 AC_SUBST(PTHREAD_FLAG)
-
-dnl Jigger for machines without snprintf
-if test "$ac_cv_func_snprintf" != "yes" -o "$ac_cv_func_vsnprintf" != "yes" ; then
-   AC_MSG_RESULT([Your OS lacks snprintf or vsnprintf.  Sorry!])
-   exit 1
-fi
 
 dnl Find sendmail include file.  The nasty path is in case you're building
 dnl Sendmail at the same level as mailmunge... we want to use that include

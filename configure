@@ -661,7 +661,6 @@ PERL
 INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
-AR
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -2957,50 +2956,7 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-                      for ac_prog in ar
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_AR+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$AR"; then
-  ac_cv_prog_AR="$AR" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AR="$ac_prog"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-AR=$ac_cv_prog_AR
-if test -n "$AR"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $AR" >&5
-$as_echo "$AR" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  test -n "$AR" && break
-done
-test -n "$AR" || AR="no"
-
-ac_config_headers="$ac_config_headers c/config.h"
+                      ac_config_headers="$ac_config_headers c/config.h"
 
 
 PATH=$PATH:/usr/local/bin
@@ -3325,8 +3281,8 @@ $as_echo "#define HAVE_SOCKLEN_T /**/" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the -fPIE compiler option is accepted" >&5
-$as_echo_n "checking if the -fPIE compiler option is accepted... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the -fPIE compiler option is accepted" >&5
+$as_echo_n "checking whether the -fPIE compiler option is accepted... " >&6; }
 OLD_CFLAGS="$CFLAGS"
 CFLAGS="-fPIE -Werror -pie"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -4580,67 +4536,12 @@ _ACEOF
 fi
 done
 
-for ac_func in getpwnam_r
-do :
-  ac_fn_c_check_func "$LINENO" "getpwnam_r" "ac_cv_func_getpwnam_r"
-if test "x$ac_cv_func_getpwnam_r" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_GETPWNAM_R 1
-_ACEOF
-
-fi
-done
-
 for ac_func in setrlimit
 do :
   ac_fn_c_check_func "$LINENO" "setrlimit" "ac_cv_func_setrlimit"
 if test "x$ac_cv_func_setrlimit" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_SETRLIMIT 1
-_ACEOF
-
-fi
-done
-
-for ac_func in snprintf
-do :
-  ac_fn_c_check_func "$LINENO" "snprintf" "ac_cv_func_snprintf"
-if test "x$ac_cv_func_snprintf" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SNPRINTF 1
-_ACEOF
-
-fi
-done
-
-for ac_func in vsnprintf
-do :
-  ac_fn_c_check_func "$LINENO" "vsnprintf" "ac_cv_func_vsnprintf"
-if test "x$ac_cv_func_vsnprintf" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_VSNPRINTF 1
-_ACEOF
-
-fi
-done
-
-for ac_func in readdir_r
-do :
-  ac_fn_c_check_func "$LINENO" "readdir_r" "ac_cv_func_readdir_r"
-if test "x$ac_cv_func_readdir_r" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READDIR_R 1
-_ACEOF
-
-fi
-done
-
-for ac_func in pathconf
-do :
-  ac_fn_c_check_func "$LINENO" "pathconf" "ac_cv_func_pathconf"
-if test "x$ac_cv_func_pathconf" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_PATHCONF 1
 _ACEOF
 
 fi
@@ -4765,12 +4666,6 @@ fi
 
 
 
-
-if test "$ac_cv_func_snprintf" != "yes" -o "$ac_cv_func_vsnprintf" != "yes" ; then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: Your OS lacks snprintf or vsnprintf.  Sorry!" >&5
-$as_echo "Your OS lacks snprintf or vsnprintf.  Sorry!" >&6; }
-   exit 1
-fi
 
 SMMILTER=`echo ../sendmail-*/include`
 as_test_x='test -e'
