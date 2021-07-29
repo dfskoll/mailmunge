@@ -1,3 +1,7 @@
+#
+# NOTE: You should use only *one* of the SysVInit script or Systemd units;
+# it is acceptable to delete whichever you are not using
+#
 [Unit]
 Description=Mailmunge E-mail Filter
 Documentation=man:mailmunge(8)
