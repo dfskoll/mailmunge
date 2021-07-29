@@ -2,65 +2,161 @@
 # Uncomment and change any that you want to set to a non-default value; then
 # copy the result to /etc/default/mailmunge
 
-# Anything that looks like:
-# VAR=
+# Anything that looks like:        VAR=
 # simply has an empty default value.
 
-# MX_GROUP=@MMGROUP@
+### User that mailmunge runs as, and owner of spool directory
 # MX_USER=@MMUSER@
+
+### Group that mailmunge runs as, and group of spool directory
+# MX_GROUP=@MMGROUP@
+
+### Spool directory
 # SPOOLDIR="@SPOOLDIR@
+
+### Milter socket
 # SOCKET="@SPOOLDIR@/mailmunge.sock"
+
+### mailmunge-multiplexor socket
 # MX_SOCKET="@SPOOLDIR@/mailmung-multiplexor.sock"
 
+### Enable filter_relay?
 # MX_RELAY_CHECK=no
+
+### Enable filter_helo?
 # MX_HELO_CHECK=no
+
+### Enable filter_sender?
 # MX_SENDER_CHECK=no
+
+### Enable filter_recipient?
 # MX_RECIPIENT_CHECK=no
 
-# ALLOW_CONNECTIONS_TO_QUEUE=no
-# MX_QUEUE_SIZE=
-# MX_QUEUE_TIMEOUT=
-
+### Minimum number of filter workers
 # MX_MINIMUM=2
+
+### Maximum number of filter workers
 # MX_MAXIMUM=10
+
+### Delay between starting each worker on a quiet system
 # MX_WORKER_DELAY=
+
+### Delay between starting each worker even on a very busy system
 # MX_MIN_WORKER_DELAY=
 
+### Allow connections to queue if all workers are busy?
+# ALLOW_CONNECTIONS_TO_QUEUE=no
+
+### Maximum size of queue?
+# MX_QUEUE_SIZE=
+
+### How long to leave a request in the queue before timing it out?
+# MX_QUEUE_TIMEOUT=
+
+### Recycle a worker after it has been running for MX_MAX_LIFETIME seconds
 # MX_MAX_LIFETIME=
-# MX_REQUESTS=
 
+### Recycle a worker after it has handled MX_REQUESTS requests
+# MX_REQUESTS=500
+
+### Do not clean up working directory if a request fails
 # KEEP_FAILED_DIRECTORIES=no
-# LOG_FILTER_TIME=no
-# MM_ALLOW_GROUP_ACCESS=yes
-# MM_CONSERVE_DESCRIPTORS=no
-# MM_EQUIV_TO_LOOPBACK=
-# MM_EXTRA=
-# MM_LISTEN_BACKLOG=
-# MM_PIDFILE=/var/run/mailmunge.pid
-# MM_RESERVED_FOR_LOOPBACK=
-# MM_SUPPRESS_REJECTED_RCPTS=no
-# MX_BUSY=600
-# MX_CMD_TIMEOUT=
-# MX_EMBED_PERL=no
-# MX_FILTER=
-# MX_IDLE=
-# MX_LISTEN_BACKLOG=
-# MX_LOG=yes
-# MX_LOG_WORKER_STATUS_INTERVAL=
-# MX_MAP_SOCKET=
-# MX_MAX_AS=
-# MX_MAX_RSS=
-# MX_NOTIFIER=
-# MX_PARALLEL_TICKS=
-# MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
-# MX_RECIPOK_PERDOMAIN=
-# MX_STATS_SYSLOG=no
-# MX_STATUS_UPDATES=no
-# MX_SYSLOG_LABEL=
-# MX_UNPRIV_SOCKET=
-# SCANNED_BY=
-# STRIP_BARE_CR=no
-# SUPPRESS_SCANNED_BY=no
-# SYSLOG_FACILITY=
-# USE_SMFI_SETSYMLIST=yes
 
+### Log scan times to syslog
+# LOG_FILTER_TIME=no
+
+### Allow group-access to files, directories and sockets
+# MM_ALLOW_GROUP_ACCESS=yes
+
+### Try hard to conserve file descriptors by closing/reopening files
+# MM_CONSERVE_DESCRIPTORS=no
+
+### An IP address that should be considered equivalent to 127.0.0.1
+# MM_EQUIV_TO_LOOPBACK=
+
+### Any extra command-line arguments for "mailmunge"
+# MM_EXTRA=
+
+### The listen backlog for mailmunge (-b command-line option)
+# MM_LISTEN_BACKLOG=
+
+### Mailmunge PID file
+# MM_PIDFILE=/var/run/mailmunge.pid
+
+### Reserve this many workers for SMTP connections via the loopback interface
+# MM_RESERVED_FOR_LOOPBACK=
+
+### Don't pass recipients rejected at the MTA level to Mailmunge
+# MM_SUPPRESS_REJECTED_RCPTS=no
+
+### Busy timeout after which to declare a scanning worker hung and kill it
+# MX_BUSY=600
+
+### Timeout for sending a command to a worker
+# MX_CMD_TIMEOUT=10
+
+### Use an embedded Perl interpreter
+# MX_EMBED_PERL=no
+
+### Path to the filter program
+# MX_FILTER=@sysconfdir@@CONFSUBDIR@/mailmunge-filter
+
+### Time after which an idle worker can be terminated if more than MX_MINIMUM
+# MX_IDLE=300
+
+### Listen backlog for mailmunge-multiplexor (-I command-line option)
+# MX_LISTEN_BACKLOG=
+
+### Log Perl workers' STDERR to syslog
+# MX_LOG=yes
+
+### Log the worker status every interval seconds
+# MX_LOG_WORKER_STATUS_INTERVAL=
+
+### Map socket (-N option) for filter_map callback
+# MX_MAP_SOCKET=
+
+### Limit total memory space of filter process to this many kB
+# MX_MAX_AS=
+
+### Limit resident-set size of filter prcess to this many kB
+# MX_MAX_RSS=
+
+### Socket for sending notifications to listeners
+# MX_NOTIFIER=
+
+### How many parallel tick bands to run
+# MX_PARALLEL_TICKS=
+
+### PID file for mailmunge-multiplexor
+# MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
+
+### Maximum numnber of concurrent filter_recipient calls per domain
+# MX_RECIPOK_PERDOMAIN=
+
+### Log statistical information to syslog
+# MX_STATS_SYSLOG=no
+
+### Accept status updates from worker processes
+# MX_STATUS_UPDATES=no
+
+### Syslog label for mailmunge-multiplexor
+# MX_SYSLOG_LABEL=mailmunge-multiplexor
+
+### Multiplexor socket for unprivileged requests
+# MX_UNPRIV_SOCKET=
+
+### The "X-Scanned-By:" header to add
+# SCANNED_BY=mailmunge @PACKAGE_VERSION@
+
+### Strip bare carriage-returns from message bodies
+# STRIP_BARE_CR=no
+
+### Suppress the X-Scanned-By: header
+# SUPPRESS_SCANNED_BY=no
+
+### Syslog facility to use
+# SYSLOG_FACILITY=mail
+
+### Request list of symbols from milter library (-y mailmunge command-line flag)
+# USE_SMFI_SETSYMLIST=yes
