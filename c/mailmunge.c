@@ -2659,10 +2659,9 @@ main(int argc, char **argv)
             syslog(LOG_INFO, "My IP address appears to be: %s", MyIPAddress);
 	} else {
 	    syslog(LOG_WARNING, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS", buf);
-	    fprintf(stderr, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS\n", buf);
 	}
     } else {
-        syslog(LOG_WARNING, "gethostbyname failed: %m");
+        syslog(LOG_WARNING, "gethostname failed: %m");
     }
 
     /* Open the milter socket if library has smfi_opensocket */
