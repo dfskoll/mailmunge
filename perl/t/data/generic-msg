@@ -1,5 +1,6 @@
 From: <user1@example.com>
 To: <user1@example.com>
+Precedence: bulk
 Subject: __SUBJECT__
 X-Mailmunge-Drop: maildrop.msg
 X-Delete-Me:

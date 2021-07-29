@@ -26,6 +26,9 @@ sub rspamd_check
                 alarm($timeout);
                 $ans = $self->_rspamd_check_aux($ctx, $sock);
         };
+        if ($@) {
+                print STDERR "HUH? $@\n";
+        }
         alarm(0);
         $sock->close();
         if ($@ =~ /Timeout/) {
@@ -58,6 +61,7 @@ sub _rspamd_check_aux
                 $sock->print($buf);
         }
         close($in);
+        $sock->flush();
 
         # Read the results
         my $results = $self->_read_rspamd_results($sock);
@@ -92,7 +96,7 @@ sub _rspamd_check_aux
         return { response => $resp, results => $results };
 }
 
-sub _build_spamd_request_headers
+sub _build_rspamd_request_headers
 {
         my ($self, $ctx) = @_;
 

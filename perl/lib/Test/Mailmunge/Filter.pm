@@ -4,6 +4,10 @@ use warnings;
 package Test::Mailmunge::Filter;
 use base qw(Mailmunge::Filter::Compat);
 use Mailmunge::Response;
+use Mailmunge::Test::Rspamd;
+
+use JSON::Any;
+
 use MIME::Entity;
 
 use Cwd;
@@ -112,6 +116,23 @@ sub filter_end
 
         my $subj = $ctx->subject;
 
+        if ($subj =~ /\brspamd\b/i) {
+                my $test = Mailmunge::Test::Rspamd->new($self);
+                my $ans = $test->rspamd_check($ctx, '127.0.0.1',
+                                                  $ENV{RSPAMD_PORT} || 11333,
+                                              20);
+                # Convert objects to hashes in $ans
+                if (ref($ans) eq 'HASH') {
+                        foreach my $k (keys(%$ans)) {
+                                my $v = $ans->{$k};
+                                $ans->{$k} = { %$v };
+                        }
+                }
+                open(OUT, '>RSPAMD_RESULTS');
+                print OUT JSON::Any->objToJson($ans);
+                print OUT "\n";
+                close(OUT);
+        }
         if ($subj =~ /\baddentity\b/i) {
                 my $entity = MIME::Entity->build(Type => 'text/plain',
                                                  Top => 0,
