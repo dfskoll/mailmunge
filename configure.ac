@@ -496,6 +496,11 @@ test -e "$1"
 
 AC_PATH_PROG(MINCLUDE, libmilter/mfapi.h, no, $MILTERINC:$SMMILTER:/usr/include:/usr/local/include:/usr/local/include/sendmail:/opt/local/include)
 
+if test "$MINCLUDE" = "no" ; then
+   echo "*** mailmunge requires the Sendmail milter development headers to be installed."
+   exit 1
+fi
+
 dnl Fix up the include stuff
 MINCLUDE=`dirname "$MINCLUDE"`
 MINCLUDE=`dirname "$MINCLUDE"`
@@ -506,12 +511,6 @@ if test "$MINCLUDE" = "/usr/include" ; then
    MINCLUDE=""
 else
    MINCLUDE="-I${MINCLUDE}"
-fi
-
-if test "$MINCLUDE" = "no" ; then
-    AC_MSG_WARN([Oops.. I couldn't find libmilter/mfapi.h.  Please install Sendmail 8.12])
-    AC_MSG_WARN([and its header files.])
-    PROBLEM=1
 fi
 
 AC_CHECK_LIB(milter, smfi_main, GOT_LIBMILTER=1, GOT_LIBMILTER=0)

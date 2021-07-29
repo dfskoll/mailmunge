@@ -4823,6 +4823,11 @@ fi
 
 
 
+if test "$MINCLUDE" = "no" ; then
+   echo "*** mailmunge requires the Sendmail milter development headers to be installed."
+   exit 1
+fi
+
 MINCLUDE=`dirname "$MINCLUDE"`
 MINCLUDE=`dirname "$MINCLUDE"`
 
@@ -4830,14 +4835,6 @@ if test "$MINCLUDE" = "/usr/include" ; then
    MINCLUDE=""
 else
    MINCLUDE="-I${MINCLUDE}"
-fi
-
-if test "$MINCLUDE" = "no" ; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Oops.. I couldn't find libmilter/mfapi.h.  Please install Sendmail 8.12" >&5
-$as_echo "$as_me: WARNING: Oops.. I couldn't find libmilter/mfapi.h.  Please install Sendmail 8.12" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: and its header files." >&5
-$as_echo "$as_me: WARNING: and its header files." >&2;}
-    PROBLEM=1
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for smfi_main in -lmilter" >&5
