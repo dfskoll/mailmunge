@@ -45,7 +45,7 @@ INSTALL_STRIP_FLAG=-s
 
 ## NO MORE ./configure substitutions beyond this point!
 
-all: c/mailmunge pod2man perl/Makefile perl/blib/lib/Mailmunge.pm
+all: c/bogus pod2man perl/Makefile perl/blib/lib/Mailmunge.pm
 
 perl/Makefile:
 	cd perl && @PERL@ Makefile.PL
@@ -53,7 +53,7 @@ perl/Makefile:
 perl/blib/lib/Mailmunge.pm: perl/Makefile
 	$(MAKE) -C perl
 
-c/mailmunge:
+c/bogus:
 	$(MAKE) -C c all
 
 clean:: FORCE
@@ -108,4 +108,5 @@ debs:
 
 FORCE:
 
-.phony: FORCE
+.phony: FORCE c/bogus
+

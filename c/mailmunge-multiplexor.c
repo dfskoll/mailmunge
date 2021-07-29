@@ -51,6 +51,7 @@
 #include <stdarg.h>
 #include <pwd.h>
 
+
 #ifdef HAVE_SETRLIMIT
 #include <sys/resource.h>
 static void limit_mem_usage(unsigned long rss, unsigned long as);
@@ -223,6 +224,11 @@ typedef struct {
     int activated;      /* Number of workers activated */
     int reaped;         /* Number of workers reaped */
 } HistoryBucket;
+
+/* Give up after 10 consecutive worker abnormal exits with exit code 42
+   indicating a probable filter syntax error */
+#define MAX_SYNTAX_ERROR_EXITS 10
+int NumSyntaxErrorExits = 0;
 
 static HistoryBucket history[NUM_CMDS][HISTORY_SECONDS];
 static HistoryBucket hourly_history[NUM_CMDS][HISTORY_HOURS];
@@ -3253,6 +3259,7 @@ logWorkerReaped(Worker *s, int status)
     if (s->state == STATE_KILLED) {
 	level = LOG_DEBUG;
 	extra = "";
+        NumSyntaxErrorExits = 0;
     } else {
 	level = LOG_ERR;
 	extra = " (WORKER DIED UNEXPECTEDLY)";
@@ -3270,9 +3277,17 @@ logWorkerReaped(Worker *s, int status)
 	       extra);
         if (WEXITSTATUS(status) == 42) {
             syslog(level, "You may have a syntax error in your filter file.  Check it with 'perl -c'");
+            NumSyntaxErrorExits++;
+            if (NumSyntaxErrorExits >= MAX_SYNTAX_ERROR_EXITS) {
+                syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
+                sigterm(0);
+            }
+        } else {
+            NumSyntaxErrorExits = 0;
         }
 	return;
     }
+    NumSyntaxErrorExits = 0;
     if (WIFSIGNALED(status)) {
 	if (s->state == STATE_KILLED && (WTERMSIG(status) == SIGTERM ||
 			  WTERMSIG(status) == SIGKILL)) {
