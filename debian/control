@@ -9,7 +9,7 @@ Homepage: https://www.mailmunge.org/
 Package: mailmunge
 Architecture: all
 Depends: mailmunge-base (= ${binary:Version}), libmailmunge-perl (= ${binary:Version})
-Suggests: libtest-mailmunge-perl, libmailmunge-action-boilerplate-perl, libmailmunge-test-smtpforward-perl, libmailmunge-test-getmx-perl, libmailmunge-test-spamassassin-perl
+Suggests: libtest-mailmunge-perl, libmailmunge-action-boilerplate-perl, libmailmunge-test-smtpforward-perl, libmailmunge-test-getmx-perl, libmailmunge-test-spamassassin-perl, libmailmunge-test-rspamd-perl
 Description: Meta-package for the Mailmunge email filtering framework
  This package pulls in mailmunge-base and libmailmunge-perl, providing the
  basic framework for email filtering using Mailmunge.
@@ -62,6 +62,13 @@ Architecture: all
 Depends: ${perl:Depends}, spamassassin, libmailmunge-perl (= ${binary:Version})
 Description: Scan email with SpamAssassin from a Mailmunge filter
  This package contains a module for integrating SpamAssassin into your
+ Mailmunge filter
+
+Package: libmailmunge-test-rspamd-perl
+Architecture: all
+Depends: ${perl:Depends}, rspamd, libmailmunge-perl (= ${binary:Version})
+Description: Scan email with rspamd from a Mailmunge filter
+ This package contains a module for integrating rspamd scanning into your
  Mailmunge filter
 
 Package: libmailmunge-test-greylist-perl

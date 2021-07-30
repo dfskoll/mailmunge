@@ -168,6 +168,25 @@ Mailmunge::Test::Rspamd - run a message through rspamd
 
 =head1 ABSTRACT
 
+This class connects to an L<rspamd|https://www.rspamd.com/> daemon and
+passes the input message to rspamd for evaluation.
+
+=head1 SYNOPSIS
+
+    package MyFilter;
+    use Mailmunge::Test::Rspamd;
+
+    sub filter_begin {
+        my ($self, $ctx) = @_;
+        my $test = Mailmunge::Test::Rspamd->new($self);
+        my $ans = $test->rspamd_check($ctx, '127.0.0.1', 11333);
+        if ($ans->{results}) {
+            # We have rspamd results; take action according to results
+        }
+        # The element $ans->{response} is a Mailmunge::Response object
+        # with a suggested response
+    }
+
 =head1 CLASS METHODS
 
 =head2 Mailmunge::Test::SpamAssassin->new($filter)
@@ -177,41 +196,41 @@ of $filter in it.
 
 =head1 INSTANCE METHODS
 
-=head2 rspamd_check($ctx, $host, $port)
+=head2 rspamd_check($ctx, $host, $port [, $timeout])
 
-Runs a SpamAssassin check against the current message.  C<$local_tests_only>
-is passed as the C<local_tests_only> option to the C<Mail::SpamAssassin> constructor.
-It is optional; if not supplied, it defaults to false.
+Connects to the rspamd daemon on the given $host and $port and asks it
+to evaluate the current message.  $timeout is an overall timeout in
+seconds for rspamd to reply; if not supplied, it defaults to 300
+seconds.
 
-C<$config> is the path to the SpamAssassin C<userprefs_fileanem>.  If not
-supplied, Mailmunge uses the first file found out of:
+The return value from C<rspamd_check> is a hash with the following
+elements:
 
-=over 4
+=over
 
-CONFDIR/sa-mailmunge.cf
+=item response
 
-CONFDIR/spamassassin/sa-mailmunge.cf
+A Mailmunge::Response object with the suggested response to the message.
+If something went wrong with rspamd, then the C<response> element will
+be the only element in the hash.  Its C<status> will be set to
+C<TEMPFAIL> and its C<message> will contain an error message.
 
-CONFDIR/spamassassin/local.cf
+=item results
 
-CONFDIR/spamassassin.cf
+If rspamd successfully scanned the message, the C<results> element
+will be a hash containing the rspamd response.  This data structure
+is described in detail at L<https://www.rspamd.com/doc/architecture/protocol.html#rspamd-http-reply>.  It is up to the caller of C<rspamd_check>
+to inspect the reply from rspamd and call appropriate functions such
+as C<action_reject>, etc.
 
-/etc/mail/sa-mailmunge.cf
-
-/etc/mail/spamassassin/sa-mailmunge.cf
-
-/etc/mail/spamassassin/local.cf
-
-/etc/mail/spamassassin.cf
+If rspamd did not successfully scan the message, then there will be
+no C<results> element.
 
 =back
 
-where CONFDIR is the value of C<Mailmunge::Constants-E<gt>get('Path:CONFDIR')>.
+=head1 SEE ALSO
 
-C<spam_assassin_status> returns a C<Mail::SpamAssassin::PerMsgStatus>
-object on success, or undef is something went wrong.  Note that when
-you have finished using the returned status object, you should call
-its C<finish()> method to free up resources.
+rspamd at L<https://www.rspamd.com/>
 
 =head1 AUTHOR
 
