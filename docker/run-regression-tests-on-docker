@@ -83,7 +83,7 @@ fi
 if test "$REBUILD" = 1 ; then
     if test "$OS" = "debian" ; then
         # Purge any existing .debs
-        docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt --assume-yes purge mailmunge mailmunge-base libmailmnuge-perl"
+        docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt --assume-yes purge mailmunge mailmunge-base libmailmunge-perl"
         # Create a tarball of mailmunge and copy it to the container
         make -C .. dist || bailout "make dist failed"
 
@@ -106,6 +106,7 @@ docker exec "$CONTAINER" /bin/sh -c "cp /root/docker-testfiles/etc-default-mailm
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rsyslog start"
+docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rspamd start"
 
 if test "$MTA" = "postfix" ; then
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"

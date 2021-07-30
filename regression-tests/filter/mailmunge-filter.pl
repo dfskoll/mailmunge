@@ -7,9 +7,11 @@ use base qw(Mailmunge::Filter::Compat);
 use Mailmunge::Response;
 use Mailmunge::Constants;
 use Mailmunge::Test::SpamAssassin;
+use Mailmunge::Test::Rspamd;
 use Mailmunge::Test::Greylist;
 use Mailmunge::Action::Stream;
 use Mailmunge::Action::Boilerplate;
+use JSON::Any;
 use DBI;
 
 use MIME::Entity;
@@ -206,6 +208,21 @@ sub filter_end
         }
         if ($subj =~ /\btempfail\b/i) {
                 $self->action_tempfail($ctx, "I'm a-tempfailin' ya!");
+        }
+        if ($subj =~ /\brspamd\b/i) {
+                my $test = Mailmunge::Test::Rspamd->new($self);
+                my $ans = $test->rspamd_check($ctx, '127.0.0.1', 11333);
+                if ($ans) {
+                        # Convert objects to hashes in $ans
+                        if (ref($ans) eq 'HASH') {
+                                foreach my $k (keys(%$ans)) {
+                                        my $v = $ans->{$k};
+                                        $ans->{$k} = { %$v };
+                                }
+                        }
+                        # Add rspamd results as a JSON part to original message
+                        $self->action_add_part($ctx, 'application/json', '-suggest', JSON::Any->objToJson($ans));
+                }
         }
         if ($subj =~ /\bspamassassin\b/i) {
                 my $test = Mailmunge::Test::SpamAssassin->new($self);

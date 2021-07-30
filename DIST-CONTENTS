@@ -161,6 +161,7 @@ regression-tests/t/15-delete-all-hdrs.t
 regression-tests/t/16-chgsender.t
 regression-tests/t/17-add-hdr.t
 regression-tests/t/18-greylist.t
+regression-tests/t/19-rspamd.t
 regression-tests/t/expected/boilerplate-end-all
 regression-tests/t/expected/boilerplate-end-one
 regression-tests/t/expected/boilerplate-start-all
