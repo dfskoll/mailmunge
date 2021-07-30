@@ -363,7 +363,6 @@ if test "$ac_cv_var_PS_STRINGS" = yes ; then
 ])
 fi
 
-AC_CHECK_LIB(nsl, gethostbyname)
 LIBS_WITHOUT_PTHREAD="$LIBS"
 AC_CHECK_LIB(pthread, pthread_once)
 
