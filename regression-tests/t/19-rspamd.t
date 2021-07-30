@@ -4,6 +4,9 @@ use Test::Deep;
 
 use Test::Mailmunge::RegressionUtils;
 
+use MIME::Parser;
+use JSON::Any;
+
 my $ans;
 
 my $ip = get_smtp_server_ip();
@@ -24,5 +27,39 @@ cmp_deeply($ans, {
            stage => 'quit'}, 'Got expected success');
 
 wait_for_files($outfile);
+
+my $parser = MIME::Parser->new();
+
+my $entity = $parser->parse_open($outfile);
+
+ok($entity, "Got a MIME Entity");
+is(scalar($entity->parts), 2, "with 2 parts");
+
+my $part = $entity->parts(1);
+is($part->mime_type, 'application/json', 'Second part is application/json');
+my $io = $part->bodyhandle->open("r");
+my $json = '';
+while(defined($_ = $io->getline())) {
+        $json .= $_;
+}
+$io->close();
+my $hash = JSON::Any->jsonToObj($json);
+
+cmp_deeply($hash, {
+        response => {delay => 0, status => 'CONTINUE', message => 'ok' },
+        results => {
+                is_skipped => ignore(),
+                'message-id' => ignore(),
+                messages => { smtp_message => 'Gtube pattern' },
+                required_score => re('^\d+$'),
+                action => 'reject',
+                symbols => { GTUBE => { score => 0, name => 'GTUBE', metric_score => 0 }},
+                time_virtual => ignore(),
+                time_real => ignore(),
+                score => re('^\d+$'),
+        }},
+           "Got expected rspamd results");
+
+
 
 done_testing;
