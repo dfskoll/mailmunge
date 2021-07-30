@@ -61,6 +61,7 @@ mm-mx-ctrl
 mm-mx-ctrl.8
 perl/MYMETA.json
 perl/MYMETA.yml
+perl/Makefile.old
 perl/blib/
 perl/lib/Mailmunge.pm
 perl/lib/Mailmunge/Constants.pm
