@@ -150,38 +150,48 @@ Don't run the unit tests as I<root>; they will fail.
 
 =head2 REGRESSION TESTS
 
-Mailmunge ships with a couple of Docker files for creating containers
-that do regression tests.  To run the Docker regression tests, you
+Mailmunge ships with four Docker files for creating containers
+that do regression tests.  The four files are for the four combinations
+of (Sendmail, Postfix) as the MTA, and (Debian 10, Rocky Linux 8) as the
+Linux distribution.
+
+To run the Docker regression tests, you
 must (obviously) have Docker installed and your user-ID must have
 permission to create and run docker images and containers.
 
 To create a Docker container for running regression tests:
 
-  # If you want to run tests with Postfix:
-  cd docker; ./build-docker-container postfix
+  # If you want to run tests with Postfix on Debian 10:
+  cd docker; ./build-docker-container postfix debian
 
-  # If you want to run tests with Sendmail:
-  cd docker; ./build-docker-container sendmail
+  # If you want to run tests with Sendmail on Debian 10:
+  cd docker; ./build-docker-container sendmail debian
 
-It can take quite a while (around 30 minutes) to create the container image.
+  # If you want to run tests with Postfix on Rocky Linux 8:
+  cd docker; ./build-docker-container postfix rocky
+
+  # If you want to run tests with Sendmail on Rocky Linux 8:
+  cd docker; ./build-docker-container sendmail rocky
+
+It can take quite a while (around 30 minutes) to create each container image.
 
 To run the regression tests:
 
-  # If you want to run tests with Postfix:
-  cd docker; ./run-regression-tests-on-docker postfix
+  # If you want to run tests with Postfix on Debian 10:
+  cd docker; ./run-regression-tests-on-docker postfix debian
 
-  # If you want to run tests with Sendmail:
-  cd docker; ./run-regression-tests-on-docker sendmail
+  # If you want to run tests with Sendmail on Debian 10:
+  cd docker; ./run-regression-tests-on-docker sendmail debian
+
+  # If you want to run tests with Postfix on Rocky Linux 8:
+  cd docker; ./run-regression-tests-on-docker postfix rocky
+
+  # If you want to run tests with Sendmail on Rocky Linux 8:
+  cd docker; ./run-regression-tests-on-docker sendmail rocky
 
 If a Mailmunge source tree already exists in the container,
 C<run-regression-tests-on-docker> won't rebuild it by default.  To
-force a rebuild, use:
-
-  # If you want to run tests with Postfix:
-  cd docker; ./run-regression-tests-on-docker postfix -f
-
-  # If you want to run tests with Sendmail:
-  cd docker; ./run-regression-tests-on-docker sendmail -f
+force a rebuild, add C<-f> to the end of one of the above command-lines.
 
 In addition to C<-f>, you can use C<-v> for more verbose test
 output and C<-c> for colored test output.

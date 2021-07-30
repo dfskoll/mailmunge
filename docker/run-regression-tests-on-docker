@@ -123,7 +123,7 @@ else
 
     echo "Waiting for rspamd to get going..."
     # Let rspamd start
-    sleep 5
+    sleep 15
 fi
 
 if test "$MTA" = "postfix" ; then
