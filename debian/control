@@ -73,7 +73,7 @@ Description: Scan email with rspamd from a Mailmunge filter
 
 Package: libmailmunge-test-greylist-perl
 Architecture: all
-Depends: ${perl:Depends}, libdbi-perl
+Depends: ${perl:Depends}, libdbi-perl, libmailmunge-perl (= ${binary:Version})
 Description: Implementation of greylisting
  This package contains a module for implementing greylisting in your
  Mailmunge filter
