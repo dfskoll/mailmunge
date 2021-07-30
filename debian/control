@@ -66,7 +66,7 @@ Description: Scan email with SpamAssassin from a Mailmunge filter
 
 Package: libmailmunge-test-rspamd-perl
 Architecture: all
-Depends: ${perl:Depends}, rspamd, libmailmunge-perl (= ${binary:Version})
+Depends: ${perl:Depends}, rspamd, libmailmunge-perl (= ${binary:Version}), libjson-any-perl
 Description: Scan email with rspamd from a Mailmunge filter
  This package contains a module for integrating rspamd scanning into your
  Mailmunge filter
