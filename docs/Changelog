@@ -2,6 +2,32 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2020-07-30 Dianne Skoll <dianne@skollsoft.com>
+
+	* Add support for running regression tests against Rocky Linux 8
+	  as well as Debian 10.  Both Sendmail and Postfix are tested.
+
+	* Add support for Rspamd (https://rspamd.com/).  We do not use
+	  the rspamc client; instead, we talk directly to the daemon using
+	  its native HTTP protocol.
+
+	* Update included copy of GPLv2 to the latest version
+
+	* Put GPLv2 license markers in all files
+
+	* Use -fPIE rather than -fPIC when building executables
+
+	* Get rid of --enable-cleanup-with-rm
+
+	* Clean out a LOT of cruft from configure.ac
+
+	* Include a sample /etc/default/mailmunge file
+
+	* Better diagnosis of syntax errors in filter file; terminate
+	  multiplexor if it looks like the filter is completely broken.
+
+	* Many minor fixes and documentation fixes.
+
 2020-07-18 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.02 RELEASED
