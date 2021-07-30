@@ -49,6 +49,8 @@ L<Mailmunge::Test::Greylist>
 
 L<Mailmunge::Test::SpamAssassin>
 
+L<Mailmunge::Test::Rspamd>
+
 =head2 Command-Line Program Man Pages
 
 The man pages for the various command-line tools.
