@@ -23,7 +23,7 @@ rm -f /usr/share/spamassassin/20_compensate.cf
 if test "$OS" = "debian" ; then
     /etc/init.d/rsyslog restart
 else
-    /usr/sbin/rsyslogd
+    /usr/sbin/syslog-ng
 fi
 
 # Fix up /etc/hosts
@@ -60,7 +60,9 @@ if test -d /etc/postfix ; then
         RESTART_POSTFIX=1
     fi
     if test "$RESTART_POSTFIX" != "0" ; then
-        /etc/init.d/postfix restart
+        if test "$OS" = "debian" ; then
+            /etc/init.d/postfix restart
+        fi
     fi
 else
     # SENDMAIL-SPECIFIC CODE

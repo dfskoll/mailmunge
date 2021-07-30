@@ -4,6 +4,8 @@ LABEL maintainer="Dianne Skoll <dianne@skollsoft.com>"
 
 COPY docker-testfiles/ /root/docker-testfiles/
 
+COPY docker-testfiles/waiter.pl /usr/bin
+
 RUN dnf -y group install --setopt group_package_types=mandatory "Development Tools"
 
 RUN dnf -y install epel-release
@@ -32,6 +34,4 @@ RUN mkdir /var/spool/mailmunge
 
 RUN chown mailmunge.mailmunge /var/spool/mailmunge
 
-CMD tail -f /dev/null
-
-
+CMD /usr/bin/waiter.pl

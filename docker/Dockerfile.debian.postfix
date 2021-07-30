@@ -6,6 +6,8 @@ ARG APT_PROXY
 
 COPY docker-testfiles/ /root/docker-testfiles/
 
+COPY docker-testfiles/waiter.pl /usr/bin
+
 RUN /bin/bash /root/docker-testfiles/set-apt-proxy "$APT_PROXY"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -46,4 +48,5 @@ RUN adduser --home /home/testuser --gecos 'Test User' --disabled-password testus
 # Install File::VirusScan from cpan - not packaged in Debian
 RUN cpanm -n File::VirusScan
 
-CMD tail -f /dev/null
+CMD /usr/bin/waiter.pl
+

@@ -105,12 +105,23 @@ docker cp docker-testfiles "$CONTAINER:/root/"
 docker exec "$CONTAINER" /bin/sh -c "mkdir -p /etc/mailmunge"
 docker cp ../regression-tests/filter/mailmunge-filter.pl "$CONTAINER:/etc/mailmunge/"
 docker exec "$CONTAINER" /bin/sh -c "chmod a+rx /etc/mailmunge/mailmunge-filter.pl"
-docker exec "$CONTAINER" /bin/sh -c "addgroup clamav mailmunge"
+if test "$OS" = "debian" ; then
+    docker exec "$CONTAINER" /bin/sh -c "addgroup clamav mailmunge"
+fi
+
 docker exec "$CONTAINER" /bin/sh -c "cp /root/docker-testfiles/etc-default-mailmunge /etc/default/mailmunge"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
-docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart"
-docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rsyslog start"
-docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rspamd start"
+if test "$OS" = "debian" ; then
+    docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart; /etc/init.d/rsyslog start; /etc/init.d/rspamd start"
+else
+    docker exec "$CONTAINER" /bin/sh -c "pkill -9 -u _rspamd; mkdir /var/run/clamav; chown clamscan /var/run/clamav; mkdir /var/run/rspamd; chown _rspamd /var/run/rspamd; clamd; syslog-ng"
+    # rspamd on CentOS does something very weird if it daemonizes itself;
+    # it makes docker exe commands hang.  Hence this awful hack
+    docker exec "$CONTAINER" /bin/sh -c "rspamd -f -u _rspamd -g _rspamd < /dev/null > /dev/null 2>&1 &"
+
+    # Let rspamd start
+    sleep 5
+fi
 
 if test "$MTA" = "postfix" ; then
     if test "$OS" = "debian" ; then
