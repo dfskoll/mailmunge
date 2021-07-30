@@ -14,19 +14,16 @@ a img { border: none }
 pre {
     display: block;
     font-family: monospace;
-    font-size: 120%;
     padding-left: 4em;
 }
 
 code {
     font-family: monospace;
-    font-size: 120%;
     color: #000000;
 }
 
 tt {
     font-family: monospace;
-    font-size: 120%;
 }
 
 h1 { font-size: 140%; color:#000000;}
@@ -93,7 +90,6 @@ pre {
   display: block;
   padding: 8.5px;
   margin: 0 0 9px;
-  font-size: 12px;
   line-height: 1.42857143;
   color: #000000;
   word-break: break-all;
