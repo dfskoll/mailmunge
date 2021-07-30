@@ -87,12 +87,12 @@ sub _rspamd_check_aux
         my $resp;
         # Note that if rspamd recommends a policy, we leave it
         # to the caller to decide to implement the policy
-        if ($results->{action} eq 'no action' || $results->{action} eq 'add header' || $results->{action} eq 'rewrite subject') {
-                $resp = Mailmunge::Response->CONTINUE();
-        } elsif ($results->{action} eq 'greylist'|| $results->{action} eq 'soft reject') {
+        if ($results->{action} eq 'greylist'|| $results->{action} eq 'soft reject') {
                 $resp = Mailmunge::Response->TEMPFAIL(message => 'Please try again later');
         } elsif ($results->{action} eq 'reject') {
                 $resp = Mailmunge::Response->REJECT(message => 'Message rejected due to unacceptable content');
+        } else {
+                $resp = Mailmunge::Response->CONTINUE();
         }
         return { response => $resp, results => $results };
 }
