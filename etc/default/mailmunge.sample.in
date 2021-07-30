@@ -81,7 +81,12 @@
 # MM_LISTEN_BACKLOG=
 
 ### Mailmunge PID file
+
+# Default for sysvinit script:
 # MM_PIDFILE=/var/run/mailmunge.pid
+
+# Default for systemd unit:
+# MM_PIDFILE=
 
 ### Reserve this many workers for SMTP connections via the loopback interface
 # MM_RESERVED_FOR_LOOPBACK=
@@ -129,7 +134,12 @@
 # MX_PARALLEL_TICKS=
 
 ### PID file for mailmunge-multiplexor
+
+# Default for sysvinit script:
 # MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
+
+# Default for systemd unit:
+# MX_PIDFILE=
 
 ### Maximum numnber of concurrent filter_recipient calls per domain
 # MX_RECIPOK_PERDOMAIN=

@@ -361,8 +361,6 @@ in F</etc/default/mailmunge>
   MX_USER=mailmunge                              # Or whatever ./configure picked
   MX_GROUP=mailmunge                             # Or whatever ./configure picked
   SPOOLDIR=/var/spool/mailmunge                  # Or whatever ./configure picked
-  MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
-  MM_PIDFILE=/var/run/mailmunge.pid
   MM_ALLOW_GROUP_ACCESS=yes
   MX_BUSY=600
   MX_LOG=yes
@@ -371,4 +369,10 @@ in F</etc/default/mailmunge>
   USE_SMFI_SETSYMLIST=yes
   MX_SOCKET=$SPOOLDIR/mailmunge-multiplexor.sock
   SOCKET=$SPOOLDIR/mailmunge.sock
+  MX_PIDFILE=/var/run/mailmunge-multiplexor.pid  # sysvinit script only
+  MM_PIDFILE=/var/run/mailmunge.pid              # sysvinit script only
+
+Note that the systemd units do not make use of pidfiles by default, but
+you can force them to be created by setting MX_PIDFILE and MM_PIDFILE
+in F</etc/default/mailmunge>
 
