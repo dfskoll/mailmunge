@@ -45,20 +45,40 @@ while(defined($_ = $io->getline())) {
 $io->close();
 my $hash = JSON::Any->jsonToObj($json);
 
-cmp_deeply($hash, {
-        response => {delay => 0, status => 'CONTINUE', message => 'ok' },
-        results => {
-                is_skipped => ignore(),
-                'message-id' => ignore(),
-                messages => { smtp_message => 'Gtube pattern' },
-                required_score => re('^\d+$'),
-                action => 'reject',
-                symbols => { GTUBE => { score => 0, name => 'GTUBE', metric_score => 0 }},
-                time_virtual => ignore(),
-                time_real => ignore(),
-                score => re('^\d+$'),
-        }},
-           "Got expected rspamd results");
+# The default rspamd setup on Red Hat is different from
+# Debian, so we expect different results.
+if (-f '/etc/redhat-release') {
+        cmp_deeply($hash, {
+                response => {delay => 0, status => 'CONTINUE', message => 'ok' },
+                results => {
+                        is_skipped => ignore(),
+                        'message-id' => ignore(),
+                        messages => { smtp_message => 'Gtube pattern' },
+                        required_score => re('^\d+$'),
+                        action => 'reject',
+                        symbols => { GTUBE => { score => 0, name => 'GTUBE', metric_score => 0 }},
+                        time_real => ignore(),
+                        score => re('^\d+$'),
+                        milter => ignore(),
+                }},
+                   "Got expected rspamd results");
+} else {
+        cmp_deeply($hash, {
+                response => {delay => 0, status => 'CONTINUE', message => 'ok' },
+                results => {
+                        is_skipped => ignore(),
+                        'message-id' => ignore(),
+                        messages => { smtp_message => 'Gtube pattern' },
+                        required_score => re('^\d+$'),
+                        action => 'reject',
+                        symbols => { GTUBE => { score => 0, name => 'GTUBE', metric_score => 0 }},
+                        time_virtual => ignore(),
+                        time_real => ignore(),
+                        score => re('^\d+$'),
+                }},
+                   "Got expected rspamd results");
+}
+
 
 
 

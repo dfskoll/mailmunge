@@ -3,6 +3,16 @@
 # Set up Docker machine for tests
 #
 
+# Figure out what OS we're on
+if test -f /etc/debian_version ; then
+    OS=debian
+elif test -f /etc/redhat-release ; then
+    OS=rocky
+else
+    echo "**** COULD NOT DETERMINE LINUX DISTRO... BAILING"
+    exit 1
+fi
+
 # Change into this directory so we can find files
 cd `dirname $0` || exit 1
 
@@ -10,7 +20,11 @@ cd `dirname $0` || exit 1
 rm -f /usr/share/spamassassin/20_compensate.cf
 
 # Restart rsyslog
-/etc/init.d/rsyslog restart
+if test "$OS" = "debian" ; then
+    /etc/init.d/rsyslog restart
+else
+    /usr/sbin/rsyslogd
+fi
 
 # Fix up /etc/hosts
 grep 'example.com' /etc/hosts > /dev/null 2>&1
@@ -35,6 +49,10 @@ if test -d /etc/postfix ; then
         RESTART_POSTFIX=1
     fi
 
+    # On Rocky Linux only
+    if test "$OS" = "rocky" ; then
+        sed -i -e 's/^inet_interfaces = localhost/#inet_interfaces = localhost/' /etc/postfix/main.cf
+    fi
     # Fix mydestination
     fgrep example.com /etc/postfix/main.cf > /dev/null 2>&1
     if test $? != 0 ; then
@@ -83,6 +101,12 @@ else
     fi
 fi
 
+# Fix locale on Rocky
+if test "$OS" = "rocky" ; then
+    echo "LANG=C" > /etc/locale.conf
+    export LANG=C
+fi
+
 # For postfix, alias file is /etc/aliases.  For Sendmail,
 # it is /etc/mail/aliases
 if test -d /etc/postfix ; then
@@ -121,7 +145,20 @@ cp etc-default-mailmunge /etc/default/mailmunge || exit 1
 cp mailmunge-test-savemail.pl /usr/local/bin && chmod 755 /usr/local/bin/mailmunge-test-savemail.pl
 
 # Get virus database
-freshclam || true
-/etc/init.d/clamav-daemon restart
+if test "$OS" = "debian" ; then
+    freshclam || true
+    /etc/init.d/clamav-daemon restart
+else
+    sed -i -e 's|^#LocalSocket .*|LocalSocket /var/run/clamav/clamd.ctl|' /etc/clamd.d/scan.conf
+    mkdir /var/run/clamav
+    chown clamscan /var/run/clamav
+    mkdir /var/run/rspamd
+    chown _rspamd /var/run/rspamd
+    mkdir /tmp/mailmunge-drop
+    chmod 777 /tmp/mailmunge-drop
+    groupmems -g mailmunge -a clamscan
+    clamd || true
+    rspamd -u _rspamd -g _rspamd
+fi
 
 exit 0

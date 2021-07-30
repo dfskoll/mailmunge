@@ -90,7 +90,11 @@ if test "$REBUILD" = 1 ; then
         docker cp ../mailmunge-$VERSION.tar.gz "$CONTAINER:/root/" || bailout "docker cp failed"
         docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -f *.deb && rm -rf mailmunge-$VERSION && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure && dpkg-buildpackage --no-sign && dpkg -i ../libmailmunge-action-boilerplate-perl_${VERSION}_all.deb ../libmailmunge-perl_${VERSION}_all.deb ../libmailmunge-test-getmx-perl_${VERSION}_all.deb ../libmailmunge-test-smtpforward-perl_${VERSION}_all.deb ../libmailmunge-test-spamassassin-perl_${VERSION}_all.deb ../libmailmunge-test-rspamd-perl_${VERSION}_all.deb ../libmailmunge-test-greylist-perl_${VERSION}_all.deb ../libtest-mailmunge-perl_${VERSION}_all.deb ../mailmunge-base_${VERSION}_amd64.deb ../mailmunge_${VERSION}_all.deb" || bailout "docker exec failed"
     else
-        false
+        # Create a tarball of mailmunge and copy it to the container
+        make -C .. dist || bailout "make dist failed" || bailout "docker exec failed"
+        docker exec "$CONTAINER" /bin/sh -c "cd /root && rm -rf mailmunge*"
+        docker cp ../mailmunge-$VERSION.tar.gz "$CONTAINER:/root/" || bailout "docker cp failed"
+        docker exec "$CONTAINER" /bin/sh -c "cd /root && tar xf mailmunge-$VERSION.tar.gz && cd /root/mailmunge-$VERSION && ./configure --prefix=/usr && make && make install" || bailot "docker exec failed"
     fi
 fi
 
@@ -109,7 +113,11 @@ docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rsyslog start"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/rspamd start"
 
 if test "$MTA" = "postfix" ; then
-    docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"
+    if test "$OS" = "debian" ; then
+        docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"
+    else
+        docker exec "$CONTAINER" /bin/sh -c "postfix reload || postfix start || true"
+    fi
 else
     docker exec "$CONTAINER" /bin/sh /root/docker-testfiles/qualify-hostname.sh
     docker exec "$CONTAINER" /bin/sh -c "pkill sendmail"

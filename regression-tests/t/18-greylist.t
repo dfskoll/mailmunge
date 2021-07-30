@@ -6,6 +6,9 @@ use Test::Mailmunge::RegressionUtils;
 
 my $ans;
 
+# Force a filter reread to clear old data from in-memory sqlite DB
+system("mm-mx-ctrl reread");
+
 my $ip = get_smtp_server_ip();
 
 my $msg = make_msg('nothing-fancy', 'generic-msg', 'greylistfile');
