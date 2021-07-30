@@ -26,13 +26,14 @@ sub rspamd_check
                 alarm($timeout);
                 $ans = $self->_rspamd_check_aux($ctx, $sock);
         };
-        if ($@) {
-                print STDERR "HUH? $@\n";
-        }
         alarm(0);
         $sock->close();
         if ($@ =~ /Timeout/) {
                 return { response => Mailmunge::Response->TEMPFAIL(message => 'Calling rspamd timed out') };
+        }
+
+        if (!$ans) {
+                return { response => Mailmunge::Response->TEMPFAIL(message => 'Calling rspamd failed') };
         }
 
         # If we got back just a Mailmunge::Response, wrap it
