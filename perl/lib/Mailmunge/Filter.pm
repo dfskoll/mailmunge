@@ -196,6 +196,47 @@ sub canonical_email
         return $email;
 }
 
+=head2 action_from_response ($ctx, $resp)
+
+Given a L<Mailmunge::Response> object C<$resp>, take the appropriate action.
+This function operates as follows:
+
+=over
+
+If C<$resp-E<gt>is_tempfail>, call C<$self-E<gt>action_tempfail($ctx, $resp-E<gt>message)> and return 1
+
+If C<$resp-E<gt>is_reject>, call C<$self-E<gt>action_bounce($ctx, $resp-E<gt>message)> and return 1
+
+If C<$resp-E<gt>is_discard>, call C<$self-E<gt>action_discard($ctx)> and return 1
+
+Otherwise, return 0.
+
+=back
+
+=cut
+sub action_from_response
+{
+        my ($self, $ctx, $resp) = @_;
+
+        if ($resp->is_tempfail) {
+                $self->action_tempfail($ctx, $resp->message);
+                return 1;
+        }
+
+        if ($resp->is_reject) {
+                $self->action_bounce($ctx, $resp->message);
+                return 1;
+        }
+
+        if ($resp->is_discard) {
+                $self->action_discard($ctx);
+                return 1;
+        }
+
+        # Didn't do anything
+        return 0;
+}
+
 =head2 domain_of($email)
 
 Return the domain part of $email

@@ -188,17 +188,17 @@ passes the input message to rspamd for evaluation.
             return $self->action_tempfail($ctx, $resp->message);
         }
 
-        # We have rspamd results; take action according to $ans->{results}
-        # The element $ans->{response} is a Mailmunge::Response object
-        # with a suggested response
-        if ($resp->is_tempfail) {
-            return $self->action_tempfail($ctx, $resp->message);
-        } elsif ($resp->is_reject) {
-            return $self->action_bounce($ctx, $resp->message);
-        } elsif ($resp->is_discard) {
-            return $self->action_discard($ctx);
+        # We have rspamd results; you can inspect $ans->{results}
+        # to decide what action to take, or use the code below to take
+        # action based on $ans->{respones}; $ans->{response} is a
+        # Mailmunge::Response object with a suggested response
+
+        if ($self->action_from_response($ctx, $resp)) {
+            # Rspamd suggested an action, which we took
+            return;
         }
-        # Must be is_success... continue with rest of filter
+
+        # Must be: $resp->is_success so continue with rest of filter
     }
 
 =head1 CLASS METHODS
