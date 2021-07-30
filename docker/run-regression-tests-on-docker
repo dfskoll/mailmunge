@@ -114,11 +114,14 @@ docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
 if test "$OS" = "debian" ; then
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart; /etc/init.d/rsyslog start; /etc/init.d/rspamd start"
 else
-    docker exec "$CONTAINER" /bin/sh -c "pkill -9 -u _rspamd; mkdir /var/run/clamav; chown clamscan /var/run/clamav; mkdir /var/run/rspamd; chown _rspamd /var/run/rspamd; clamd; syslog-ng"
+    echo "Starting services..."
+    docker exec "$CONTAINER" /bin/sh -c "pkill -9 -u _rspamd; mkdir /var/run/clamav; chown clamscan /var/run/clamav; mkdir /var/run/rspamd; chown _rspamd /var/run/rspamd; clamd; syslog-ng" > /dev/null 2>&1
     # rspamd on CentOS does something very weird if it daemonizes itself;
     # it makes docker exe commands hang.  Hence this awful hack
+    echo "Starting rspamd..."
     docker exec "$CONTAINER" /bin/sh -c "rspamd -f -u _rspamd -g _rspamd < /dev/null > /dev/null 2>&1 &"
 
+    echo "Waiting for rspamd to get going..."
     # Let rspamd start
     sleep 5
 fi
@@ -132,8 +135,11 @@ if test "$MTA" = "postfix" ; then
 else
     docker exec "$CONTAINER" /bin/sh /root/docker-testfiles/qualify-hostname.sh
     docker exec "$CONTAINER" /bin/sh -c "pkill sendmail"
-    docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/sendmail restart"
+    if test "$OS" = "debian" ; then
+        docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/sendmail restart"
+    else
+        docker exec "$CONTAINER" /bin/sh -c "/usr/sbin/sendmail -bd"
+    fi
 fi
 
 docker exec $INTERACTIVE "$CONTAINER" /bin/sh -c "cd /root/mailmunge-$VERSION/regression-tests && prove $VERBOSE $COLOR -l t/*.t" || bailout "Tests failed"
-

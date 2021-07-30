@@ -80,10 +80,16 @@ else
     grep 'DAEMON_OPTIONS\(.*Addr=127.0.0.1\)' /etc/mail/sendmail.mc
     if test $? = 0 ; then
         # Make Sendmail listen on all addresses, not just localhost
-        sed -i -e 's/, Addr=127.0.0.1//g' /etc/mail/sendmail.mc
+        sed -i -e 's/, *Addr=127.0.0.1//g' /etc/mail/sendmail.mc
         RESTART_SENDMAIL=1
     fi
 
+    # Disable Sendmail restricted shell
+    grep '^FEATURE.*smrsh' /etc/mail/sendmail.mc
+    if test $? = 0 ; then
+        sed -i -e 's/^FEATURE..smrsh/dnl FEATURE\(\`smrsh/' /etc/mail/sendmail.mc
+        RESTART_SENDMAIL=1
+    fi
     grep '^INPUT_MAIL_FILTER' /etc/mail/sendmail.mc > /dev/null 2>&1
     if test $? != 0 ; then
         echo "INPUT_MAIL_FILTER(\`mailmunge', \`S=inet:8872@127.0.0.1, F=T, T=S:360s;R:360s;E:15m')dnl" >> /etc/mail/sendmail.mc
@@ -99,7 +105,9 @@ else
     if test "$RESTART_SENDMAIL" != "0" ; then
         make -C /etc/mail
         pkill sendmail
-        /etc/init.d/sendmail restart
+        if test "$OS" = "debian" ; then
+            /etc/init.d/sendmail restart
+        fi
     fi
 fi
 
@@ -110,11 +118,15 @@ if test "$OS" = "rocky" ; then
 fi
 
 # For postfix, alias file is /etc/aliases.  For Sendmail,
-# it is /etc/mail/aliases
-if test -d /etc/postfix ; then
+# it is /etc/mail/aliases on Debian and /etc/aliases on Rocky
+if test "$OS" = "rocky" ; then
     ALIAS_FILE=/etc/aliases
 else
-    ALIAS_FILE=/etc/mail/aliases
+    if test -d /etc/postfix ; then
+        ALIAS_FILE=/etc/aliases
+    else
+        ALIAS_FILE=/etc/mail/aliases
+    fi
 fi
 
 # Update aliases
@@ -160,7 +172,7 @@ else
     chmod 777 /tmp/mailmunge-drop
     groupmems -g mailmunge -a clamscan
     clamd || true
-    rspamd -u _rspamd -g _rspamd
+    sendmail -bd
 fi
 
 exit 0

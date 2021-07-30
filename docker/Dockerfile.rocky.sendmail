@@ -1,0 +1,37 @@
+FROM rockylinux/rockylinux:8
+
+LABEL maintainer="Dianne Skoll <dianne@skollsoft.com>"
+
+COPY docker-testfiles/ /root/docker-testfiles/
+
+COPY docker-testfiles/waiter.pl /usr/bin
+
+RUN dnf -y group install --setopt group_package_types=mandatory "Development Tools"
+
+RUN dnf -y install epel-release
+
+RUN dnf config-manager --set-enabled powertools
+
+RUN dnf -y install perl-MIME-tools perl-Sys-Syslog sendmail-milter sendmail sendmail-cf perl-ExtUtils-MakeMaker sendmail-milter-devel perl-Test perl-Test-Simple perl-Test-Deep perl-HTML-Parser perl-Net-DNS perl-File-Find-Rule spamassassin perl-JSON-Any perl-DBD-SQLite perl-Test-Pod perl-Test-Pod-Coverage clamav clamav-data clamd perl-App-cpanminus syslog-ng
+
+RUN curl https://rspamd.com/rpm-stable/centos-8/rspamd.repo > /etc/yum.repos.d/rspamd.repo
+
+RUN rpm --import https://rspamd.com/rpm-stable/gpg.key
+
+RUN dnf -y update
+
+RUN dnf -y install rspamd
+
+RUN cpanm -n File::VirusScan
+
+RUN adduser --system --home /var/spool/mailmunge mailmunge
+
+RUN mkdir /var/run/rspamd
+
+RUN chown _rspamd._rspamd /var/run/rspamd
+
+RUN mkdir /var/spool/mailmunge
+
+RUN chown mailmunge.mailmunge /var/spool/mailmunge
+
+CMD /usr/bin/waiter.pl
