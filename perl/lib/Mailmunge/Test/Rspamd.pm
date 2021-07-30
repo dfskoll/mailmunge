@@ -180,11 +180,24 @@ passes the input message to rspamd for evaluation.
         my ($self, $ctx) = @_;
         my $test = Mailmunge::Test::Rspamd->new($self);
         my $ans = $test->rspamd_check($ctx, '127.0.0.1', 11333);
-        if ($ans->{results}) {
-            # We have rspamd results; take action according to results
+        my $resp = $ans->{response};
+        if (!$ans->{results}) {
+            # Failure of some kind - timeout, rspamd not running, etc.
+            # Specific error message will be in $ans->{response}->message
+            return $self->action_tempfail($ctx, $resp->message);
         }
+
+        # We have rspamd results; take action according to $ans->{results}
         # The element $ans->{response} is a Mailmunge::Response object
         # with a suggested response
+        if ($resp->is_tempfail) {
+            return $self->action_tempfail($ctx, $resp->message);
+        } elsif ($resp->is_reject) {
+            return $self->action_bounce($ctx, $resp->message);
+        } elsif ($resp->is_discard) {
+            return $self->action_discard($ctx);
+        }
+        # Must be is_success... continue with rest of filter
     }
 
 =head1 CLASS METHODS
