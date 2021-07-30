@@ -189,9 +189,9 @@ passes the input message to rspamd for evaluation.
 
 =head1 CLASS METHODS
 
-=head2 Mailmunge::Test::SpamAssassin->new($filter)
+=head2 Mailmunge::Test::Rspamd->new($filter)
 
-Constructs a new Mailmunge::Test::SpamAssassin object and stores a copy
+Constructs a new Mailmunge::Test::Rspamd object and stores a copy
 of $filter in it.
 
 =head1 INSTANCE METHODS
