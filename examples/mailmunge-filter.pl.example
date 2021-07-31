@@ -49,7 +49,7 @@ sub filter
         my $re = '\.' . $bad_exts . '\.*$';
 
         if ($extension =~ /$re/i) {
-                $self->action_drop_with_warning($ctx, "An attachment named '$fname' was deleted as it constitutes a hazard");
+                $self->action_bounce($ctx, "We do not accept attachments called '$fname'");
         }
 
 }
