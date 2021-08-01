@@ -197,9 +197,9 @@ L</STATISTICS> for more information.
 
 =item -T
 
-Log statistical information using C<syslog>.  You may use
-any C<-t> and C<-T> together, in which case statistical
-information is logged in a file and using C<syslog>.
+Log statistical information using C<syslog>.  You may use C<-t> and
+C<-T> together, in which case statistical information is logged in a
+file and using C<syslog>.
 
 =item -u
 
