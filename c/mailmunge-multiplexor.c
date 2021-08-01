@@ -592,6 +592,7 @@ main(int argc, char *argv[], char **env)
     int facility = LOG_MAIL;
     int kidpipe[2] = {-1, -1};
     char kidmsg[256];
+    struct stat sbuf;
 
     time_t now;
 
@@ -987,6 +988,31 @@ main(int argc, char *argv[], char **env)
 	exit(EXIT_FAILURE);
     }
 
+    /* Make sure filter prog exists and is executable */
+    if (stat(Settings.progPath, &sbuf) < 0) {
+        fprintf(stderr, "%s: Unable to stat(%s): %s\n",
+                argv[0], Settings.progPath, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    if ((sbuf.st_mode & S_IFMT) != S_IFREG) {
+        fprintf(stderr, "%s: Filter program %s is not a regular file.\n",
+                argv[0], Settings.progPath);
+        exit(EXIT_FAILURE);
+    }
+    if (access(Settings.progPath, R_OK) < 0) {
+        fprintf(stderr, "%s: Filter program %s is not readable.\n",
+                argv[0], Settings.progPath);
+        exit(EXIT_FAILURE);
+    }
+
+    /* If we are not using embedded perl, filter prog must be executable */
+    if (!Settings.useEmbeddedPerl) {
+        if (access(Settings.progPath, X_OK) < 0) {
+            fprintf(stderr, "%s: Filter program %s is not executable.\n",
+                    argv[0], Settings.progPath);
+            exit(EXIT_FAILURE);
+        }
+    }
     /* Fix obvious stupidities */
     if (Settings.maxWorkers < 1) {
 	Settings.maxWorkers = 1;

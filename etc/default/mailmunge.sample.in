@@ -104,7 +104,7 @@
 # MX_EMBED_PERL=no
 
 ### Path to the filter program
-# MX_FILTER=@sysconfdir@@CONFSUBDIR@/mailmunge-filter
+# FILTER=@sysconfdir@@CONFSUBDIR@/mailmunge-filter
 
 ### Time after which an idle worker can be terminated if more than MX_MINIMUM
 # MX_IDLE=300
