@@ -18,7 +18,7 @@
 # SOCKET="@SPOOLDIR@/mailmunge.sock"
 
 ### mailmunge-multiplexor socket
-# MX_SOCKET="@SPOOLDIR@/mailmung-multiplexor.sock"
+# MX_SOCKET="@SPOOLDIR@/mailmunge-multiplexor.sock"
 
 ### Enable filter_relay?
 # MX_RELAY_CHECK=no
