@@ -3251,6 +3251,12 @@ fi
 
 
 
+if test -z "$PERL" ; then
+   as_fn_error $? "*** Cannot continue without Perl.  Sorry." "$LINENO" 5
+   exit 1
+fi
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether socklen_t is defined" >&5
 $as_echo_n "checking whether socklen_t is defined... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -3790,11 +3796,6 @@ $as_echo "#define HAVE_WAIT3 1" >>confdefs.h
 
 fi
 
-
-if test -z "$PERL" ; then
-   as_fn_error $? "*** Cannot continue without Perl.  Sorry." "$LINENO" 5
-   exit 1
-fi
 
 # Extract the first word of "nm", so it can be a program name with args.
 set dummy nm; ac_word=$2

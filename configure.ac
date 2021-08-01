@@ -22,6 +22,12 @@ AC_TYPE_LONG_LONG_INT
 AC_ARG_ENABLE(embedded-perl, [  --disable-embedded-perl Disable embedded Perl interpreter], ac_cv_embedded_perl=$enableval, ac_cv_embedded_perl=yes)
 AC_PATH_PROG(PERL, perl)
 
+if test -z "$PERL" ; then
+   AC_MSG_ERROR([*** Cannot continue without Perl.  Sorry.])
+   exit 1
+fi
+
+
 dnl Check for socklen_t type
 AC_MSG_CHECKING(whether socklen_t is defined)
 AC_TRY_COMPILE([
@@ -67,11 +73,6 @@ if test "$un" = "SunOS 5.9" ; then
 fi
 
 AC_FUNC_WAIT3
-
-if test -z "$PERL" ; then
-   AC_MSG_ERROR([*** Cannot continue without Perl.  Sorry.])
-   exit 1
-fi
 
 AC_PATH_PROG(NM, nm)
 
