@@ -1143,6 +1143,7 @@ The following $ctx fields are available:
     $ctx->helo         The argument to the EHLO/HELO command
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
     $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
+    $ctx->cwd          The current working directory
 
 The function should return an Mailmunge::Response object instructing the MTA how
 to handle the callback.
@@ -1208,6 +1209,7 @@ The following $ctx fields are available; see L<Mailmunge::Context> for details.
     $ctx->suspicious_chars_in_body
     $ctx->suspicious_chars_in_headers
     $ctx->was_resent
+    $ctx->cwd
 
 The most important field is probably $ctx->mime_entity, which is the
 MIME::Entity representing the message being filtered.  If you replace
