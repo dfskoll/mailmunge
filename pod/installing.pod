@@ -14,8 +14,7 @@ To use Mailmunge, you need the following:
 =item *
 
 A reasonably modern UNIX or Linux system.  Mailmunge development is
-done on Debian GNU Linux, but Red Hat or Ubuntu are good Linux choices
-as well.
+done on Debian GNU Linux, but most Linux distros should be fine.
 
 =item *
 
