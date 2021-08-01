@@ -479,6 +479,6 @@ Dianne Skoll <dianne@skollsoft.com>
 
 =head1 LICENSE
 
-This code is licened under the terms of the GNU General Public License,
+This code is licensed under the terms of the GNU General Public License,
 version 2.
 
