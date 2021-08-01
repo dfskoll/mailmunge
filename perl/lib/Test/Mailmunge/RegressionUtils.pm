@@ -379,7 +379,7 @@ address, but the IP address of a non-loopback interface.
 
 Runs an SMTP session.  Connects to C<$ip> and HELOs as C<$helo>.
 Use C<$sender> as the envelope sender.  Uses each recipient
-in <@$recips> in a RCPT To: command.  (<$recips> must be an arrayref.)
+in C<@$recips> in a RCPT To: command.  (C<$recips> must be an arrayref.)
 And transmits C<$msg> as the message body; C<$msg> must be a string
 representing an RFC5322 mail message.
 
