@@ -3118,6 +3118,7 @@ reapTerminatedWorkers(int killed)
     if (NumSyntaxErrorExits >= MAX_SYNTAX_ERROR_EXITS) {
         /* Make sure we never enter a recursive tailspin... */
         NumSyntaxErrorExits = -10 - Settings.maxWorkers;
+        fprintf(stderr, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
         syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
         sigterm(0);
     }

@@ -110,7 +110,11 @@ make_embedded_interpreter(char const *progPath,
     PERL_SET_INTERP(my_perl);
     PL_perl_destruct_level = 1;
     perl_construct(my_perl);
-    perl_parse(my_perl, xs_init, argc, argv, NULL);
+    if (perl_parse(my_perl, xs_init, argc, argv, NULL) & 0xFF) {
+        fprintf(stderr, "perl_parse failed - you may have an error in %s; please check with perl -c.  MULTIPLEXOR IS TERMINATING.", progPath);
+        syslog(LOG_CRIT, "perl_parse failed - you may have an error in %s; please check with perl -c.  MULTIPLEXOR IS TERMINATING.", progPath);
+        exit(1);
+    }
     perl_run(my_perl);
     return 0;
 }
