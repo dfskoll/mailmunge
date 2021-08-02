@@ -44,7 +44,7 @@ debian/tmp/
 debian/watch-multiple-mailmunges.debhelper.log
 debian/watch-multiple-mailmunges.substvars
 debian/watch-multiple-mailmunges/
-etc/default/mailmunge.sample
+etc/default/mailmunge.example
 examples/init-script
 htmldocs/
 mailmunge

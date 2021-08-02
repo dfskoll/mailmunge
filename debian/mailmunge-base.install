@@ -1,7 +1,7 @@
 debian/tmp/etc/systemd/system/mailmunge-multiplexor.service
 debian/tmp/etc/systemd/system/mailmunge.service
 debian/tmp/etc/init.d/mailmunge
-debian/tmp/etc/default/mailmunge.sample
+debian/tmp/etc/default/mailmunge.example
 debian/tmp/usr/bin/mailmunge
 debian/tmp/usr/bin/mailmunge-multiplexor
 debian/tmp/usr/bin/mm-mx-ctrl

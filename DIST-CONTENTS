@@ -61,7 +61,7 @@ docs/README
 docs/architecture.odg
 docs/architecture.svg
 docs/style.css
-etc/default/mailmunge.sample.in
+etc/default/mailmunge.example.in
 examples/mailmunge-filter.pl.example
 install-sh
 logo/mailmunge-logo-for-dark-background.svg
