@@ -3090,7 +3090,9 @@ reapTerminatedWorkers(int killed)
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
 #endif
 	s = findWorkerByPid(pid);
-	if (!s) continue;
+	if (!s) {
+            continue;
+        }
 
 	oldstate = s->state;
 	if (killed) {
@@ -3112,6 +3114,12 @@ reapTerminatedWorkers(int killed)
 	statsLog("ReapWorker", WORKERNO(s), NULL);
 	b = get_history_bucket(SCAN_CMD);
 	b->reaped++;
+    }
+    if (NumSyntaxErrorExits >= MAX_SYNTAX_ERROR_EXITS) {
+        /* Make sure we never enter a recursive tailspin... */
+        NumSyntaxErrorExits = -10 - Settings.maxWorkers;
+        syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
+        sigterm(0);
     }
 }
 
@@ -3299,29 +3307,27 @@ logWorkerReaped(Worker *s, int status)
 	    notify_listeners(s->es, "U\n");
 	}
     }
-    if (!DOLOG) {
-	return;
-    }
-
     if (WIFEXITED(status)) {
-	syslog(level, "Reap: worker %d (pid %lu) exited normally with status %d%s",
-	       WORKERNO(s), (unsigned long) s->pid, WEXITSTATUS(status),
-	       extra);
+	if (DOLOG) {
+            syslog(level, "Reap: worker %d (pid %lu) exited normally with status %d%s",
+                   WORKERNO(s), (unsigned long) s->pid, WEXITSTATUS(status),
+                   extra);
+        }
         if (WEXITSTATUS(status) == 42 || WEXITSTATUS(status) == 43) {
             if (WEXITSTATUS(status) == 42) {
-                syslog(level, "You may have a syntax error %s.  Check it with 'perl -c'", Settings.progPath);
+                syslog(level, "You may have a syntax error in %s.  Check it with 'perl -c'", Settings.progPath);
             } else {
                 syslog(level, "Could not execute %s", Settings.progPath);
             }
             NumSyntaxErrorExits++;
-            if (NumSyntaxErrorExits >= MAX_SYNTAX_ERROR_EXITS) {
-                syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
-                sigterm(0);
-            }
         } else {
             NumSyntaxErrorExits = 0;
         }
 	return;
+    }
+
+    if (!DOLOG) {
+        return;
     }
     NumSyntaxErrorExits = 0;
     if (WIFSIGNALED(status)) {
