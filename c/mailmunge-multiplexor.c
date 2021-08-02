@@ -225,8 +225,9 @@ typedef struct {
     int reaped;         /* Number of workers reaped */
 } HistoryBucket;
 
-/* Give up after 10 consecutive worker abnormal exits with exit code 42
-   indicating a probable filter syntax error */
+/* Give up after 10 consecutive worker abnormal exits with exit code 42 or 43,
+   indicating a probable filter syntax error or a non-executable filter,
+   respectively. */
 #define MAX_SYNTAX_ERROR_EXITS 10
 int NumSyntaxErrorExits = 0;
 
@@ -2751,7 +2752,7 @@ activateWorker(Worker *s, char const *reason)
 	sarg = "-server";
     }
     execl(Settings.progPath, pname, sarg, NULL);
-    _exit(EXIT_FAILURE);
+    _exit(43);
 }
 
 /**********************************************************************
@@ -3306,8 +3307,12 @@ logWorkerReaped(Worker *s, int status)
 	syslog(level, "Reap: worker %d (pid %lu) exited normally with status %d%s",
 	       WORKERNO(s), (unsigned long) s->pid, WEXITSTATUS(status),
 	       extra);
-        if (WEXITSTATUS(status) == 42) {
-            syslog(level, "You may have a syntax error in your filter file.  Check it with 'perl -c'");
+        if (WEXITSTATUS(status) == 42 || WEXITSTATUS(status) == 43) {
+            if (WEXITSTATUS(status) == 42) {
+                syslog(level, "You may have a syntax error %s.  Check it with 'perl -c'", Settings.progPath);
+            } else {
+                syslog(level, "Could not execute %s", Settings.progPath);
+            }
             NumSyntaxErrorExits++;
             if (NumSyntaxErrorExits >= MAX_SYNTAX_ERROR_EXITS) {
                 syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
