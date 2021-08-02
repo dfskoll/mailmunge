@@ -6,81 +6,105 @@
 # simply has an empty default value.
 
 ### User that mailmunge runs as, and owner of spool directory
+### -U option to mailmunge and mailmunge-multiplexor
 # MX_USER=@MMUSER@
 
 ### Group that mailmunge runs as, and group of spool directory
 # MX_GROUP=@MMGROUP@
 
 ### Spool directory
+### -z option to mailmunge and mailmunge-multiplexor
 # SPOOLDIR="@SPOOLDIR@
 
 ### Milter socket
+### -p option to mailmunge
 # SOCKET="@SPOOLDIR@/mailmunge.sock"
 
 ### mailmunge-multiplexor socket
+### -s option to mailmunge-multiplexor
 # MX_SOCKET="@SPOOLDIR@/mailmunge-multiplexor.sock"
 
 ### Enable filter_relay?
+### -r option to mailmunge
 # MX_RELAY_CHECK=no
 
 ### Enable filter_helo?
+### -H option to mailmunge
 # MX_HELO_CHECK=no
 
 ### Enable filter_sender?
+### -s option to mailmunge
 # MX_SENDER_CHECK=no
 
 ### Enable filter_recipient?
+### -t option to mailmunge
 # MX_RECIPIENT_CHECK=no
 
 ### Minimum number of filter workers
+### -m option to mailmunge-multiplexor
 # MX_MINIMUM=2
 
 ### Maximum number of filter workers
+### -x option to mailmunge-multiplexor
 # MX_MAXIMUM=10
 
 ### Delay between starting each worker on a quiet system
+### -w option to mailmunge-multiplexor
 # MX_WORKER_DELAY=
 
 ### Delay between starting each worker even on a very busy system
+### -W option to mailmunge-multiplexor
 # MX_MIN_WORKER_DELAY=
 
 ### Allow connections to queue if all workers are busy?
+### -q option to mailmunge
 # ALLOW_CONNECTIONS_TO_QUEUE=no
 
 ### Maximum size of queue?
+### -q option to mailmunge-multiplexor
 # MX_QUEUE_SIZE=
 
 ### How long to leave a request in the queue before timing it out?
+### -Q option to mailmunge-multiplexor
 # MX_QUEUE_TIMEOUT=
 
 ### Recycle a worker after it has been running for MX_MAX_LIFETIME seconds
+# -V option to mailmunge-multiplexor
 # MX_MAX_LIFETIME=
 
 ### Recycle a worker after it has handled MX_REQUESTS requests
+# -r option to mailmunge-multiplexor
 # MX_REQUESTS=500
 
 ### Do not clean up working directory if a request fails
+### -k option to mailmunge
 # KEEP_FAILED_DIRECTORIES=no
 
 ### Log scan times to syslog
+# -T option to mailmunge
 # LOG_FILTER_TIME=no
 
 ### Allow group-access to files, directories and sockets
+### -G option to mailmunge and mailmunge-multiplexor
 # MM_ALLOW_GROUP_ACCESS=yes
 
 ### Try hard to conserve file descriptors by closing/reopening files
+### -C option to mailmunge
 # MM_CONSERVE_DESCRIPTORS=no
 
 ### An IP address that should be considered equivalent to 127.0.0.1
+### -L option to mailmunge
 # MM_EQUIV_TO_LOOPBACK=
 
 ### Any extra command-line arguments for "mailmunge"
 # MM_EXTRA=
 
-### The listen backlog for mailmunge (-b command-line option)
+### The listen backlog for mailmunge
+### -b option to mailmunge
 # MM_LISTEN_BACKLOG=
 
 ### Mailmunge PID file
+### -P option to mailmunge
 
 # Default for sysvinit script:
 # MM_PIDFILE=/var/run/mailmunge.pid
@@ -89,51 +113,67 @@
 # MM_PIDFILE=
 
 ### Reserve this many workers for SMTP connections via the loopback interface
+### -R option to mailmunge
 # MM_RESERVED_FOR_LOOPBACK=
 
 ### Don't pass recipients rejected at the MTA level to Mailmunge
+### -X option to mailmunge
 # MM_SUPPRESS_REJECTED_RCPTS=no
 
 ### Busy timeout after which to declare a scanning worker hung and kill it
+### -b option to mailmunge-multiplexor
 # MX_BUSY=600
 
 ### Timeout for sending a command to a worker
+### -c option to mailmunge-multiplexor
 # MX_CMD_TIMEOUT=10
 
 ### Use an embedded Perl interpreter
+### -E option to mailmunge-multiplexor
 # MX_EMBED_PERL=no
 
 ### Path to the filter program
+### -f option to mailmunge-multiplexor
 # FILTER=@sysconfdir@@CONFSUBDIR@/mailmunge-filter
 
 ### Time after which an idle worker can be terminated if more than MX_MINIMUM
+### -i option to mailmunge-multiplexor
 # MX_IDLE=300
 
-### Listen backlog for mailmunge-multiplexor (-I command-line option)
+### Listen backlog for mailmunge-multiplexor
+### -I option to mailmunge-multiplexor
 # MX_LISTEN_BACKLOG=
 
 ### Log Perl workers' STDERR to syslog
+### -l option to mailmunge-multiplexor
 # MX_LOG=yes
 
 ### Log the worker status every interval seconds
+### -L option to mailmunge-multiplexor
 # MX_LOG_WORKER_STATUS_INTERVAL=
 
-### Map socket (-N option) for filter_map callback
+### Map socket for filter_map callback
+### -N option to mailmunge-multiplexor
 # MX_MAP_SOCKET=
 
 ### Limit total memory space of filter process to this many kB
+### -M option to mailmunge-multiplexor
 # MX_MAX_AS=
 
 ### Limit resident-set size of filter prcess to this many kB
+### -R option to mailmunge-multiplexor
 # MX_MAX_RSS=
 
 ### Socket for sending notifications to listeners
+### -O option to mailmunge-multiplexor
 # MX_NOTIFIER=
 
 ### How many parallel tick bands to run
+### -P option to mailmunge-multiplexor
 # MX_PARALLEL_TICKS=
 
 ### PID file for mailmunge-multiplexor
+### -p option to mailmunge-multiplexor
 
 # Default for sysvinit script:
 # MX_PIDFILE=/var/run/mailmunge-multiplexor.pid
@@ -142,31 +182,41 @@
 # MX_PIDFILE=
 
 ### Maximum numnber of concurrent filter_recipient calls per domain
+### -y option to mailmunge-multiplexor
 # MX_RECIPOK_PERDOMAIN=
 
 ### Log statistical information to syslog
+### -T option to mailmunge-multiplexor
 # MX_STATS_SYSLOG=no
 
 ### Accept status updates from worker processes
+### -Z option to mailmunge-multiplexor
 # MX_STATUS_UPDATES=no
 
 ### Syslog label for mailmunge-multiplexor
+### -Y option to mailmunge-multiplexor
 # MX_SYSLOG_LABEL=mailmunge-multiplexor
 
 ### Multiplexor socket for unprivileged requests
+### -a option to mailmunge-multiplexor
 # MX_UNPRIV_SOCKET=
 
 ### The "X-Scanned-By:" header to add
+### -x option to mailmunge
 # SCANNED_BY="mailmunge @PACKAGE_VERSION@"
 
 ### Strip bare carriage-returns from message bodies
+### -c option to mailmunge
 # STRIP_BARE_CR=no
 
 ### Suppress the X-Scanned-By: header
+### -X option to mailmunge-multiplexor
 # SUPPRESS_SCANNED_BY=no
 
 ### Syslog facility to use
+### -S option to mailmunge and mailmunge-multiplexor
 # SYSLOG_FACILITY=mail
 
 ### Request list of symbols from milter library (-y mailmunge command-line flag)
+### -y option to mailmunge
 # USE_SMFI_SETSYMLIST=yes
