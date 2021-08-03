@@ -637,7 +637,7 @@ main(int argc, char *argv[], char **env)
     Settings.maxLifetime   = 0; /* Unlimited */
     Settings.maxIdleTime   = 300;
     Settings.busyTimeout   = 120;
-    Settings.slewTime      = 3;
+    Settings.slewTime      = 1;
     Settings.waitTime      = 0;
     Settings.clientTimeout = 10;
     Settings.doSyslog      = 0;

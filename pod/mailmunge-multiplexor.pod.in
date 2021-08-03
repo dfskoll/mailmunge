@@ -96,7 +96,7 @@ When C<mailmunge-multiplexor> starts the initial workers, or needs
 to bring the number of running workers up to the number defined by the
 C<-m> option, it does not start all the workers at once, because this
 could overload your server.  Instead, it starts one worker every
-I<waitTime> seconds.  The default value for I<waitTime> is 3.
+I<waitTime> seconds.  The default value for I<waitTime> is 1.
 
 =item -W I<waitTime>
 

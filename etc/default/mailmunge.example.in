@@ -49,11 +49,11 @@
 # MX_MAXIMUM=10
 
 ### Delay between starting each worker on a quiet system
-### -w option to mailmunge-multiplexor
+### -w option to mailmunge-multiplexor; defaults to 1 in C code.
 # MX_WORKER_DELAY=
 
 ### Delay between starting each worker even on a very busy system
-### -W option to mailmunge-multiplexor
+### -W option to mailmunge-multiplexor; defaults to 0 in C code
 # MX_MIN_WORKER_DELAY=
 
 ### Allow connections to queue if all workers are busy?
