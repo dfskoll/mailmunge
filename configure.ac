@@ -55,7 +55,7 @@ else
    CFLAGS="$OLD_CFLAGS"
 fi
 
-for thing in prefix siteprefix vendorprefix installarchlib installprivlib installbin installman1dir installman3dir installscript installsitearch installsitelib; do
+for thing in prefix siteprefix vendorprefix installarchlib installprivlib installbin installscript installman1dir installman3dir installsitearch installsitelib installsitebin installsitescript installsiteman1dir installsiteman3dir installvendorarch installvendorlib installvendorbin installvendorscript installvendorman1dir installvendorman3dir; do
     AC_MSG_CHECKING([for Perl installation variable $thing])
     val=`$PERL -V:$thing | sed -e "s/^.*='//" -e "s/';$//"`
     AC_MSG_RESULT($val)
@@ -124,6 +124,18 @@ AC_ARG_WITH(spooldir,
 [  --with-spooldir=DIR     specify location of spool directory
 			  (/var/spool/mailmunge)],
 	SPOOLDIR=$with_spooldir, SPOOLDIR=/var/spool/mailmunge)
+
+dnl Allow specification of Perl installdirs
+AC_ARG_WITH(perlinstalldirs,
+[  --with-perlinstalldirs=CHOICE
+                          specify choice for Perl INSTALLDIRS
+                          (site; must be one of perl, site or vendor)],
+        PERLINSTALLDIRS=$with_perlinstalldirs, PERLINSTALLDIRS=site)
+
+if test "$PERLINSTALLDIRS" != "site" -a "$PERLINSTALLDIRS" != "perl" -a "$PERLINSTALLDIRS" != "vendor" ; then
+   echo "*** --with-perlinstalldirs must be one of 'perl', 'site', or 'vendor'"
+   exit 1
+fi
 
 dnl Allow specification of quarantine dir
 AC_ARG_WITH(quarantinedir,

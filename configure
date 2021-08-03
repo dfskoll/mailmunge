@@ -718,6 +718,7 @@ with_milterinc
 with_milterlib
 with_confsubdir
 with_spooldir
+with_perlinstalldirs
 with_quarantinedir
 enable_pthread_flag
 enable_check_perl_modules
@@ -1370,6 +1371,9 @@ Optional Packages:
 			  (mailmunge)
   --with-spooldir=DIR     specify location of spool directory
 			  (/var/spool/mailmunge)
+  --with-perlinstalldirs=CHOICE
+                          specify choice for Perl INSTALLDIRS
+                          (site; must be one of perl, site or vendor)
   --with-quarantinedir=DIR
 			  specify location of quarantine directory
 			  (/var/spool/mm-quarantine)
@@ -3320,7 +3324,7 @@ else
    CFLAGS="$OLD_CFLAGS"
 fi
 
-for thing in prefix siteprefix vendorprefix installarchlib installprivlib installbin installman1dir installman3dir installscript installsitearch installsitelib; do
+for thing in prefix siteprefix vendorprefix installarchlib installprivlib installbin installscript installman1dir installman3dir installsitearch installsitelib installsitebin installsitescript installsiteman1dir installsiteman3dir installvendorarch installvendorlib installvendorbin installvendorscript installvendorman1dir installvendorman3dir; do
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Perl installation variable $thing" >&5
 $as_echo_n "checking for Perl installation variable $thing... " >&6; }
     val=`$PERL -V:$thing | sed -e "s/^.*='//" -e "s/';$//"`
@@ -3914,6 +3918,20 @@ else
   SPOOLDIR=/var/spool/mailmunge
 fi
 
+
+
+# Check whether --with-perlinstalldirs was given.
+if test "${with_perlinstalldirs+set}" = set; then :
+  withval=$with_perlinstalldirs; PERLINSTALLDIRS=$with_perlinstalldirs
+else
+  PERLINSTALLDIRS=site
+fi
+
+
+if test "$PERLINSTALLDIRS" != "site" -a "$PERLINSTALLDIRS" != "perl" -a "$PERLINSTALLDIRS" != "vendor" ; then
+   echo "*** --with-perlinstalldirs must be one of 'perl', 'site', or 'vendor'"
+   exit 1
+fi
 
 
 # Check whether --with-quarantinedir was given.
