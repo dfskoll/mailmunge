@@ -889,7 +889,15 @@ sub _main_loop
                 }
         }
 
-        exit($self->cleanup());
+        my $ret = $self->cleanup();
+        if (!defined($ret)) {
+                $self->log(undef, "Warning: Your filter's cleanup() function returned undef; it should return an integer");
+                $ret = 0;
+        } elsif ($ret !~ /^-?\d+$/) {
+                $self->log(undef, "Warning: Your filter's cleanup() function returns '$ret'; it should return an integer");
+                $ret = 0;
+        }
+        exit($ret);
 }
 
 # Private function: reply_to_mx($msg)
