@@ -48,12 +48,14 @@ debian/watch-multiple-mailmunges.install
 docker/Dockerfile.debian.postfix
 docker/Dockerfile.debian.sendmail
 docker/Dockerfile.rocky.postfix
+docker/Dockerfile.rocky.sendmail
 docker/build-docker-container
 docker/docker-testfiles/etc-default-mailmunge
 docker/docker-testfiles/mailmunge-test-savemail.pl
 docker/docker-testfiles/qualify-hostname.sh
 docker/docker-testfiles/set-apt-proxy
 docker/docker-testfiles/setup-tests.sh
+docker/docker-testfiles/waiter.pl
 docker/run-regression-tests-on-docker
 docs/COPYING
 docs/Changelog
@@ -99,6 +101,7 @@ perl/lib/Test/Mailmunge/Utils.pm
 perl/t/00-smoketest.t
 perl/t/02-pod.t
 perl/t/03-pod-coverage.t
+perl/t/05-canonical.t
 perl/t/09-response.t
 perl/t/10-smtp-forward.t
 perl/t/20-filter-roundtrip.t
