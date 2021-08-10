@@ -102,12 +102,14 @@ I<waitTime> seconds.  The default value for I<waitTime> is 1.
 
 If you use this option, C<mailmunge-multiplexor> will I<never>
 activate a worker until I<waitTime> seconds have elapsed since the
-last worker activation.  This could result in mail being tempfailed
-if worker activations do not keep pace with incoming mail.  However,
-it may be preferable to tempfail mail rather than allow the load
-on your server to spike up too quickly.  The default value for this
-option is 0, meaning that C<mailmunge-multiplexor> will start
-workers as quickly as necessary to keep up with incoming mail.
+last worker activation.  This could result in mail being tempfailed if
+worker activations do not keep pace with incoming mail.  However, it
+may be preferable to tempfail mail rather than allow the load on your
+server to spike up too quickly.  The default value for this option is
+0, meaning that C<mailmunge-multiplexor> will start workers as quickly
+as necessary to keep up with incoming mail.  Except in very unusual
+situations, you should need to use this option and we do not recommend
+that it be used.
 
 =item -z I<spooldir>
 

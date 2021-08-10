@@ -54,6 +54,7 @@
 
 ### Delay between starting each worker even on a very busy system
 ### -W option to mailmunge-multiplexor; defaults to 0 in C code
+### Note that we *do not* recommend setting this option to a non-zero value.
 # MX_MIN_WORKER_DELAY=
 
 ### Allow connections to queue if all workers are busy?
