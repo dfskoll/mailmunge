@@ -173,7 +173,6 @@ Event_HandleEventUsingPoll(EventSelector *es)
 	}
     }
 
-    eh = es->handlers;
     nfds = 0;
     for (eh=es->handlers; eh; eh=eh->next) {
 	if (eh->flags & EVENT_FLAG_DELETED) continue;
