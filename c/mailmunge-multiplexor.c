@@ -2562,7 +2562,7 @@ activateWorker(Worker *s, char const *reason)
 	if (LastWorkerActivation &&
 	     (((int) (now - LastWorkerActivation)) < Settings.waitTime)) {
 	    if (DOLOG) {
-		syslog(LOG_DEBUG, "Did not start worker %d: Not enough time elapsed since last worker activation", WORKERNO(s));
+		syslog(LOG_DEBUG, "Did not start worker %d: Not enough time elapsed since last worker activation.  Consider lowering the multiplexor's -W option or eliminating it altogether.", WORKERNO(s));
 	    }
 	    return -1;
 	}
