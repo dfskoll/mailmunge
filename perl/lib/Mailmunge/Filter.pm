@@ -174,6 +174,18 @@ override this to log using a different facility.
 =cut
 sub log_facility   { return 'mail';          }
 
+# Private function: _ensure_response
+# Ensure we have a Mailmunge::Response object.  If not, replace it
+# with a tempfail response object.
+
+sub _ensure_response
+{
+        my ($self, $ctx, $resp, $func) = @_;
+        return $resp if (eval { $resp->isa('Mailmunge::Response') } );
+        $self->log($ctx, 'err', "$func did NOT return a Mailmunge::Response object!  Check your filter code; tempfailing");
+        return Mailmunge::Response->TEMPFAIL(message => 'Internal software error');
+}
+
 # Private function: _init_logging
 # Initialize Sys::Syslog so we can log
 sub _init_logging
@@ -885,6 +897,7 @@ sub _main_loop
                         $self->$cmd(@args);
                 } else {
                         my $resp = $self->unknown_command($cmd, @args);
+                        $resp = $self->_ensure_response('NOQUEUE', $resp, 'unknown_command');
                         $self->_reply_with_status(undef, $resp, 'unkown_command');
                 }
         }
@@ -1347,6 +1360,7 @@ sub _handle_relayok
                                           my_port     => $myport,
                                           qid         => $qid);
         my $resp = $self->filter_relay($ctx);
+        $resp = $self->_ensure_response($ctx, $resp, 'filter_relay');
         $self->_reply_with_status($ctx, $resp, "host $hostip ($hostname)");
 }
 
@@ -1366,6 +1380,7 @@ sub _handle_helook
                                           my_port     => $myport,
                                           qid         => $qid);
         my $resp = $self->filter_helo($ctx);
+        $resp = $self->_ensure_response($ctx, $resp, 'filter_helo');
         $self->_reply_with_status($ctx, $resp, "helo $helo");
 }
 
@@ -1391,6 +1406,7 @@ sub _handle_senderok
                                           qid         => $qid,
                                           esmtp_args  => \@esmtp_args);
 	my $resp = $self->filter_sender($ctx);
+        $resp = $self->_ensure_response($ctx, $resp, 'filter_sender');
         $self->_reply_with_status($ctx, $resp, "sender $sender");
 }
 
@@ -1432,6 +1448,7 @@ sub _handle_recipok
                 }
         }
 
+        $resp = $self->_ensure_response($ctx, $resp, 'filter_recipient');
         $self->_reply_with_status($ctx, $resp, "recipient $recipient");
 }
 

@@ -105,6 +105,7 @@ perl/t/05-canonical.t
 perl/t/09-response.t
 perl/t/10-smtp-forward.t
 perl/t/20-filter-roundtrip.t
+perl/t/21-bad-roundtrip.t
 perl/t/30-filter-exe.t
 perl/t/40-filter-everything.t
 perl/t/50-boilerplate.t
@@ -135,6 +136,7 @@ perl/t/data/msg-with-everything/inputmsg
 perl/t/data/msg-with-exe/NEWBODY
 perl/t/data/msg-with-exe/RESULTS
 perl/t/data/msg-with-exe/inputmsg
+perl/t/filters/bad-filter.pl
 perl/t/filters/default-filter.pl
 perl/t/filters/test-filter.pl
 pod/index.pod
