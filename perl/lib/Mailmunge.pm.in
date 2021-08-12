@@ -189,7 +189,7 @@ The following C<$ctx> fields are available:
     $ctx->my_port      Server's TCP port
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the connection attempt.
 
 For example, if you wish to reject connections from 192.168.44.2,
@@ -216,7 +216,7 @@ command.  The following C<$ctx> fields are available:
     $ctx->my_port      Server's TCP port
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to respond to the HELO/EHLO
 
 For example, if you wish to reject connections from a host that
@@ -242,7 +242,7 @@ The following C<$ctx> fields are available:
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
     $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the MAIL From: command.
 
 Here is a simple example:
@@ -273,7 +273,7 @@ The following C<$ctx> fields are available:
     $ctx->rcpt_addr    The ${rcpt_addr} macro value for this recipient
     $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the RCPT To: command.
 
 Here is a simple example:

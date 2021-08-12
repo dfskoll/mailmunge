@@ -891,10 +891,10 @@ sub _main_loop
 
         my $ret = $self->cleanup();
         if (!defined($ret)) {
-                $self->log('NOQUEUE', "Warning: Your filter's cleanup() function returned undef; it should return an integer");
+                $self->log('NOQUEUE', "Warning: Your filter's cleanup() function returned undef; it must return an integer");
                 $ret = 0;
         } elsif ($ret !~ /^-?\d+$/) {
-                $self->log('NOQUEUE', "Warning: Your filter's cleanup() function returned '$ret'; it should return an integer");
+                $self->log('NOQUEUE', "Warning: Your filter's cleanup() function returned '$ret'; it must return an integer");
                 $ret = 0;
         }
         exit($ret);
@@ -1105,7 +1105,7 @@ The following $ctx fields are available:
     $ctx->my_port      Server's TCP port
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the callback.
 
 The default base class method returns Mailmunge::Response->CONTINUE().
@@ -1129,7 +1129,7 @@ The following $ctx fields are available:
     $ctx->my_port      Server's TCP port
     $ctx->qid          Queue ID (Note: May be NOQUEUE if queue ID not available)
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the callback.
 
 The default base class method returns Mailmunge::Response->CONTINUE().
@@ -1153,7 +1153,7 @@ The following $ctx fields are available:
     $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
     $ctx->cwd          The current working directory
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the callback.
 
 The default base class method returns Mailmunge::Response->CONTINUE().
@@ -1182,7 +1182,7 @@ The following $ctx fields are available:
     $ctx->rcpt_addr    The ${rcpt_addr} macro value for this recipient
     $ctx->esmtp_args   Arrayref of ESMTP arguments to MAIL From:
 
-The function should return an Mailmunge::Response object instructing the MTA how
+The function must return an Mailmunge::Response object instructing the MTA how
 to handle the callback.
 
 The default base class method returns Mailmunge::Response->CONTINUE().
