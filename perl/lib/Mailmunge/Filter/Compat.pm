@@ -534,9 +534,9 @@ they instead return a L<Mailmunge::Response> object.
 
  return ('CONTINUE', 'ok');                        return Mailmunge::Response->CONTINUE();
 
- return ('TEMPFAIL', 'Message', 421, '4.1.1');     return Mailmunge::Response->TEMPFAIL(message => 'Message', code => 421, DSN => '4.1.1');
+ return ('TEMPFAIL', 'Message', 421, '4.1.1');     return Mailmunge::Response->TEMPFAIL(message => 'Message', code => 421, dsn => '4.1.1');
 
- return ('TEMPFAIL', 'Message', 571, '5.2.1');     return Mailmunge::Response->REJECT(message => 'Message', code => 571, DSN => '5.2.1');
+ return ('TEMPFAIL', 'Message', 571, '5.2.1');     return Mailmunge::Response->REJECT(message => 'Message', code => 571, dsn => '5.2.1');
 
  return ('DISCARD', 'Message');                    return Mailmunge::Response->DISCARD(message => 'Message');
 
