@@ -61,14 +61,14 @@ rm_r(char const *qid, char const *dir)
     }
 
     if (lstat(dir, &sbuf) < 0) {
-	syslog(LOG_WARNING, "%s: lstat(%s) failed: %m", qid, dir);
+	syslog(LOG_WARNING, "%s: rm_r: lstat(%s) failed: %m", qid, dir);
 	return -1;
     }
 
     if (!S_ISDIR(sbuf.st_mode)) {
 	/* Not a directory - just unlink */
 	if (unlink(dir) < 0) {
-	    syslog(LOG_WARNING, "%s: unlink(%s) failed: %m", qid, dir);
+	    syslog(LOG_WARNING, "%s: rm_r: unlink(%s) failed: %m", qid, dir);
 	    return -1;
 	}
 	return 0;
@@ -76,7 +76,7 @@ rm_r(char const *qid, char const *dir)
 
     d = opendir(dir);
     if (!d) {
-	syslog(LOG_WARNING, "%s: opendir(%s) failed: %m", qid, dir);
+	syslog(LOG_WARNING, "%s: rm_r: opendir(%s) failed: %m", qid, dir);
 	return -1;
     }
 
@@ -85,7 +85,7 @@ rm_r(char const *qid, char const *dir)
         entry = readdir(d);
         if (!entry) {
             if (errno != 0) {
-                syslog(LOG_WARNING, "%s: readdir_r failed: %m", qid);
+                syslog(LOG_WARNING, "%s: rm_r: readdir failed: %m", qid);
                 closedir(d);
                 return -1;
             }
@@ -103,7 +103,7 @@ rm_r(char const *qid, char const *dir)
     }
     closedir(d);
     if (rmdir(dir) < 0) {
-	syslog(LOG_WARNING, "%s: rmdir(%s) failed: %m", qid, dir);
+	syslog(LOG_WARNING, "%s: rm_r: rmdir(%s) failed: %m", qid, dir);
 	return -1;
     }
     return retcode;
