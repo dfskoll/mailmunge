@@ -666,7 +666,7 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
     me = smfi_getsymval(ctx, "{if_addr}");
     if (me && *me && MyIPAddress && !strcmp(me, MyIPAddress)) {
 	data->myip = MyIPAddress;
-    } else if (me && *me && strcmp(me, "127.0.0.1")) {
+    } else if (me && *me) {
 	data->myip = strdup_with_log(me);
     } else {
 	/* Sigh... use our computed address */
