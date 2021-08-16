@@ -1397,6 +1397,7 @@ sub _handle_senderok
 	}
 
         my $ctx = $self->read_commands_file();
+        return unless $ctx;
         $ctx->cwd($cwd);
         $ctx->esmtp_args(\@esmtp_args);
 	my $resp = $self->filter_sender($ctx);
@@ -1416,6 +1417,7 @@ sub _handle_recipok
                                                 "recipient $recipient");
 	}
         my $ctx = $self->read_commands_file();
+        return unless $ctx;
         $ctx->recipients([$recipient]);
         $ctx->first_recip($first_recip);
         $ctx->cwd($cwd);
