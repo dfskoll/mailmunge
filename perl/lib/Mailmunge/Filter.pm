@@ -1396,15 +1396,9 @@ sub _handle_senderok
                                                 "sender $sender");
 	}
 
-        my $ctx = Mailmunge::Context->new(sender      => $sender,
-                                          hostip      => $hostip,
-                                          hostname    => $hostname,
-                                          connecting_ip => $hostip,
-                                          connecting_name => $hostname,
-                                          helo        => $helo,
-                                          cwd         => $cwd,
-                                          qid         => $qid,
-                                          esmtp_args  => \@esmtp_args);
+        my $ctx = $self->read_commands_file();
+        $ctx->cwd($cwd);
+        $ctx->esmtp_args(\@esmtp_args);
 	my $resp = $self->filter_sender($ctx);
         $resp = $self->_ensure_response($ctx, $resp, 'filter_sender');
         $self->_reply_with_status($ctx, $resp, "sender $sender");
@@ -1421,20 +1415,15 @@ sub _handle_recipok
                 return $self->_reply_with_status($qid, Mailmunge::Response->TEMPFAIL(message => "could not chdir($cwd): $!"),
                                                 "recipient $recipient");
 	}
-        my $ctx = Mailmunge::Context->new(recipients  => [$recipient],
-                                          sender      => $sender,
-                                          hostip      => $hostip,
-                                          hostname    => $hostname,
-                                          connecting_ip => $hostip,
-                                          connecting_name  => $hostname,
-                                          first_recip => $first_recip,
-                                          helo        => $helo,
-                                          cwd         => $cwd,
-                                          qid         => $qid,
-                                          rcpt_mailer => $rcpt_mailer,
-                                          rcpt_host   => $rcpt_host,
-                                          rcpt_addr   => $rcpt_addr,
-                                          esmtp_args  => \@esmtp_args);
+        my $ctx = $self->read_commands_file();
+        $ctx->recipients([$recipient]);
+        $ctx->first_recip($first_recip);
+        $ctx->cwd($cwd);
+        $ctx->rcpt_mailer($rcpt_mailer);
+        $ctx->rcpt_host($rcpt_host);
+        $ctx->rcpt_addr($rcpt_addr);
+        $ctx->esmtp_args(\@esmtp_args);
+
 	my $resp = $self->filter_recipient($ctx);
 
         # If this is Postfix, we cannot tempfail or reject recipients
