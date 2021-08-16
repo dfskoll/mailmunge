@@ -944,6 +944,7 @@ envfrom(SMFICTX *ctx, char **from)
 
     if (data->qid && data->qid != NOQUEUE) {
 	append_mx_command(&dbuf, 'Q', data->qid);
+        append_macro_value(&dbuf, ctx, "i");
 	data->qid_written = 1;
     }
 
@@ -1179,6 +1180,7 @@ rcptto(SMFICTX *ctx, char **to)
             if (data->cmdFD >= 0) {
                 dbuf_init(&dbuf);
                 append_mx_command(&dbuf, 'Q', data->qid);
+                append_macro_value(&dbuf, ctx, "i");
                 if (write_dbuf(&dbuf, data->cmdFD, data, "COMMANDS") >= 0) {
                     data->qid_written = 1;
                 }
@@ -1613,6 +1615,7 @@ eom(SMFICTX *ctx)
 
     if (!data->qid_written && data->qid && (data->qid != NOQUEUE)) {
 	append_mx_command(&dbuf, 'Q', data->qid);
+        append_macro_value(&dbuf, ctx, "i");
 	data->qid_written = 1;
     }
 
