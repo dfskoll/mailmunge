@@ -40,7 +40,7 @@ gen_mx_id(char *out)
 	time_part /= BASE;
     }
 
-    for (i=6; i>=5; i--) {
+    for (i=7; i>=5; i--) {
 	out[i] = char_map[counter % BASE];
 	counter /= BASE;
     }

@@ -18,8 +18,8 @@
 #define SMALLBUF 8192
 #define BIGBUF 65536
 
-/* Identifier is 7 chars long: 5 time plus 2 counter */
-#define MX_ID_LEN 7
+/* Identifier is 8 chars long: 5 time plus 3 counter */
+#define MX_ID_LEN 8
 
 #include <stddef.h>
 #include <sys/types.h>
