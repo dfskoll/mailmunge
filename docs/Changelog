@@ -2,6 +2,37 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2020-08-17 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.04 RELEASED
+
+	* Mailmunge::Filter: Read the COMMANDS files prior to filter_sender
+  	  and filter_recipient callbacks.  This populates sendmail_macros.
+
+	* mailmunge-multiplexor: Fix error in embedded Perl code.
+	  PERL_SYS_TERM was being called each time an embedded interpreter
+	  was destroyed; this is incorrect.  While this code happened to
+	  work on older Perls, it *will fail* on newer perls such as that
+	  shipped with Debian Bullseye.
+
+	* mailmunge: Provide more helpful error messages if filter file
+	  is not readable or has a syntax error or fails for some reason.
+
+	* mailmunge-multiplexor: Set default for "-w" option to 1 second
+	  instead of 3.
+
+	* configure: add --with-perlinstalldirs={site,perl,vendor} flag
+
+	* gen_id.c: Generate 8-character IDs instead of 7-character ones.
+	  This allows for up to 216,000 IDs per second.
+
+	* Mailmunge::Filter: diagnose incorrect return values from various
+  	  filter callbacks and log helpful error messages.
+
+	* Makefile: Don't install the *.in files when running "make install"
+
+	* Many typo fixes and documentation improvements.
+
 2020-08-01 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.03 RELEASED

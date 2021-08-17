@@ -1,3 +1,9 @@
+mailmunge (3.04) stable; urgency=low
+
+  * Package upstream 3.04 release
+
+ -- Dianne Skoll <dianne@skollsoft.com>  Tue, 17 Aug 2021 19:42:03 -0400
+
 mailmunge (3.03) stable; urgency=low
 
   * Package upstream 3.03 release
