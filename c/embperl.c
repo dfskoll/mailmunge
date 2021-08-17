@@ -38,7 +38,7 @@ init_embedded_interpreter(int argc, char **argv, char **env)
 }
 
 void
-deinit_embedded_interpreter()
+deinit_embedded_interpreter(void)
 {
 #ifdef PERL_SYS_TERM
     PERL_SYS_TERM();
