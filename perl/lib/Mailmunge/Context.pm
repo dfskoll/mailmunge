@@ -575,15 +575,15 @@ the C<filter_recipient> (if any) or C<filter_message> if there is only
 one recipient.  This is because Postfix does not assign a queue-ID until
 after the first successful RCPT command.
 
+=head2 mta_macro($macro)
+
+A synonym for C<sendmail_macro>.
+
 =head2 get_recipient_mailer($recip)
 
 Returns the [mailer, host, addr] triplet associated with the given
 recipient, from the Sendail macros {rcpt_mailer}, {rcpt_host} and
 {rcpt_addr}.  Available in C<filter_message> and C<filter_wrapup>.
-
-=head2 mta_macro($macro [, $val])
-
-A synonym for C<sendmail_macro>
 
 =head2 get_quarantine_dir()
 

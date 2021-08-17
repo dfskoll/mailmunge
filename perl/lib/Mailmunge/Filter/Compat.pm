@@ -617,6 +617,10 @@ use L<Mailmunge::Action::Boilerplate>.
 Instead of the various C<spam_assassin_*> functions, use
 L<Mailmunge::Test::SpamAssassin>.
 
+=item Rspamd
+
+Instead of C<rspamd_check>, use L<Mailmunge::Test::Rspamd>.
+
 =item SMTP Call-forwards
 
 Instead of C<md_check_against_smtp_server>, use
