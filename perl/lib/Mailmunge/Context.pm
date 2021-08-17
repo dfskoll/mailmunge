@@ -567,15 +567,19 @@ curly braces around long macro names.  For example:
 
     my $port = $ctx->sendmail_macro('daemon_port');
 
+Sendmail macros are available in C<filter_sender>,
+C<filter_recipient>, C<filter_message> and C<filter_wrapup>, although
+specific macros may be available only at certain stages.  For example,
+with Postfix, the C<i> macro is not available until the I<second> call
+the C<filter_recipient> (if any) or C<filter_message> if there is only
+one recipient.  This is because Postfix does not assign a queue-ID until
+after the first successful RCPT command.
+
 =head2 get_recipient_mailer($recip)
 
-Returns the [mailer, host, addr] triplet associated with the given recipient,
-from the Sendail macros {rcpt_mailer}, {rcpt_host} and {rcpt_addr}.
-
-=head2 sendmail_macro($macro [, $val])
-
-Gets or sets the value of the Sendmail macro $macro.  Do not include
-the curly braces in multi-character macron names.
+Returns the [mailer, host, addr] triplet associated with the given
+recipient, from the Sendail macros {rcpt_mailer}, {rcpt_host} and
+{rcpt_addr}.  Available in C<filter_message> and C<filter_wrapup>.
 
 =head2 mta_macro($macro [, $val])
 

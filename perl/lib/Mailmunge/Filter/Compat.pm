@@ -273,6 +273,10 @@ I<must not> override C<filter_message>.  Instead, override
 C<filter_begin>, C<filter>, C<filter_multipart>, C<filter_end> and
 C<filter_wrapup> as required.
 
+Any functions that are callable from C<filter_message> as well as
+L<Mailmunge::Context> methods available to C<filter_message> are available
+in C<filter_begin>, C<filter>, C<flter_multipart> and C<filter_end>.
+
 The body filtering functions are called as follows:
 
 =over 4
