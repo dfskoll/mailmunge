@@ -296,7 +296,7 @@ to access the "subject" and "sender" accessors (for example), use this
 code:
 
     my $subject = $ctx->subject;
-    my $subject = $ctx->sender;
+    my $sender = $ctx->sender;
 
 You can also set values in the context by calling (for example)
 
