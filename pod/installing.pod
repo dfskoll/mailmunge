@@ -83,7 +83,7 @@ L<DBD::SQLite|https://metacpan.org/pod/DBD::SQLite>
 
 On a Debian Linux system, you can install all the prerequisites with:
 
-  apt install libmime-tools-perl libperl-dev perl perl-modules-5.28 \
+  apt install libmime-tools-perl libperl-dev perl perl-modules      \
               libio-socket-ssl-perl spamassassin                    \
               libfile-find-rule-perl libtest-deep-perl cpanminus    \
               build-essential libjson-any-perl libmilter-dev        \
