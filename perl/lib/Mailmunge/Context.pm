@@ -571,7 +571,7 @@ Sendmail macros are available in C<filter_sender>,
 C<filter_recipient>, C<filter_message> and C<filter_wrapup>, although
 specific macros may be available only at certain stages.  For example,
 with Postfix, the C<i> macro is not available until the I<second> call
-the C<filter_recipient> (if any) or C<filter_message> if there is only
+to C<filter_recipient> (if any) or C<filter_message> if there is only
 one recipient.  This is because Postfix does not assign a queue-ID until
 after the first successful RCPT command.
 
