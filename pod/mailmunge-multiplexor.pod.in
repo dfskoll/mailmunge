@@ -108,8 +108,8 @@ may be preferable to tempfail mail rather than allow the load on your
 server to spike up too quickly.  The default value for this option is
 0, meaning that C<mailmunge-multiplexor> will start workers as quickly
 as necessary to keep up with incoming mail.  Except in very unusual
-situations, you should need to use this option and we do not recommend
-that it be used.
+situations, you should not need to use this option and we do not
+recommend that it be used.
 
 =item -z I<spooldir>
 
