@@ -37,7 +37,7 @@ sub start_multiplexor
         } else {
                 $prog = 'mailmunge-multiplexor';
         }
-        system($prog, '-l', '-Z', '-z', $dir, '-s', "$dir/mx.sock", '-f', $filter, '-p', "$dir/mx.pid");
+        system($prog, '-l', '-Z', '-z', $dir, '-s', "$dir/mx.sock", '-f', $filter, '-p', "$dir/mx.pid", '-Y', 'mm-mx-test-instance');
 }
 
 sub stop_multiplexor
