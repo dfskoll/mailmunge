@@ -294,7 +294,7 @@ See L<Mailmunge::Filter/filter_message> for more details.
 =head2 $filter-E<gt>filter_wrapup($ctx)
 
 This callback is called when the filter has finished scanning a message
-body, but wants one last change to modify the message headers or disposition.
+body, but wants one last chance to modify the message headers or disposition.
 See L<Mailmunge::Filter/filter_wrapup> for more details.
 
 =head1 SEE ALSO
