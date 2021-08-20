@@ -90,6 +90,20 @@ input.  If it does not exit within 10 seconds, it will be terminated
 with SIGTERM.  If that still does not work, then after a further 10
 seconds, it is killed with SIGKILL.
 
+=head2 PERCENT ENCODING
+
+Many parameters in commands and replies are I<percent-encoded>.  To
+percent-encode a sequence of bytes, replace any byte whose value is
+less than or equal to 32, greater than 126, or one of C<%>, C<\>, C<">,
+or C<'> with the three-byte sequence C<%XY> where C<XY> is
+the hexadecimal value of the byte.
+
+Here are some examples of percent-encoded strings:
+
+    Hello                   ==> Hello
+    Hello, there!           ==> Hello,%20there!
+    "How\ are%you?"         ==> %22How%5C%20are%25you?%22
+
 =head2 SERVER COMMANDS
 
 All server commands are single line commands.  Each command is followed
