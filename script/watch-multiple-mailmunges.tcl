@@ -76,9 +76,11 @@ proc add_machine { mach } {
     }
 
     global Machines
+    global DoneARedrawSinceLastUpdate
     if {[catch {
 	set fp [open_connection $mach]
 	lappend Machines [list $mach $fp]
+        set DoneARedrawSinceLastUpdate 1
     } err]} {
 	puts stderr $err
     }
