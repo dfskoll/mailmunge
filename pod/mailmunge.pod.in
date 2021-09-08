@@ -164,7 +164,8 @@ the directory containing the failed message using syslog.
 
 Specifies the socket for communicating with C<mailmunge-multiplexor>.
 The I<mx_socket_name> specifies the path of the UNIX-domain socket.
-See L<mailmunge-multiplexor> for details.
+See L<mailmunge-multiplexor> for details and L<SOCKET SPECIFICATION>
+for the format of I<mx_socket_name>.
 
 =item -o I<fileName>
 
@@ -187,6 +188,8 @@ running Sendmail, or an INET socket on a convenient port if you are
 running Postfix.  Postfix often runs in a chroot environment, so
 using UNIX-domain sockets is a problem if the socket is not in
 Postfix's chroot jail.
+
+See L<SOCKET SPECIFICATION> for the format of I<connection>.
 
 =item -q
 
@@ -232,6 +235,39 @@ configuration file.
 
 Set the spool directory to I<spooldir>.  If this option is omitted,
 the spool directory defaults to @SPOOLDIR@.
+
+=back
+
+=head1 SOCKET SPECIFICATION
+
+The C<-m> and C<-p> options take a socket as an
+argument.  This socket can be specified as:
+
+=over
+
+=item /path/to/socket
+
+A UNIX-domain socket
+
+=item inet:portnum
+
+A TCP socket bound to port I<portnum>, but that accepts connections
+only from the IPv4 loopback address (127.0.0.1).
+
+=item inet_any:portnum
+
+A TCP socket bound to port I<portnum> that will accept connections
+from any address.  I<Use inet_any with caution!>
+
+=item inet6:portnum
+
+A TCP socket bound to port I<portnum> listening on the IPv6 loopback
+address.
+
+=item inet6_any:portnum
+
+A TCP socket bound to port I<portnum> listening on the IPv6 wildcard
+address.
 
 =back
 
