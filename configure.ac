@@ -1,4 +1,3 @@
-nl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(mailmunge, 3.04, , mailmunge, https://www.mailmunge.org/)
@@ -27,7 +26,19 @@ if test -z "$PERL" ; then
    exit 1
 fi
 
-
+dnl Check for -Wno-unused-result
+AC_MSG_CHECKING(whether C compiler accepts -Wno-unused-result option)
+OLD_CFLAGS="$CFLAGS"
+CFLAGS="-Wno-unused-result"
+AC_TRY_COMPILE([
+#include <stdio.h>
+], [int x;], ac_have_wno_unused_result=yes, ac_have_wno_unused_result=no);
+AC_MSG_RESULT($ac_have_wno_unused_result)
+if test "$ac_have_wno_unused_result" = "yes" ; then
+    CFLAGS="$OLD_CFLAGS -Wno-unused-result"
+else
+    CFLAGS="$OLD_CFLAGS"
+fi
 dnl Check for socklen_t type
 AC_MSG_CHECKING(whether socklen_t is defined)
 AC_TRY_COMPILE([
