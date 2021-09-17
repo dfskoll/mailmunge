@@ -40,8 +40,11 @@ sub _add_boilerplate
                 return $did_something;
         }
 
-        if ($self->_add_to_part($ctx, $entity, $boilerplate, $at_start, $mime_type)) {
-                return 1;
+        my $errmsg = $self->_add_to_part($ctx, $entity, $boilerplate, $at_start, $mime_type);
+        return 1 if (defined($errmsg) && ($errmsg eq 'OK'));
+
+        if (defined($errmsg)) {
+                $self->filter->log($ctx, 'warning', "Could not add boilerplate to MIME part: $errmsg");
         }
         return 0;
 }
@@ -50,14 +53,14 @@ sub _add_to_part
 {
         my ($self, $ctx, $part, $boilerplate, $at_start, $mime_type) = @_;
 
-        return 0 unless (lc($part->mime_type) eq $mime_type);
+        return undef unless (lc($part->mime_type) eq $mime_type);
 
         if ($mime_type eq 'text/plain') {
                 return $self->_add_to_text_part($ctx, $part, $boilerplate, $at_start);
         } elsif ($mime_type eq 'text/html') {
                 return $self->_add_to_html_part($ctx, $part, $boilerplate, $at_start);
         }
-        return 0;
+        return undef;
 }
 
 sub _html_echo
@@ -111,20 +114,21 @@ sub _add_to_html_part
         $boilerplate .= "\n" unless substr($boilerplate, -1, 1) eq "\n";
 
         my $body = $part->bodyhandle;
-        return 0 unless $body;
+        return 'MIME::Entity->bodyhandle returned undef' unless $body;
 
         my $path = $body->path();
-        return 0 unless $path;
+        return 'MIME::Body has no path... is it stored on disk?' unless $path;
 
         my $new = $path . '.tmp';
 
         my $ifh = $body->open('r');
-        return 0 unless $ifh;
+        return "body->open() failed: $!" unless $ifh;
 
         my $ofh;
         if (!open($ofh, '>', $new)) {
+                my $err = $!;
                 $ifh->close();
-                return 0;
+                return "Cannot write $new: $err";
         }
 
         my $p;
@@ -157,13 +161,15 @@ sub _add_to_html_part
 
         if (!$p->{mm}->{added}) {
                 unlink($new);
-                return 0;
+                return undef;
         }
         if (rename($new, $path)) {
-                return 1;
+                return 'OK';
         }
+        my $err = $!;
         unlink($new);
-        return 0;
+        return "Cannot rename($new, $path): $!";
+
 }
 
 sub _add_to_text_part
@@ -174,20 +180,21 @@ sub _add_to_text_part
         $boilerplate .= "\n" unless substr($boilerplate, -1, 1) eq "\n";
 
         my $body = $part->bodyhandle;
-        return 0 unless $body;
+        return 'MIME::Entity->bodyhandle returned undef' unless $body;
 
         my $path = $body->path();
-        return 0 unless $path;
+        return 'MIME::Body has no path... is it stored on disk?' unless $path;
 
         my $new = $path . '.tmp';
 
         my $ifh = $body->open('r');
-        return 0 unless $ifh;
+        return "body->open() failed: $!" unless $ifh;
 
         my $ofh;
         if (!open($ofh, '>', $new)) {
+                my $err = $!;
                 $ifh->close();
-                return 0;
+                return "Cannot write $new: $err";
         }
         if ($at_start) {
                 $ofh->print($boilerplate);
@@ -202,10 +209,11 @@ sub _add_to_text_part
         $ofh->close();
         $ifh->close();
         if (!rename($new, $path)) {
+                my $err = $!;
                 unlink($new);
-                return 0;
+                return "Cannot rename($new, $path): $!";
         }
-        return 1;
+        return 'OK';
 }
 
 1;
