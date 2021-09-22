@@ -106,6 +106,8 @@ char *scan_body = NULL;
 static char *pidfile = NULL;
 static char *lockfile = NULL;
 
+static sig_atomic_t TermSignal = 0;
+
 /* In debug mode, we do not delete working directories. */
 int DebugMode = 0;
 
@@ -283,6 +285,8 @@ handle_sig(int s)
 static void
 handle_term(int s)
 {
+    TermSignal = s;
+
     smfi_stop();
 
     /* Reset signal disposition to default so a second one will just
@@ -2733,6 +2737,9 @@ main(int argc, char **argv)
     signal(SIGTERM, handle_term);
 
     rc = (int) smfi_main();
+    if (TermSignal) {
+        syslog(LOG_INFO, "Terminated due to signal %d", TermSignal);
+    }
     if (pidfile) {
 	unlink(pidfile);
     }
