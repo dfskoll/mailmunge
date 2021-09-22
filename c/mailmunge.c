@@ -106,8 +106,6 @@ char *scan_body = NULL;
 static char *pidfile = NULL;
 static char *lockfile = NULL;
 
-static sig_atomic_t TermSignal = 0;
-
 /* In debug mode, we do not delete working directories. */
 int DebugMode = 0;
 
@@ -273,27 +271,6 @@ handle_sig(int s)
     /* Return and probably cause core dump */
 }
 #endif
-/**********************************************************************
-*%FUNCTION: handle_term
-*%ARGUMENTS:
-* s -- signal number
-*%RETURNS:
-* Nothing
-*%DESCRIPTION:
-* Handler for SIGINT and SIGTERM - calls smfi_stop so smfi_main exits
-***********************************************************************/
-static void
-handle_term(int s)
-{
-    TermSignal = s;
-
-    smfi_stop();
-
-    /* Reset signal disposition to default so a second one will just
-     * kill us */
-    signal(s, SIG_DFL);
-}
-
 
 /**********************************************************************
 * %FUNCTION: get_fd
@@ -2733,13 +2710,8 @@ main(int argc, char **argv)
 	close(kidpipe[1]);
     }
 
-    signal(SIGINT, handle_term);
-    signal(SIGTERM, handle_term);
-
     rc = (int) smfi_main();
-    if (TermSignal) {
-        syslog(LOG_INFO, "Terminated due to signal %d", TermSignal);
-    }
+
     if (pidfile) {
 	unlink(pidfile);
     }
