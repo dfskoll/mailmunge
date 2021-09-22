@@ -283,8 +283,6 @@ handle_sig(int s)
 static void
 handle_term(int s)
 {
-    syslog(LOG_INFO, "Caught signal %d -- stopping milter threads and exiting", s);
-
     smfi_stop();
 
     /* Reset signal disposition to default so a second one will just
