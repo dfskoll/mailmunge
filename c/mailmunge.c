@@ -271,6 +271,27 @@ handle_sig(int s)
     /* Return and probably cause core dump */
 }
 #endif
+/**********************************************************************
+*%FUNCTION: handle_term
+*%ARGUMENTS:
+* s -- signal number
+*%RETURNS:
+* Nothing
+*%DESCRIPTION:
+* Handler for SIGINT and SIGTERM - calls smfi_stop so smfi_main exits
+***********************************************************************/
+static void
+handle_term(int s)
+{
+    syslog(LOG_INFO, "Caught signal %d -- stopping milter threads and exiting", s);
+
+    smfi_stop();
+
+    /* Reset signal disposition to default so a second one will just
+     * kill us */
+    signal(s, SIG_DFL);
+}
+
 
 /**********************************************************************
 * %FUNCTION: get_fd
@@ -2709,6 +2730,10 @@ main(int argc, char **argv)
 	write(kidpipe[1], "X", 1);
 	close(kidpipe[1]);
     }
+
+    signal(SIGINT, handle_term);
+    signal(SIGTERM, handle_term);
+
     rc = (int) smfi_main();
     if (pidfile) {
 	unlink(pidfile);
