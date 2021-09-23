@@ -137,7 +137,6 @@ perl/t/data/msg-with-exe/NEWBODY
 perl/t/data/msg-with-exe/RESULTS
 perl/t/data/msg-with-exe/inputmsg
 perl/t/filters/bad-filter.pl
-perl/t/filters/default-filter.pl
 perl/t/filters/test-filter.pl
 pod/index.pod
 pod/installing.pod
