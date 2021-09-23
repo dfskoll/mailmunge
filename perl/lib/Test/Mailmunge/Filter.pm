@@ -16,6 +16,8 @@ use Mailmunge::Constants;
 
 use Mailmunge::Action::Boilerplate;
 
+sub log_identifier { return 'mailmunge-test-filter-dont-panic'; }
+
 sub initialize
 {
         my $cwd = getcwd();
