@@ -69,6 +69,11 @@ typedef int md_socklen_t;
 #define AF_LOCAL AF_UNIX
 #endif
 
+/* To determine our own IP address, we connect a UDP socket to
+   Google's 8.8.8.8 nameserver and then get our socket address */
+#define MY_ADDRESS_CONNECT_TO_ADDR "8.8.8.8"
+#define MY_ADDRESS_CONNECT_TO_PORT 53
+
 #ifdef ENABLE_DEBUGGING
 #include <signal.h>
 #define DEBUG(x) x
@@ -2643,28 +2648,40 @@ main(int argc, char **argv)
     openlog("mailmunge", LOG_PID, facility);
 
     /* Determine my IP address */
-    if (gethostname(buf, sizeof(buf)) >= 0) {
-        syslog(LOG_INFO, "My hostname appears to be: %s", buf);
-	struct hostent *he = gethostbyname(buf);
-	struct in_addr in;
-	if (he && he->h_addr) {
-	    memcpy(&in.s_addr, he->h_addr, sizeof(in.s_addr));
+    {
+        int udp_sock = socket(PF_INET, SOCK_DGRAM, 0);
+        struct sockaddr_in peer;
+        if (udp_sock >= 0) {
 #ifdef HAVE_INET_NTOP
-	    if (inet_ntop(AF_INET, &in.s_addr, buf, sizeof(buf))) {
-		if (*buf) MyIPAddress = strdup_with_log(buf);
-	    }
+            inet_pton(AF_INET, MY_ADDRESS_CONNECT_TO_ADDR, &peer.sin_addr);
 #else
-	    {
-		char *s = inet_ntoa(in);
-		if (s && *s) MyIPAddress = strdup_with_log(s);
-	    }
+            inet_aton(MY_ADDRESS_CONNECT_TO_ADDR, &peer.sin_addr);
 #endif
-            syslog(LOG_INFO, "My IP address appears to be: %s", MyIPAddress);
-	} else {
-	    syslog(LOG_WARNING, "Could not determine my own IP address!  Ensure that %s has an entry in /etc/hosts or the DNS", buf);
-	}
-    } else {
-        syslog(LOG_WARNING, "gethostname failed: %m");
+            peer.sin_port = htons(MY_ADDRESS_CONNECT_TO_PORT);
+            peer.sin_family = AF_INET;
+            if (connect(udp_sock, (struct sockaddr *) &peer, sizeof(peer)) >= 0) {
+                struct sockaddr_in me;
+                socklen_t len = sizeof(me);
+                if (getsockname(udp_sock, (struct sockaddr *) &me, &len) >= 0) {
+#ifdef HAVE_INET_NTOP
+                    if (inet_ntop(AF_INET, &me.sin_addr, buf, sizeof(buf))) {
+                        if (*buf) MyIPAddress = strdup_with_log(buf);
+                    }
+#else
+                    {
+                        char *s = inet_ntoa(&me.sin_addr);
+                        if (s && *s) MyIPAddress = strdup_with_log(s);
+                    }
+#endif
+                }
+            }
+            close(udp_sock);
+        }
+        if (!MyIPAddress) {
+            syslog(LOG_WARNING, "Could not determine my own IP address!  Ensure that this host has a default route.");
+        } else {
+            syslog(LOG_INFO, "My IP address appears to be %s", MyIPAddress);
+        }
     }
 
     /* Open the milter socket if library has smfi_opensocket */
