@@ -237,6 +237,9 @@ static HistoryBucket hourly_history[NUM_CMDS][HISTORY_HOURS];
 /* Pipe written on reception of SIGCHLD */
 static int Pipe[2] = {-1, -1};
 
+/* Pipe written to on reception of SIGTERM */
+static int SigPipe[2] = {-1, -1};
+
 #ifndef HAVE_SIG_ATOMIC_T
 #define sig_atomic_t int
 #endif
@@ -245,6 +248,7 @@ static volatile sig_atomic_t ReapPending = 0;
 static volatile sig_atomic_t HupPending = 0;
 static volatile sig_atomic_t IntPending = 0;
 static volatile sig_atomic_t CharPending = 0;
+static volatile sig_atomic_t Terminate = 0;
 
 static int DebugEvents = 0;
 static time_t LastWorkerActivation = (time_t) 0;
@@ -329,6 +333,10 @@ static void childHandler(int sig);
 static void hupHandler(int sig);
 static void intHandler(int sig);
 static void sigterm(int sig);
+static void do_sigterm_work(EventSelector *es,
+                            int fd,
+                            unsigned int flags,
+                            void *data);
 static void newGeneration(void);
 
 static void handleIdleTimeout(EventSelector *es, int fd, unsigned int flags,
@@ -1355,6 +1363,16 @@ main(int argc, char *argv[], char **env)
 	Event_EnableDebugging("/var/log/mailmunge-event-debug.log");
     }
 
+    /* Create event handler for sigterm */
+    if (pipe(SigPipe) < 0) {
+        REPORT_FAILURE("Could not make pipe for signal handler");
+	if (pidfile) unlink(pidfile);
+	if (lockfile) unlink(lockfile);
+	exit(EXIT_FAILURE);
+    }
+
+    Event_AddHandler(es, SigPipe[0], EVENT_FLAG_READABLE, do_sigterm_work, NULL);
+
     /* Set signal handler for SIGTERM */
     signal(SIGTERM, sigterm);
 
@@ -1392,12 +1410,13 @@ main(int argc, char *argv[], char **env)
     close(kidpipe[1]);
 
     /* And loop... */
-    while(1) {
+    while(!Terminate) {
 	if (Event_HandleEvent(es) < 0) {
 	    syslog(LOG_CRIT, "Error in Event_HandleEvent: %m.  MULTIPLEXOR IS TERMINATING.");
-	    sigterm(0);
+            break;
 	}
     }
+    do_sigterm_work(es, SigPipe[0], 0, NULL);
 }
 
 /**********************************************************************
@@ -3124,7 +3143,7 @@ reapTerminatedWorkers(int killed)
         NumSyntaxErrorExits = -10 - Settings.maxWorkers;
         fprintf(stderr, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
         syslog(LOG_CRIT, "Too many consecutive filter failures.  MULTIPLEXOR IS TERMINATING.");
-        sigterm(0);
+        do_sigterm_work(NULL, SigPipe[0], 0, NULL);
     }
 }
 
@@ -3363,24 +3382,30 @@ logWorkerReaped(Worker *s, int status)
 static void
 sigterm(int sig)
 {
-    int i, j, oneleft;
-
     /* Only the parent process should handle SIGTERM */
     if (ParentPid != getpid()) {
 	syslog(LOG_WARNING, "Child process received SIGTERM before signal disposition could be reset!  Exiting!");
 	exit(EXIT_FAILURE);
     }
 
+    Terminate = 1;
+    write(SigPipe[1], "X", 1);
+    if (DOLOG) {
+	if (sig) {
+	    syslog(LOG_INFO, "Received SIGTERM: Stopping workers and terminating");
+	}
+    }
+}
+
+static void do_sigterm_work(EventSelector *es, int fd, unsigned int flags, void *data)
+{
+    int i, j, oneleft;
+
     if (pidfile) {
 	unlink(pidfile);
     }
     if (lockfile) {
 	unlink(lockfile);
-    }
-    if (DOLOG) {
-	if (sig) {
-	    syslog(LOG_INFO, "Received SIGTERM: Stopping workers and terminating");
-	}
     }
 
     /* Remove our socket so we don't get any more requests */
