@@ -2,6 +2,39 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2020-09-30 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.05 RELEASED
+
+	* documentation: Fix many typos and add some clarifications.
+
+	* tests: Change syslog identifier so that tests use a different
+	  syslog identifier than production Mailmunge filters.
+
+	* compilation: Use -Wno-unused-result flag if the compiler supports it.
+
+	* Mailmunge::Action::Boilerplate: Log error messages if adding
+	  boilerplate fails.
+
+	* mailmunge: Rather than determining the host's IP address by
+	  resolving its hostname, create a connected UDP socket to 8.8.8.8
+	  and use getsockname() to get the local IP address chosen by the
+	  kernel.
+
+	* mailmunge-multiplexor: Fix potential code path that could call
+	  non-signal-safe snprintf function from a signal handler.
+
+	* tests: Remove unused file
+
+	* mailmunge: Remove support for systems that lack inet_ntop.
+	  inet_ntop was standardized over 15 years ago, so any systems that
+	  lack it are not worth supporting.
+
+	* mailmunge-multiplexor.c: Log the "MTA appears to be: XXX" message
+	  from the C code instead of the Perl code.  This causes it to be
+	  logged only once per multiplexor startup instead of once per scanning
+	  worker startup.
+
 2020-08-17 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.04 RELEASED
