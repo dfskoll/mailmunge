@@ -384,10 +384,8 @@ fi
 LIBS_WITHOUT_PTHREAD="$LIBS"
 AC_CHECK_LIB(pthread, pthread_once)
 
-dnl Do we have initgroups?
 AC_CHECK_FUNCS(initgroups)
 AC_CHECK_FUNCS(setrlimit)
-AC_CHECK_FUNCS(inet_ntop)
 AC_CHECK_FUNCS(setproctitle)
 
 if test "$SPOOLDIR" = "no" -o "$SPOOLDIR" = "" ; then

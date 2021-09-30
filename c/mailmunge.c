@@ -92,10 +92,6 @@ extern void free_debug(void *, void *, char const *, int);
 #define DEBUG(x) (void) 0
 #endif
 
-/* If we don't have inet_ntop, we need to protect inet_ntoa with a mutex */
-#ifndef HAVE_INET_NTOP
-static pthread_mutex_t ntoa_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 extern int find_syslog_facility(char const *facility_name);
 
 #define DEBUG_ENTER(func) DEBUG(syslog(LOG_DEBUG, "%p: %s(%d): ENTER %s", ctx, __FILE__, __LINE__, func))
@@ -489,7 +485,7 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
     char const *tmp;
     char *me;
     struct sockaddr_in *insa = (struct sockaddr_in *) sa;
-#if defined(AF_INET6) && defined(HAVE_INET_NTOP)
+#if defined(AF_INET6)
     struct sockaddr_in6 *in6sa = (struct sockaddr_in6 *) sa;
 #endif
 
@@ -603,7 +599,6 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
 	    DEBUG_EXIT("mfconnect", "SMFIS_TEMPFAIL");
 	    return SMFIS_TEMPFAIL;
 	}
-#ifdef HAVE_INET_NTOP
 #ifdef AF_INET6
         if (sa->sa_family == AF_INET6) {
 	    tmp = inet_ntop(AF_INET6, &in6sa->sin6_addr, data->hostip, 65);
@@ -637,14 +632,8 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
 	    DEBUG_EXIT("mfconnect", "SMFIS_TEMPFAIL");
 	    return SMFIS_TEMPFAIL;
 	}
-#else
-	pthread_mutex_lock(&ntoa_mutex);
-	tmp = inet_ntoa(insa->sin_addr);
-	if (tmp) strncpy(data->hostip, tmp, 64);
-	pthread_mutex_unlock(&ntoa_mutex);
-#endif
 	if (!tmp) {
-	    syslog(LOG_WARNING, "inet_ntoa or inet_ntop failed: %m");
+	    syslog(LOG_WARNING, "inet_ntop failed: %m");
 	    cleanup(ctx);
 	    DEBUG_EXIT("mfconnect", "SMFIS_TEMPFAIL");
 	    return SMFIS_TEMPFAIL;
@@ -2652,27 +2641,16 @@ main(int argc, char **argv)
         int udp_sock = socket(PF_INET, SOCK_DGRAM, 0);
         struct sockaddr_in peer;
         if (udp_sock >= 0) {
-#ifdef HAVE_INET_NTOP
             inet_pton(AF_INET, MY_ADDRESS_CONNECT_TO_ADDR, &peer.sin_addr);
-#else
-            inet_aton(MY_ADDRESS_CONNECT_TO_ADDR, &peer.sin_addr);
-#endif
             peer.sin_port = htons(MY_ADDRESS_CONNECT_TO_PORT);
             peer.sin_family = AF_INET;
             if (connect(udp_sock, (struct sockaddr *) &peer, sizeof(peer)) >= 0) {
                 struct sockaddr_in me;
                 socklen_t len = sizeof(me);
                 if (getsockname(udp_sock, (struct sockaddr *) &me, &len) >= 0) {
-#ifdef HAVE_INET_NTOP
                     if (inet_ntop(AF_INET, &me.sin_addr, buf, sizeof(buf))) {
                         if (*buf) MyIPAddress = strdup_with_log(buf);
                     }
-#else
-                    {
-                        char *s = inet_ntoa(&me.sin_addr);
-                        if (s && *s) MyIPAddress = strdup_with_log(s);
-                    }
-#endif
                 }
             }
             close(udp_sock);
