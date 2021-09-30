@@ -28,7 +28,7 @@ from standard input; this line contains a command.  The server
 executes the command and then outputs a single-line response to
 standard-output.
 
-For the C<scan> command, additional information is places in a
+For the C<scan> command, additional information is placed in a
 temporary working directory.  When the filter processes the C<scan>
 command (typically in its C<filter_message> function), it is expected
 to populate the working directory with more files, which communicate
