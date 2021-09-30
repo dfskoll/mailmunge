@@ -390,6 +390,58 @@ state_name(int state)
 }
 
 /**********************************************************************
+* %FUNCTION: log_mta
+* %ARGUMENTS:
+*  None
+* %RETURNS:
+*  Nothing
+* %DESCRIPTION:
+* Tries to determine whether we're running Sendmail or Postfix, and
+* logs the result
+***********************************************************************/
+static void log_mta(void)
+{
+    int mta_is_postfix = 0;
+    int mta_is_sendmail = 0;
+    /* Look for config files */
+    if (access("/etc/postfix/main.cf", R_OK) >= 0 &&
+        access("/etc/mail/sendmail.cf", R_OK) < 0) {
+        mta_is_postfix = 1;
+        mta_is_sendmail = 0;
+    } else if (access("/etc/postfix/main.cf", R_OK) < 0 &&
+               access("/etc/mail/sendmail.cf", R_OK) >= 0) {
+        mta_is_postfix = 0;
+        mta_is_sendmail = 1;
+    } else {
+        FILE *sm = popen(SENDMAIL " -bt < /dev/null 2>&1", "r");
+        if (sm) {
+            char buf[1024];
+            while(fgets(buf, sizeof(buf), sm)) {
+                if (strstr(buf, "unsupported: -bt")) {
+                    mta_is_postfix = 1;
+                    mta_is_sendmail = 0;
+                    break;
+                } else if (strstr(buf, "ADDRESS TEST MODE")) {
+                    mta_is_postfix = 0;
+                    mta_is_sendmail = 1;
+                    break;
+                }
+            }
+            pclose(sm);
+        }
+    }
+
+    if (mta_is_postfix) {
+        syslog(LOG_INFO, "MTA appears to be: Postfix");
+    } else if (mta_is_sendmail) {
+        syslog(LOG_INFO, "MTA appears to be: Sendmail");
+    } else {
+        syslog(LOG_INFO, "MTA could not be identified");
+    }
+
+}
+
+/**********************************************************************
 * %FUNCTION: state_name_lc
 * %ARGUMENTS:
 *  state -- a state number
@@ -1408,6 +1460,9 @@ main(int argc, char *argv[], char **env)
     /* Tell the waiting parent that everything is fine */
     write(kidpipe[1], "X", 1);
     close(kidpipe[1]);
+
+    /* Detect and log the mta */
+    log_mta();
 
     /* And loop... */
     while(!Terminate) {

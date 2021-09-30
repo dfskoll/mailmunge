@@ -877,14 +877,6 @@ sub _main_loop
 
         $self->initialize();
 
-        if ($self->mta_is_postfix) {
-                $self->log('NOQUEUE', 'info', 'MTA appears to be: Postfix');
-        } elsif ($self->mta_is_sendmail) {
-                $self->log('NOQUEUE', 'info', 'MTA appears to be: Sendmail');
-        } else {
-                $self->log('NOQUEUE', 'info', 'MTA could not be identified');
-        }
-
         while (my $line = <STDIN>) {
                 $self->_cd_to_spooldir();
                 chomp($line);
