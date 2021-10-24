@@ -362,7 +362,7 @@ no warnings 'once';
 sub _register
 {
         my ($self) = @_;
-        die("Filter already registered") if $::main::FILTER;
+        die("Filter already registered") if $::main::MAILMUNGE_FILTER;
         $::main::MAILMUNGE_FILTER = $self;
 }
 use warnings 'once';
