@@ -814,17 +814,30 @@ sub copy_or_link
 sub _parse_cmdline_args {
         my ($self) = @_;
         my $seen = 0;
+        my $only_one = "Only one of -server, -serveru, -embserver or -embserveru should be supplied";
         foreach my $arg (@ARGV) {
                 if ($arg eq '-server') {
+                        if ($seen) {
+                                $self->_missing_cmdline_args($only_one);
+                        }
                         $seen = 1;
                         $self->{enter_main_loop} = 1;
                 } elsif ($arg eq '-serveru') {
+                        if ($seen) {
+                                $self->_missing_cmdline_args($only_one);
+                        }
                         $seen = 1;
                         $self->{do_status_tags} = 1;
                         $self->{enter_main_loop} = 1;
                 } elsif ($arg eq '-embserver') {
+                        if ($seen) {
+                                $self->_missing_cmdline_args($only_one);
+                        }
                         $seen = 1;
                 } elsif ($arg eq '-embserveru') {
+                        if ($seen) {
+                                $self->_missing_cmdline_args($only_one);
+                        }
                         $seen = 1;
                         $self->{do_status_tags} = 1;
                 } elsif ($arg eq '-f') {
