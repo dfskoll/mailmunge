@@ -1397,7 +1397,7 @@ sub _handle_senderok
 	my ($self, $sender, $hostip, $hostname, $helo, $cwd, $qid, @esmtp_args) = @_;
 
 	if (!chdir($cwd)) {
-                return $self->_reply_with_status($qid, Mailmunge::Response->TEMPFAIL(message => "could not chdir($cwd): $!"),
+                return $self->_reply_with_status($qid, Mailmunge::Response->TEMPFAIL(message => "Could not chdir($cwd): $!"),
                                                 "sender $sender");
 	}
 
@@ -1418,7 +1418,7 @@ sub _handle_recipok
 	my ($self, $recipient, $sender, $hostip, $hostname, $first_recip, $helo, $cwd, $qid, $rcpt_mailer, $rcpt_host, $rcpt_addr, @esmtp_args) = @_;
 
 	if (!chdir($cwd)) {
-                return $self->_reply_with_status($qid, Mailmunge::Response->TEMPFAIL(message => "could not chdir($cwd): $!"),
+                return $self->_reply_with_status($qid, Mailmunge::Response->TEMPFAIL(message => "Could not chdir($cwd): $!"),
                                                 "recipient $recipient");
 	}
         my $ctx = $self->read_commands_file();
