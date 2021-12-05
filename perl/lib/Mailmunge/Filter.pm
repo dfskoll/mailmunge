@@ -58,6 +58,8 @@ use Mailmunge::Context;
 use Mailmunge;
 
 use MIME::Parser;
+use MIME::Words ();
+use Encode;
 
 use Sys::Syslog;
 use Sys::Hostname;
@@ -1914,6 +1916,56 @@ sub privdata
                 $self->{privdata}->{$key} = $val;
         }
         return $self->{privdata}->{$key};
+}
+
+=head2 decode_mime_string($str)
+
+Given a MIME-encoded header string $str, decode it as a native Perl
+string.  Tries very, very hard to return something sensible, even
+for malformed $str.
+
+Note that this is a *native* Perl string.  If you want to print it
+or do any sort of I/O on it, you probably need to encode it as UTF-8
+first
+
+=cut
+sub decode_mime_string
+{
+        my ($self, $str) = @_;
+        my @chunks = MIME::Words::decode_mimewords($str);
+	my $ans = '';
+	foreach my $thing (@chunks) {
+		my $piece;
+		if (defined $thing->[1]) {
+			$piece = eval {
+				Encode::decode($thing->[1], $thing->[0], Encode::FB_CROAK | Encode::LEAVE_SRC);
+			};
+		}
+		my $err = $@;
+		if (!defined($thing->[1]) || $@) {
+                        if (defined($thing->[0])) {
+                                # Try UTF-8 first
+                                eval { $piece = Encode::decode('UTF-8', $thing->[0], Encode::FB_CROAK | Encode::LEAVE_SRC); };
+                                if ($@) {
+                                        $err = $@;
+                                        # Try Windows-1252 aka Latin1
+                                        eval { $piece = Encode::decode('windows-1252', $thing->[0], Encode::FB_PERLQQ); };
+                                        if ($@) {
+                                                $err = $@;
+                                                # Gah... even that failed.  Punt.
+                                        }
+                                }
+                        }
+                }
+		if( ! $piece ) {
+			# If decode chokes, just give back the raw version.  It
+			# may be ugly, but it's better than dying
+			warn "Encode::decode() died with: $err";
+			$piece = '=?' . ($thing->[1] || 'windows-1252') . '?B?' . encode_base64($thing->[0], '') . '?=';
+		}
+		$ans .= $piece;
+	}
+	return $ans;
 }
 
 1;
