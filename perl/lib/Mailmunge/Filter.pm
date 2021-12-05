@@ -1937,19 +1937,19 @@ sub decode_mime_string
 	foreach my $thing (@chunks) {
 		my $piece;
 		if (defined $thing->[1]) {
-			$piece = eval {
-				Encode::decode($thing->[1], $thing->[0], Encode::FB_CROAK | Encode::LEAVE_SRC);
+			eval {
+				$piece = Encode::decode($thing->[1], $thing->[0], Encode::FB_CROAK | Encode::LEAVE_SRC);
 			};
 		}
 		my $err = $@;
-		if (!defined($thing->[1]) || $@) {
+		if (!defined($thing->[1]) || !$piece) {
                         if (defined($thing->[0])) {
                                 # Try UTF-8 first
                                 eval { $piece = Encode::decode('UTF-8', $thing->[0], Encode::FB_CROAK | Encode::LEAVE_SRC); };
                                 if ($@) {
                                         $err = $@;
                                         # Try Windows-1252 aka Latin1
-                                        eval { $piece = Encode::decode('windows-1252', $thing->[0], Encode::FB_PERLQQ); };
+                                        eval { $piece = Encode::decode('windows-1252', $thing->[0], Encode::FB_PERLQQ|Encode::LEAVE_SRC); };
                                         if ($@) {
                                                 $err = $@;
                                                 # Gah... even that failed.  Punt.
