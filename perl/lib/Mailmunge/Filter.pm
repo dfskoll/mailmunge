@@ -1926,7 +1926,17 @@ for malformed $str.
 
 Note that this is a *native* Perl string.  If you want to print it
 or do any sort of I/O on it, you probably need to encode it as UTF-8
-first
+first.  For example, if you want to log the decoded subject, use
+something like this:
+
+   # Decode the subject
+   my $decoded_sub = $self->decode_mime_string($ctx->subject);
+
+   # Encode as UTF-8 for logging purposes
+   my $enc_sub = Encode::encode('utf-8', $decoded_sub);
+
+   # Log it
+   $self->log($ctx, 'info', "subject=$enc_sub");
 
 =cut
 sub decode_mime_string
