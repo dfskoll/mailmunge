@@ -189,7 +189,36 @@ running Postfix.  Postfix often runs in a chroot environment, so
 using UNIX-domain sockets is a problem if the socket is not in
 Postfix's chroot jail.
 
-See L<SOCKET SPECIFICATION> for the format of I<connection>.
+The format of I<connection> is determined by the Sendmail Milter library,
+and is one of the following:
+
+=over 4
+
+=item unix:I</path/to/file>
+
+A local UNIX-domain socket.
+
+=item local:I</path/to/file>
+
+The same thing as unix:I</path/to/file>
+
+=item I</path/to/file>
+
+The same thing as unix:I</path/to/file>
+
+=item inet:I<port[@host]>
+
+Listen on the TCP port I<port> over IPv4.  If the I<@host> portion is
+given, listen on the specified address.  Normally, you should listen
+only on the localhost address and should specify a Milter TCP socket
+as inet:I<port@127.0.0.1>.
+
+=item inet6:I<port[@host]>
+
+Similar to inet:I<port[@host]>, but use an IPv6 socket.
+
+=back
+
 
 =item -q
 
@@ -240,7 +269,7 @@ the spool directory defaults to @SPOOLDIR@.
 
 =head1 SOCKET SPECIFICATION
 
-The C<-m> and C<-p> options take a socket as an
+The C<-m> option takes a socket as an
 argument.  This socket can be specified as:
 
 =over
