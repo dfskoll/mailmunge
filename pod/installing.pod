@@ -214,7 +214,7 @@ Edit your Postfix C<main.cf> file to include the following lines:
 
 Again, the above lines assume that C<mailmunge> has been
 configured to listen on the appropriate socket.  In this
-case, the option would be C<-p inet:8872>
+case, the option would be C<-p inet:8872@127.0.0.1>
 
 =head2 SENDMAIL
 
