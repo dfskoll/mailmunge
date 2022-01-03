@@ -2,6 +2,28 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2022-01-03 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.06 RELEASED
+
+	* documentation: Clarify that the -p argument to mailmunge(8) wants
+	  a socket specification following the libmilter spec and not the
+	  Mailmunge spec.
+
+	  In particular, if you want to bind o -p TCP socket to localhost
+	  only, you **MUST** use the form:  -p inet:port@127.0.0.1
+	  The form -p inet:port listens on all interfaces!
+
+	* documentation: Fix typos
+
+	* Mailmunge::Filter: Stricter checking of command-line arguments
+
+	* Mailmunge::Filter: Consistent capitalization of error messages
+
+	* Mailmunge::Filter: Add decode_mime_string utility function.  This
+	  tries very hard to sensibly decode a MIME-header-encoded string
+	  to a native Perl string.
+
 2020-09-30 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.05 RELEASED
