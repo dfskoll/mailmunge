@@ -24,7 +24,7 @@ affect your filter.
 	  tries very hard to sensibly decode a MIME-header-encoded string
 	  to a native Perl string.
 
-2020-09-30 Dianne Skoll <dianne@skollsoft.com>
+2021-09-30 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.05 RELEASED
 
@@ -57,7 +57,7 @@ affect your filter.
 	  logged only once per multiplexor startup instead of once per scanning
 	  worker startup.
 
-2020-08-17 Dianne Skoll <dianne@skollsoft.com>
+2021-08-17 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.04 RELEASED
 
@@ -88,11 +88,11 @@ affect your filter.
 
 	* Many typo fixes and documentation improvements.
 
-2020-08-01 Dianne Skoll <dianne@skollsoft.com>
+2021-08-01 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.03 RELEASED
 
-2020-07-30 Dianne Skoll <dianne@skollsoft.com>
+2021-07-30 Dianne Skoll <dianne@skollsoft.com>
 
 	* Add Mailmunge::Filter::action_from_response helper function.
 	  If appropriate, it calls an action_* function based on a
@@ -122,13 +122,13 @@ affect your filter.
 
 	* Many minor fixes and documentation fixes.
 
-2020-07-18 Dianne Skoll <dianne@skollsoft.com>
+2021-07-18 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.02 RELEASED
 
 	* Adds Mailmunge::Test::Greylist - an implementation of greylisting
 
-2020-06-01 Dianne Skoll <dianne@skollsoft.com>
+2021-06-01 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.01 RELEASED
 
@@ -149,6 +149,6 @@ affect your filter.
 	* Proper generation of man pages from POD (include man page name;
 	  put pages in proper section.)
 
-2020-05-18 Dianne Skoll <dianne@skollsoft.com>
+2021-05-18 Dianne Skoll <dianne@skollsoft.com>
 
 	* Initial fork from the MIMEDefang project
