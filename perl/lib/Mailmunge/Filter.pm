@@ -1073,6 +1073,9 @@ virus-scanners, for example.
 sub inputmsg_absolute
 {
         my ($self, $ctx) = @_;
+
+        return undef unless $ctx->in_message_context($self);
+
         return $ctx->cwd . '/' . $self->inputmsg;
 }
 
