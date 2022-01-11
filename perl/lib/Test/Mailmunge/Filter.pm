@@ -118,6 +118,18 @@ sub filter_end
 
         my $subj = $ctx->subject;
 
+        if ($subj =~ /\bcopy-this-email\b/) {
+                my $fh = $self->inputmsg_fh();
+                if ($fh) {
+                        if (open(OUT, '>COPIED_EMAIL')) {
+                                while(<$fh>) {
+                                        print OUT;
+                                }
+                                close(OUT);
+                        }
+                        close($fh);
+                }
+        }
         if ($subj =~ /\brspamd\b/i) {
                 my $test = Mailmunge::Test::Rspamd->new($self);
                 my $ans = $test->rspamd_check($ctx, '127.0.0.1',

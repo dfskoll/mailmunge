@@ -1036,6 +1036,23 @@ sub inputmsg         { return 'INPUTMSG'; }
 
 sub _newbody          { return 'NEWBODY'; }
 
+=head2 inputmsg_fh()
+
+Returns a filehandle open for reading at the start of the raw input
+message file received from the MTA.  If something goes wrong,
+returns undef.
+
+=cut
+sub inputmsg_fh
+{
+        my ($self) = @_;
+
+        my $fh;
+        open($fh, '<', $self->inputmsg()) or return undef;
+
+        return $fh;
+}
+
 =head2 headers_file()
 
 Returns the relative path to the HEADERS file.  This file contains
