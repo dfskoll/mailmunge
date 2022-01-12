@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd `dirname $0`
+for os in debian rocky ; do
+    for mta in postfix sendmail; do
+        ./run-regression-tests-on-docker $mta $os "$@"
+    done
+done
