@@ -60,7 +60,7 @@ sub _rspamd_check_aux
         while(read(IN, $buf, 4096)) {
                 $sock->print($buf);
         }
-        close($in);
+        close(IN);
         $sock->flush();
 
         # Read the results
