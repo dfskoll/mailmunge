@@ -33,7 +33,7 @@ sub rspamd_check
         }
 
         if (!$ans) {
-                return { response => Mailmunge::Response->TEMPFAIL(message => 'Calling rspamd failed') };
+                return { response => Mailmunge::Response->TEMPFAIL(message => 'Calling rspamd failed: ' . $@) };
         }
 
         # If we got back just a Mailmunge::Response, wrap it
@@ -55,9 +55,11 @@ sub _rspamd_check_aux
 
         # Send the request
         $sock->print($headers);
+        print STDERR "Sent $headers\n";
         $sock->print("\r\n");
         my $buf;
         while(read(IN, $buf, 4096)) {
+                print STDERR "Sent $buf\n";
                 $sock->print($buf);
         }
         close(IN);
