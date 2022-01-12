@@ -61,7 +61,7 @@ if (-f '/etc/redhat-release') {
                         score => re('^\d+$'),
                         milter => ignore(),
                 }},
-                   "Got expected rspamd results");
+                   "Got expected rspamd results") or diag(explain($hash));
 } else {
         cmp_deeply($hash, {
                 response => {delay => 0, status => 'CONTINUE', message => 'ok' },
@@ -76,7 +76,7 @@ if (-f '/etc/redhat-release') {
                         time_real => ignore(),
                         score => re('^\d+$'),
                 }},
-                   "Got expected rspamd results");
+                   "Got expected rspamd results") or diag(explain($hash));
 }
 
 
