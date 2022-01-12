@@ -1637,10 +1637,11 @@ sub _handle_scan
         $filer->ignore_filename(1);
         $parser->filer($filer);
 
-        my $msg_fh;
-        if (!open($msg_fh, $self->inputmsg())) {
+        my $msg_fh = $self->inputmsg_fh();
+        if (!$msg_fh) {
+                my $err = $!;
                 $self->_signal_complete($ctx);
-                return $self->_reply_error("Could not open " . $self->inputmsg() . ": $!");
+                return $self->_reply_error("Could not open " . $self->inputmsg() . ": $err");
         }
         $self->push_tag($qid, "Parsing Message");
         my $entity = $parser->parse($msg_fh);

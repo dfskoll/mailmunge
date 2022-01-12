@@ -47,8 +47,8 @@ sub _rspamd_check_aux
 {
         my ($self, $ctx, $sock) = @_;
 
-        my $in;
-        if (!open($in, '<', $self->filter->inputmsg)) {
+        my $in = $self->inputmsg_fh();
+        if (!$in) {
                 return Mailmunge::Response->TEMPFAIL(message => 'Unable to open message file');
         }
 

@@ -125,20 +125,21 @@ sub _stream_resend_message
 
         if ($pid) {
                 # In the parent: Pipe mail message to child
-                unless (open(IN, '<' . $filter->inputmsg)) {
+                my $in = $filter->inputmsg_fh();
+                unless ($in) {
                         $filter->log($ctx, 'warning', "stream_recipients: cannot read " . $filter->inputmsg . ": $!");
                         return undef;
                 }
                 print CHILD $filter->synthesize_received_header($ctx);
                 print CHILD 'X-Mailmunge-Remailed: ' . $ctx->hostip . ' ' . $ctx->qid . "\n";
                 my $in_headers = 1;
-                while(<IN>) {
+                while(<$in>) {
                         # Don't propagate any spurious X-Mailmunge-Remailed headers!
                         next if ($in_headers && $_ =~ /^X-Mailmunge-Remailed:/i);
                         $in_headers = 0 if ($_ eq "\n");
                         print CHILD;
                 }
-                close(IN);
+                close($in);
                 if (!close(CHILD)) {
                         if ($!) {
                                 $filter->log($ctx, 'err', "stream_recipients: sendmail failure: $!");
