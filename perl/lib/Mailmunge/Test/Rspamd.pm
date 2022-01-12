@@ -58,8 +58,8 @@ sub _rspamd_check_aux
         $sock->print($headers);
         $sock->print("\r\n");
         my $buf;
-        while(read($in, $buf, 4096)) {
-                $sock->print($buf);
+        while(<$in>) {
+                $sock->print($_);
         }
         close($in);
         $sock->flush();
