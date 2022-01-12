@@ -68,7 +68,7 @@ sub _spam_assassin_mail
         my $filter = $self->filter;
 
         my $fh = $filter->inputmsg_fh();;
-        return undef $fh;
+        return undef unless $fh;
 
         my @msg = <$fh>;
         close($fh);
