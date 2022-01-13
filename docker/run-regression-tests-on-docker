@@ -1,16 +1,16 @@
 #!/bin/sh
 if test "$1" != "sendmail" -a "$1" != "postfix" ; then
-    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye [-f] [-v] [-c]"
+    echo "Usage: $0 sendmail|postfix buster|rocky|bullseye [-f] [-v] [-c]"
     exit 1
 fi
-if test "$2" != "debian" -a "$2" != "rocky" -a "$2" != "bullseye"; then
-    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye [-f] [-v] [-c]"
+if test "$2" != "buster" -a "$2" != "rocky" -a "$2" != "bullseye"; then
+    echo "Usage: $0 sendmail|postfix buster|rocky|bullseye [-f] [-v] [-c]"
     exit 1
 fi
 
 MTA="$1"
 OS="$2"
-if test "$OS" = "debian" -o "$OS" = "bullseye" ; then
+if test "$OS" = "buster" -o "$OS" = "bullseye" ; then
     FLAVOR=debian
 else
     FLAVOR=rocky
