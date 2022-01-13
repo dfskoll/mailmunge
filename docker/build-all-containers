@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd `dirname $0`
+for os in buster bullseye rocky; do
+    for mta in postfix sendmail; do
+        ./build-docker-container $mta $os "$@"
+    done
+done
