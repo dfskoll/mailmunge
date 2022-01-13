@@ -21,10 +21,10 @@ my $msg = make_msg('rspamd', 'gtube-msg');
 my $ans = smtp_send($ip, 'continue', 'continue@example.com', ['user1@example.com'], $msg);
 
 cmp_deeply($ans, {
-           code => 200,
-           dsn => '2.0.0',
-           txt => "OK",
-           stage => 'quit'}, 'Got expected success');
+        code => 200,
+        dsn => '2.0.0',
+        txt => "OK",
+        stage => 'quit'}, 'Got expected success');
 
 wait_for_files($outfile);
 
@@ -62,6 +62,24 @@ if (-f '/etc/redhat-release') {
                         milter => ignore(),
                 }},
                    "Got expected rspamd results") or diag(explain($hash));
+} elsif (`cat /etc/debian_version` =~ /^11/) {
+        cmp_deeply($hash, {
+                response => {delay => 0, message => 'ok', status => 'CONTINUE'},
+                results => {
+                        action => 'reject',
+                        is_skipped => ignore(),
+                        'message-id' => ignore(),
+                        messages => {smtp_message => 'Gtube pattern'},
+                        milter => ignore(),
+                        required_score => re('^\d+$'),
+                        score => re('^\d+$'),
+                        symbols => {GTUBE => {metric_score => '0',
+                                              name => 'GTUBE',
+                                              score => '0'
+                                    }
+                        },
+                        time_real => ignore()}},
+                   'Got expected rspamd results') or diag(explain($hash));
 } else {
         cmp_deeply($hash, {
                 response => {delay => 0, status => 'CONTINUE', message => 'ok' },
@@ -78,8 +96,5 @@ if (-f '/etc/redhat-release') {
                 }},
                    "Got expected rspamd results") or diag(explain($hash));
 }
-
-
-
 
 done_testing;

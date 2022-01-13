@@ -1,11 +1,11 @@
 #!/bin/sh
 
 if test "$1" != "sendmail" -a "$1" != "postfix" ; then
-    echo "Usage: $0 sendmail|postfix debian|rocky"
+    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye"
     exit 1
 fi
-if test "$2" != "debian" -a "$2" != "rocky" ; then
-    echo "Usage: $0 sendmail|postfix debian|rocky"
+if test "$2" != "debian" -a "$2" != "rocky" -a "$2" != "bullseye"; then
+    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye"
     exit 1
 fi
 

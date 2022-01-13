@@ -1,15 +1,21 @@
 #!/bin/sh
 if test "$1" != "sendmail" -a "$1" != "postfix" ; then
-    echo "Usage: $0 sendmail|postfix debian|rocky [-f] [-v] [-c]"
+    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye [-f] [-v] [-c]"
     exit 1
 fi
-if test "$2" != "debian" -a "$2" != "rocky" ; then
-    echo "Usage: $0 sendmail|postfix debian|rocky [-f] [-v] [-c]"
+if test "$2" != "debian" -a "$2" != "rocky" -a "$2" != "bullseye"; then
+    echo "Usage: $0 sendmail|postfix debian|rocky|bullseye [-f] [-v] [-c]"
     exit 1
 fi
 
 MTA="$1"
 OS="$2"
+if test "$OS" = "debian" -o "$OS" = "bullseye" ; then
+    FLAVOR=debian
+else
+    FLAVOR=rocky
+fi
+
 IMAGE=mm-$MTA-$OS-image
 CONTAINER=mm-$MTA-$OS
 FORCE_REBUILD=0
@@ -66,7 +72,7 @@ REBUILD=1
 docker exec "$CONTAINER" test -d "/root/mailmunge-$VERSION"
 
 if test $? = 0 ; then
-    if test "$OS" = "debian" ; then
+    if test "$FLAVOR" = "debian" ; then
         docker exec "$CONTAINER" dpkg -l mailmunge-base
     else
         false
@@ -81,7 +87,7 @@ if test $? = 0 ; then
 fi
 
 if test "$REBUILD" = 1 ; then
-    if test "$OS" = "debian" ; then
+    if test "$FLAVOR" = "debian" ; then
         # Purge any existing .debs
         docker exec "$CONTAINER" /bin/sh -c "dpkg -l mailmunge > /dev/null 2>&1 && apt --assume-yes purge mailmunge mailmunge-base libmailmunge-perl"
         # Create a tarball of mailmunge and copy it to the container
@@ -105,13 +111,13 @@ docker cp docker-testfiles "$CONTAINER:/root/"
 docker exec "$CONTAINER" /bin/sh -c "mkdir -p /etc/mailmunge"
 docker cp ../regression-tests/filter/mailmunge-filter.pl "$CONTAINER:/etc/mailmunge/"
 docker exec "$CONTAINER" /bin/sh -c "chmod a+rx /etc/mailmunge/mailmunge-filter.pl"
-if test "$OS" = "debian" ; then
+if test "$FLAVOR" = "debian" ; then
     docker exec "$CONTAINER" /bin/sh -c "addgroup clamav mailmunge"
 fi
 
 docker exec "$CONTAINER" /bin/sh -c "cp /root/docker-testfiles/etc-default-mailmunge /etc/default/mailmunge"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
-if test "$OS" = "debian" ; then
+if test "$FLAVOR" = "debian" ; then
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart; /etc/init.d/rsyslog start; /etc/init.d/rspamd start"
 else
     echo "Starting services..."
@@ -127,7 +133,7 @@ else
 fi
 
 if test "$MTA" = "postfix" ; then
-    if test "$OS" = "debian" ; then
+    if test "$FLAVOR" = "debian" ; then
         docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/postfix restart"
     else
         docker exec "$CONTAINER" /bin/sh -c "postfix reload || postfix start || true"
@@ -135,7 +141,7 @@ if test "$MTA" = "postfix" ; then
 else
     docker exec "$CONTAINER" /bin/sh /root/docker-testfiles/qualify-hostname.sh
     docker exec "$CONTAINER" /bin/sh -c "pkill sendmail"
-    if test "$OS" = "debian" ; then
+    if test "$FLAVOR" = "debian" ; then
         docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/sendmail restart"
     else
         docker exec "$CONTAINER" /bin/sh -c "/usr/sbin/sendmail -bd"
