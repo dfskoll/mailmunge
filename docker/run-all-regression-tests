@@ -3,6 +3,7 @@
 cd `dirname $0`
 for os in buster bullseye rocky; do
     for mta in postfix sendmail; do
+        echo "RUNNING TESTS: $mta $os"
         ./run-regression-tests-on-docker $mta $os "$@"
     done
 done
