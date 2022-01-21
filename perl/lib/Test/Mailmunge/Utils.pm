@@ -244,12 +244,22 @@ Given a MIME::Entity C<$entity>, sets the fields
 C<sender>, C<subject> and C<message_id> on C<$ctx>
 based on C<$entity>.
 
-=head2 parse_and_copy_msg($output_dir, $input_msg)
+=head2 parse_and_copy_msg($output_dir, $input_msg [,$new_subject])
 
 Given a file C<$input_msg> containing an RFC5322
 mail message, copy the file to C<"$output_dir/INPUTMSG">
-and parse it.  Return the MIME::Entity resulting from
-parsing the message,
+and parse it.  Returns a new C<Mailmunge::Context> object whose
+C<mime_entity> field is the parsed message.  Other fields in the context
+object are set as follows:
+
+C<sender> is set to the value of the C<Return-Path> header, if any.
+
+C<subject> is set to the value of the C<Subject> header, if any.
+
+C<message_id> is set to the value of the C<Message-Id> header, if any.
+
+If you supply C<$new_subject>, then the literal text C<__SUBJECT__> in the
+message body is replaced with the value of C<$new_subject>.
 
 This method also creates a HEADERS file in C<$output_dir>.
 
