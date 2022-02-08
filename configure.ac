@@ -166,7 +166,7 @@ dnl Check for Perl modules
 if test "$ac_cv_perlmodcheck" = "no" ; then
    AC_MSG_RESULT([Compile-time checking for Perl modules disabled])
 else
-    for module in 'IO::Socket' 'IO::Socket::SSL' 'MIME::Tools 5.410 ()' 'MIME::WordDecoder' 'Sys::Syslog'; do
+    for module in 'IO::Socket' 'IO::Socket::SSL' 'MIME::Tools 5.410 ()' 'MIME::WordDecoder' 'Sys::Syslog' 'FindBin'; do
 	AC_MSG_CHECKING([for Perl module $module])
 	(echo "use lib '$PERLINSTALLSITELIB'; use $module;" ; echo "exit(0);") | $PERL > /dev/null 2>&1
 	if test $? != 0 ; then
