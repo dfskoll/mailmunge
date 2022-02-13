@@ -2,6 +2,29 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2022-02-13 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.07 RELEASED
+
+	* Mailmunge::Filter: Add input_fh convenience method
+
+	* Mailmunge::Test::Rspamd: Log exact reason ($@) if calling rspamd
+	fails.
+
+	* Regression tests: Add support for Debian bullseye docker images
+
+	* Test::Mailmunge::Utils: Fix POD for parse_and_copy_msg
+
+	* configure: Add dependency on FindBin as per bug report from
+	Robert Scheck.
+
+	* configure: Add --disable-perl-build-artifacts option to avoid
+	generation of perllocal.pod and .packlist files.  Problem pointed
+	out by Robert Scheck.
+
+	* Unit test: Skip tests that require working DNS if they are run on
+	a machine without DNS.  Problem pointed out by Robert Scheck.
+
 2022-01-03 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.06 RELEASED
