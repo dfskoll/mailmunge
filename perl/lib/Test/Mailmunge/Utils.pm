@@ -185,6 +185,17 @@ sub parse_and_copy_msg
         return set_context_fields_from_msg($ctx, $entity);
 }
 
+sub dns_available
+{
+        my $host = gethostbyname('www.google.com');
+        return 1 if $host;
+
+        $host = gethostbyname('www.perl.org');
+        return 1 if $host;
+
+        return 0;
+}
+
 1;
 
 __END__
@@ -262,6 +273,10 @@ If you supply C<$new_subject>, then the literal text C<__SUBJECT__> in the
 message body is replaced with the value of C<$new_subject>.
 
 This method also creates a HEADERS file in C<$output_dir>.
+
+=head2 dns_available()
+
+Returns 1 if DNS appears to be available, 0 otherwise.
 
 =head1 AUTHOR
 
