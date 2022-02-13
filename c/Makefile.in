@@ -153,7 +153,6 @@ install: all
 
 	if test "$(MMUSER)" != "" ; then \
 		if id "$(MMUSER)" > /dev/null 2>&1 ; then \
-			chown "$(MMUSER)" $(DESTDIR)${CONFDIR}/mailmunge-ip-key > /dev/null 2>&1 || true; \
 			test ! -d $(DESTDIR)$(SPOOLDIR) && $(INSTALL) -m 750 -o $(MMUSER) -d $(DESTDIR)$(SPOOLDIR) > /dev/null 2>&1 || true; \
 			test ! -d $(DESTDIR)$(QDIR) && $(INSTALL) -m 750 -o $(MMUSER) -d $(DESTDIR)$(QDIR) > /dev/null 2>&1 || true; \
                 fi \
