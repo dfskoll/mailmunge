@@ -636,6 +636,7 @@ PERLINSTALLPRIVLIB
 PERLINSTALLARCHLIB
 PERLVENDORPREFIX
 PERLSITEPREFIX
+PERLARTIFACTS
 PERLPREFIX
 CONFDIR_EVAL
 LIBS_WITHOUT_PTHREAD
@@ -722,6 +723,7 @@ with_perlinstalldirs
 with_quarantinedir
 enable_pthread_flag
 enable_check_perl_modules
+enable_perl_build_artifacts
 enable_debugging
 '
       ac_precious_vars='build_alias
@@ -1357,6 +1359,8 @@ Optional Features:
   --enable-pthread-flag   Supply the -pthread flag to the C compiler
   --disable-check-perl-modules
 			  Disable compile-time checks for Perl modules
+  --disable-perl-build-artifacts
+                          Disable perllocal.pod and .packlist generation
   --enable-debugging      Add debugging messages to syslog
 
 Optional Packages:
@@ -3987,6 +3991,14 @@ else
 fi
 
 
+# Check whether --enable-perl-build-artifacts was given.
+if test "${enable_perl_build_artifacts+set}" = set; then :
+  enableval=$enable_perl_build_artifacts; ac_cv_perlartifacts=$enableval
+else
+  ac_cv_perlartifacts=yes
+fi
+
+
 if test "$ac_cv_perlmodcheck" = "no" ; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Compile-time checking for Perl modules disabled" >&5
 $as_echo "Compile-time checking for Perl modules disabled" >&6; }
@@ -4823,8 +4835,15 @@ $as_echo "yes" >&6; }
     fi
 
 
+if test "$ac_cv_perlartifacts" = "yes" ; then
+    PERLARTIFACTS=
+else
+    PERLARTIFACTS='NO_PACKLIST=1 NO_PERLLOCAL=1'
+fi
+
 
 CONFDIR_EVAL=`echo ${sysconfdir}${CONFSUBDIR}`
+
 
 
 
@@ -6140,7 +6159,7 @@ fi
 
 HERE=`pwd`
 echo "*** Switching to perl/ directory and running $PERL Makefile.PL..."
-cd perl && $PERL Makefile.PL INSTALLDIRS=${PERLINSTALLDIRS-site}
+cd perl && $PERL Makefile.PL INSTALLDIRS=${PERLINSTALLDIRS-site} $PERLARTIFACTS
 if test "$?" != 0 ; then
    echo "*** $PERL Makefile.PL failed!"
    exit 0

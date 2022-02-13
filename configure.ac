@@ -162,6 +162,10 @@ AC_ARG_ENABLE(check-perl-modules,
 [  --disable-check-perl-modules
 			  Disable compile-time checks for Perl modules], ac_cv_perlmodcheck=$enableval, ac_cv_perlmodcheck=yes)
 
+AC_ARG_ENABLE(perl-build-artifacts,
+[  --disable-perl-build-artifacts
+                          Disable perllocal.pod and .packlist generation], ac_cv_perlartifacts=$enableval, ac_cv_perlartifacts=yes)
+
 dnl Check for Perl modules
 if test "$ac_cv_perlmodcheck" = "no" ; then
    AC_MSG_RESULT([Compile-time checking for Perl modules disabled])
@@ -523,12 +527,19 @@ dnl Check if our libmilter is old and needs LIBSM.  Also checks if it
 dnl needs libldap
 MM_MILTER_SM
 
+if test "$ac_cv_perlartifacts" = "yes" ; then
+    PERLARTIFACTS=
+else
+    PERLARTIFACTS='NO_PACKLIST=1 NO_PERLLOCAL=1'
+fi
+
 AC_SUBST(LIBS_WITHOUT_PTHREAD)
 dnl evaluated versions of conf dir
 CONFDIR_EVAL=`echo ${sysconfdir}${CONFSUBDIR}`
 AC_SUBST(CONFDIR_EVAL)
 AC_SUBST(LDFLAGS)
 AC_SUBST(PERLPREFIX)
+AC_SUBST(PERLARTIFACTS)
 AC_SUBST(PERLSITEPREFIX)
 AC_SUBST(PERLVENDORPREFIX)
 AC_SUBST(PERLINSTALLARCHLIB)
@@ -550,7 +561,7 @@ AC_OUTPUT(Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmu
 
 HERE=`pwd`
 echo "*** Switching to perl/ directory and running $PERL Makefile.PL..."
-cd perl && $PERL Makefile.PL INSTALLDIRS=${PERLINSTALLDIRS-site}
+cd perl && $PERL Makefile.PL INSTALLDIRS=${PERLINSTALLDIRS-site} $PERLARTIFACTS
 if test "$?" != 0 ; then
    echo "*** $PERL Makefile.PL failed!"
    exit 0

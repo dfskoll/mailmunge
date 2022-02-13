@@ -48,7 +48,7 @@ INSTALL_STRIP_FLAG=-s
 all: c/bogus pod2man perl/Makefile perl/blib/lib/Mailmunge.pm
 
 perl/Makefile:
-	cd perl && @PERL@ Makefile.PL
+	cd perl && @PERL@ Makefile.PL @PERLARTIFACTS@
 
 perl/blib/lib/Mailmunge.pm: perl/Makefile
 	$(MAKE) -C perl
