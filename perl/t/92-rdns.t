@@ -7,6 +7,11 @@ use Test::More;
 use Test::Deep;
 
 use Mailmunge::Filter;
+use Test::Mailmunge::Utils;
+
+unless (dns_available()) {
+        plan skip_all => 'This test requires working DNS';
+}
 
 my $name = Mailmunge::Filter->ip_to_hostname('8.8.8.8');
 is($name, 'dns.google', 'Successfully reverse-resolved 8.8.8.8 with FCrDNS');

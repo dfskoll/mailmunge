@@ -5,9 +5,14 @@ use lib './lib';
 
 use Test::More;
 use Test::Deep;
+use Test::Mailmunge::Utils;
 
 use Mailmunge::Test::GetMX;
 use Test::Mailmunge::Filter;
+
+unless (dns_available()) {
+        plan skip_all => 'This test requires working DNS';
+}
 
 my $filter = Test::Mailmunge::Filter->new();
 
