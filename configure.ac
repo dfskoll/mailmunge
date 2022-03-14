@@ -391,6 +391,7 @@ AC_CHECK_LIB(pthread, pthread_once)
 AC_CHECK_FUNCS(initgroups)
 AC_CHECK_FUNCS(setrlimit)
 AC_CHECK_FUNCS(setproctitle)
+AC_CHECK_FUNCS(setproctitle_init)
 
 if test "$SPOOLDIR" = "no" -o "$SPOOLDIR" = "" ; then
 	SPOOLDIR=/var/spool/mailmunge

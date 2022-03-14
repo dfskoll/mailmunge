@@ -666,7 +666,7 @@ main(int argc, char *argv[], char **env)
     struct passwd *pw = NULL;
     int nodaemon = 0;
 
-#ifdef HAVE_SETPROCTITLE
+#ifdef HAVE_SETPROCTITLE_INIT
     setproctitle_init(argc, argv, env);
 #endif
     /* Record program start time */
