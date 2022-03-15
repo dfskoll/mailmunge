@@ -110,6 +110,9 @@ static char *lockfile = NULL;
 /* In debug mode, we do not delete working directories. */
 int DebugMode = 0;
 
+/* Debug milter sessions: Track creation and deletion of private data */
+int DebugPrivdataAllocation = 0;
+
 /* Conserve file descriptors by reopening files in each callback */
 int ConserveDescriptors = 0;
 
@@ -536,6 +539,9 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
     if (!data) {
 	DEBUG_EXIT("mfconnect", "SMFIS_TEMPFAIL");
 	return SMFIS_TEMPFAIL;
+    }
+    if (DebugPrivdataAllocation) {
+        syslog(LOG_DEBUG, "Allocating private data: ctx=%p data=%p", ctx, data);
     }
     data->hostname = NULL;
     data->hostip   = NULL;
@@ -2020,6 +2026,9 @@ mfclose(SMFICTX *ctx)
     struct privdata *data = DATA;
 
     DEBUG_ENTER("mfclose");
+    if (DebugPrivdataAllocation) {
+        syslog(LOG_DEBUG, "Deallocating private data: ctx=%p data=%p", ctx, data);
+    }
     cleanup(ctx);
     if (data) {
 	if (data->fd >= 0)       closefd(data->fd);
@@ -2243,6 +2252,10 @@ main(int argc, char **argv)
     /* Keep debugging malloc macros happy... */
     void *ctx = NULL;
 #endif
+
+    if (getenv("MM_DEBUG_ALLOCATION")) {
+        DebugPrivdataAllocation = 1;
+    }
 
     /* If first arg is "prcap", just print milter capabilities and quit */
     if (argc == 2 && !strcmp(argv[1], "prcap")) {
