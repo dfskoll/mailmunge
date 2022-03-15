@@ -219,5 +219,7 @@
 # SYSLOG_FACILITY=mail
 
 ### Request list of symbols from milter library (-y mailmunge command-line flag)
-### -y option to mailmunge
+### -y option to mailmunge.  BE CAREFUL!  Many versions of libmilter
+### leak memory if you set this to yes.  It's safer to specify the
+### macros you need in the Sendmail or Postfix configuration file.
 # USE_SMFI_SETSYMLIST=yes

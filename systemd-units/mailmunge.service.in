@@ -20,7 +20,7 @@ Restart=on-failure
 TimeoutStopSec=30s
 # LC_ALL=C may not be necessary for mailmunge, but it is for
 # mailmunge-multiplexor, so upstream prefers it here also to be consistent.
-Environment=LC_ALL=C SPOOLDIR=@SPOOLDIR@ MX_SOCKET=@SPOOLDIR@/mailmunge-multiplexor.sock MX_USER=@MMUSER@ MM_ALLOW_GROUP_ACCESS=yes MX_GROUP=@MMGROUP@ SOCKET=@SPOOLDIR@/mailmunge.sock USE_SMFI_SETSYMLIST=yes
+Environment=LC_ALL=C SPOOLDIR=@SPOOLDIR@ MX_SOCKET=@SPOOLDIR@/mailmunge-multiplexor.sock MX_USER=@MMUSER@ MM_ALLOW_GROUP_ACCESS=yes MX_GROUP=@MMGROUP@ SOCKET=@SPOOLDIR@/mailmunge.sock
 EnvironmentFile=-/etc/default/mailmunge
 ExecStartPre=/bin/rm -f $SOCKET
 ExecStart=/bin/sh -c 'HOME=${SPOOLDIR:=@SPOOLDIR@} \
