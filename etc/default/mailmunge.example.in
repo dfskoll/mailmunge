@@ -161,7 +161,7 @@
 ### -M option to mailmunge-multiplexor
 # MX_MAX_AS=
 
-### Limit resident-set size of filter prcess to this many kB
+### Limit resident-set size of filter process to this many kB
 ### -R option to mailmunge-multiplexor
 # MX_MAX_RSS=
 
@@ -182,7 +182,7 @@
 # Default for systemd unit:
 # MX_PIDFILE=
 
-### Maximum numnber of concurrent filter_recipient calls per domain
+### Maximum number of concurrent filter_recipient calls per domain
 ### -y option to mailmunge-multiplexor
 # MX_RECIPOK_PERDOMAIN=
 

@@ -400,7 +400,7 @@ for the final command sent.
 =item dsn
 
 The three-number "a.b.c" DSN returned by the SMTP
-server for the final comand sent.
+server for the final command sent.
 
 =item txt
 

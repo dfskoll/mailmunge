@@ -721,7 +721,7 @@ sub action_insert_header
         return 1;
 }
 
-=head2 action_sm_quarantine($ctx, $reson)
+=head2 action_sm_quarantine($ctx, $reason)
 
 Ask the MTA to quarantine the message.  $reason is the reason for
 the quarantine.

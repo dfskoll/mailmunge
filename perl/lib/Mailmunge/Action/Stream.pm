@@ -213,7 +213,7 @@ you apply different filtering rules per-recipient or per-domain.
 
 =head2 Mailmunge::Action::Stream-E<gt>new($filter)
 
-Constructor.  Typically used within a filter file as followes:
+Constructor.  Typically used within a filter file as follows:
 
         my $action = Mailmunge::Action::Stream->new($self);
 

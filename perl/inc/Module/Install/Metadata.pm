@@ -256,7 +256,7 @@ sub feature {
 
 	if ( @_ == 1 and ref( $_[0] ) ) {
 		# The user used ->feature like ->features by passing in the second
-		# argument as a reference.  Accomodate for that.
+		# argument as a reference.  Accommodate for that.
 		$mods = $_[0];
 	} else {
 		$mods = \@_;
@@ -628,7 +628,7 @@ sub add_metadata {
     my %hash = @_;
     for my $key (keys %hash) {
         warn "add_metadata: $key is not prefixed with 'x_'.\n" .
-             "Use appopriate function to add non-private metadata.\n" unless $key =~ /^x_/;
+             "Use appropriate function to add non-private metadata.\n" unless $key =~ /^x_/;
         $self->{values}->{$key} = $hash{$key};
     }
 }

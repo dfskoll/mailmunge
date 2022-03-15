@@ -254,7 +254,7 @@ the beginning or end of text/plain or text/html parts.
 
 =head2 Mailmunge::Action::Boilerplate-E<gt>new($filter);
 
-Constructor.  Typically used within a filter file as followes:
+Constructor.  Typically used within a filter file as follows:
 
         my $action = Mailmunge::Action::Boilerplate->new($self);
 

@@ -222,7 +222,7 @@ __END__
 
 =head1 NAME
 
-Mailmunge::Test::SMTPForward - Peform an SMTP callback to see if another
+Mailmunge::Test::SMTPForward - Perform an SMTP callback to see if another
 SMTP server would accept a recipient.
 
 =head1 ABSTRACT
