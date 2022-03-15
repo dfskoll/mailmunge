@@ -2026,11 +2026,11 @@ mfclose(SMFICTX *ctx)
     struct privdata *data = DATA;
 
     DEBUG_ENTER("mfclose");
-    if (DebugPrivdataAllocation) {
-        syslog(LOG_DEBUG, "Deallocating private data: ctx=%p data=%p", ctx, data);
-    }
     cleanup(ctx);
     if (data) {
+        if (DebugPrivdataAllocation) {
+            syslog(LOG_DEBUG, "Deallocating private data: ctx=%p data=%p", ctx, data);
+        }
 	if (data->fd >= 0)       closefd(data->fd);
 	if (data->headerFD >= 0) closefd(data->headerFD);
 	if (data->cmdFD >= 0)    closefd(data->cmdFD);
