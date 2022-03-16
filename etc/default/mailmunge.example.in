@@ -223,3 +223,9 @@
 ### leak memory if you set this to yes.  It's safer to specify the
 ### macros you need in the Sendmail or Postfix configuration file.
 # USE_SMFI_SETSYMLIST=yes
+
+### Remaining symbols are for debugging only and are unlikely to
+### be useful unless you're hacking the Mailmunge C code
+
+### Debug Milter private-data memory allocation and de-allocation
+# MM_DEBUG_ALLOCATION=1
