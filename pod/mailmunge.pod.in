@@ -52,7 +52,7 @@ and writeable by the group and files to be group-readable, supply the
 C<-G> option.  This causes the umask to be 007 whenever
 UNIX-domain sockets are created and 027 whenever files are created.
 I<Note>: if your milter library is too old to have the
-smfi_opensocket() function, the C<-G> option causes
+C<smfi_opensocket> function, the C<-G> option causes
 C<mailmunge> to use a umask of 007 throughout its execution.
 
 =item -H
@@ -253,12 +253,12 @@ header will be added.
 
 =item -y
 
-If the C<-y> command-line option is given, Mailmunge will
-call smfi_setsymlist to set the list of macros it wants.  I<This function
-leaked memory in versions of Sendmail prior to 8.14.4> so by default
-we do not call it.  If you are running an older version of sendmail,
-you should explicitly set the list of macros you want in the Sendmail
-configuration file.
+If the C<-y> command-line option is given, Mailmunge will call
+C<smfi_setsymlist> to set the list of macros it wants.  I<This function
+leaked memory in versions of libmilter shipped with Sendmail prior to
+8.16.1> so by default we do not call it.  If you are running an older
+version of sendmail, you should explicitly set the list of macros you
+want in the Sendmail configuration file.
 
 =item -z I<spooldir>
 
