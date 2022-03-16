@@ -403,6 +403,8 @@ static void log_mta(void)
 {
     int mta_is_postfix = 0;
     int mta_is_sendmail = 0;
+    char const *mtamsg;
+
     /* Look for config files */
     if (access("/etc/postfix/main.cf", R_OK) >= 0 &&
         access("/etc/mail/sendmail.cf", R_OK) < 0) {
@@ -431,14 +433,15 @@ static void log_mta(void)
         }
     }
 
+    /* Log an alive message */
     if (mta_is_postfix) {
-        syslog(LOG_INFO, "MTA appears to be: Postfix");
+        mtamsg = "MTA appears to be: Postfix";
     } else if (mta_is_sendmail) {
-        syslog(LOG_INFO, "MTA appears to be: Sendmail");
+        mtamsg = "MTA appears to be: Sendmail";
     } else {
-        syslog(LOG_INFO, "MTA could not be identified");
+        mtamsg = "MTA could not be identified";
     }
-
+    syslog(LOG_INFO, "mailmunge-multiplexor " VERSION " alive.  %s", mtamsg);
 }
 
 /**********************************************************************

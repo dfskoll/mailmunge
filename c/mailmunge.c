@@ -2685,7 +2685,7 @@ main(int argc, char **argv)
     umask(socket_umask);
 #endif
 
-    syslog(LOG_INFO, "mailmunge alive. workersReservedForLoopback=%d AllowNewConnectionsToQueue=%d doRelayCheck=%d doHeloCheck=%d doSenderCheck=%d doRecipientCheck=%d", workersReservedForLoopback, AllowNewConnectionsToQueue, doRelayCheck, doHeloCheck, doSenderCheck, doRecipientCheck);
+    syslog(LOG_INFO, "mailmunge " VERSION " alive. workersReservedForLoopback=%d AllowNewConnectionsToQueue=%d doRelayCheck=%d doHeloCheck=%d doSenderCheck=%d doRecipientCheck=%d", workersReservedForLoopback, AllowNewConnectionsToQueue, doRelayCheck, doHeloCheck, doSenderCheck, doRecipientCheck);
 
 #ifdef ENABLE_DEBUGGING
     signal(SIGSEGV, handle_sig);
@@ -2703,10 +2703,10 @@ main(int argc, char **argv)
 	}
     }
     if (mx_alive) {
-	syslog(LOG_INFO, "Multiplexor alive - entering main loop");
+	syslog(LOG_INFO, "mailmunge-multiplexor is responding - entering main loop");
     } else {
 	/* Signal the waiting parent */
-	REPORT_FAILURE("Multiplexor socket did not appear.  Exiting.");
+	REPORT_FAILURE("mailmunge-multiplexor socket did not appear.  Exiting.");
 	if (pidfile) unlink(pidfile);
 	if (lockfile) unlink(lockfile);
 	exit(EXIT_FAILURE);
