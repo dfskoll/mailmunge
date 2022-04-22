@@ -1,8 +1,14 @@
 #!/bin/sh
+ROCKY=rocky
 
+if test "`uname -m`" = 'armv7l'; then
+    # Cannot build Rocky on Raspberry Pi
+    ROCKY=
+fi
 cd `dirname $0`
-for os in buster bullseye rocky; do
+for os in buster bullseye $ROCKY; do
     for mta in postfix sendmail; do
+        # Cannot build Rocky on Raspberry Pi
         ./build-docker-container $mta $os "$@"
     done
 done
