@@ -98,6 +98,13 @@ sub is_tempfail
         return 0;
 }
 
+sub is_discard
+{
+        my ($self) = @_;
+        return 1 if $self->{status} eq 'DISCARD';
+        return 0;
+}
+
 sub is_reject
 {
         my ($self) = @_;
