@@ -42,9 +42,8 @@ sub filter_message
                 $self->push_tag($ctx, 'In rebuild loop');
                 map { $self->_rebuild_entity($ctx, $rebuilt, $_) } $entity->parts;
                 $self->pop_tag($ctx);
+                $ctx->mime_entity($rebuilt);
         }
-
-        $ctx->mime_entity($rebuilt);
 
         if (!$ctx->message_rejected) {
                 $self->push_tag($ctx, 'In filter_end');
