@@ -49,9 +49,11 @@ sub filter_message
 
         if (!$ctx->message_rejected) {
                 $self->push_tag($ctx, 'In filter_end');
-                $self->filter_end($ctx);
+                $ret = $self->filter_end($ctx);
                 $self->pop_tag($ctx);
         }
+
+        $self->action_from_response($ctx, $ret);
 
         # If changes were made, update the MIME entity
         if (!$ctx->message_rejected && $self->_data($ctx)->{changed}) {
