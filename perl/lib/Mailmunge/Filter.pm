@@ -316,6 +316,11 @@ sub action_from_response
 {
         my ($self, $ctx, $resp) = @_;
 
+        return 0 unless $resp && ref($resp);
+        my $isa_response;
+        eval { $isa_response = $resp->isa('Mailmunge::Response'); };
+        return 0 unless $isa_response;
+
         if ($resp->is_tempfail) {
                 $self->action_tempfail($ctx, $resp->message);
                 return 1;
@@ -1675,8 +1680,12 @@ sub _handle_scan
 
         # Call filter_message
         $self->push_tag($qid, "In filter_message");
-        $self->filter_message($ctx);
+        my $ret = $self->filter_message($ctx);
         $self->pop_tag($qid);
+
+        # Check if $ret is a Mailmunge::Response object and potentially
+        # take action
+        $self->action_from_response($ctx, $ret);
 
         # Write NEWBODY file if $ctx->new_mime_entity has
         # been called
@@ -1693,7 +1702,8 @@ sub _handle_scan
         if (!$ctx->message_rejected) {
                 $self->push_tag($qid, "In filter_wrapup");
                 $ctx->in_filter_wrapup(1);
-                $self->filter_wrapup($ctx);
+                $ret = $self->filter_wrapup($ctx);
+                $self->action_from_response($ctx, $ret);
                 $self->pop_tag($qid);
                 $ctx->in_filter_wrapup(0);
         }

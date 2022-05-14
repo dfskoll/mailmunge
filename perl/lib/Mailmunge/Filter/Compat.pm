@@ -27,8 +27,10 @@ sub filter_message
                         warnings => []});
 
         $self->push_tag($ctx, 'In filter_begin');
-        $self->filter_begin($ctx);
+        my $ret = $self->filter_begin($ctx);
         $self->pop_tag($ctx);
+
+        $self->action_from_response($ctx, $ret);
 
         if (!$ctx->message_rejected) {
                 # We just want to dup the header into $rebuilt,
@@ -68,6 +70,7 @@ sub filter_message
                 }
                 $ctx->new_mime_entity($rebuilt);
         }
+        return;
 }
 
 sub _do_add_parts {
@@ -105,7 +108,7 @@ sub _rebuild_entity
         my ($self, $ctx, $out, $in) = @_;
 
         # Bail out early if we're rejecting
-        return if $ctx->message_rejected();
+        return 0 if $ctx->message_rejected();
 
         my @parts = $in->parts;
         my $type  = lc($in->mime_type);
@@ -123,10 +126,12 @@ sub _rebuild_entity
         $self->_data($ctx)->{action} = 'accept';
         if (!defined($body)) {
                 $self->push_tag($ctx, 'In filter_multipart routine');
-                $self->filter_multipart($ctx, $in, $fname, $extension, $type);
+                my $ret = $self->filter_multipart($ctx, $in, $fname, $extension, $type);
                 $self->pop_tag($ctx);
+                $self->action_from_response($ctx, $ret);
+
                 # Bail out if we're rejecting
-                return if $ctx->message_rejected();
+                return 0 if $ctx->message_rejected();
 
                 if ($self->_data($ctx)->{action} eq 'drop') {
                         $self->_data($ctx)->{changed} = 1;
@@ -142,13 +147,16 @@ sub _rebuild_entity
                 $subentity->parts([]);
                 $out->add_part($subentity);
                 map { $self->_rebuild_entity($ctx, $subentity, $_) } @parts;
+                return 0;
         } else {
                 $self->push_tag($ctx, 'In filter routine');
-                $self->filter($ctx, $in, $fname, $extension, $type);
+                my $ret = $self->filter($ctx, $in, $fname, $extension, $type);
                 $self->pop_tag($ctx);
 
+                $self->action_from_response($ctx, $ret);
+
                 # Bail out if we're rejecting
-                return if $ctx->message_rejected();
+                return 0 if $ctx->message_rejected();
 
                 # If action is 'drop', just drop it silently;
                 if ($self->_data($ctx)->{action} eq 'drop') {
@@ -166,6 +174,7 @@ sub _rebuild_entity
 
                 # Otherwise, accept it
                 $out->add_part($in);
+                return 0;
         }
 }
 
