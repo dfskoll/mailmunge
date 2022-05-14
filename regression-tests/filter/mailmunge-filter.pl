@@ -102,8 +102,7 @@ sub filter_begin
                 my $action = Mailmunge::Action::Stream->new($self);
                 my $ans = $action->stream_by_domain($ctx);
                 if ($ans) {
-                        $self->action_discard($ctx);
-                        return;
+                        return Mailmunge::Response->DISCARD();
                 } else {
                         $self->log($ctx, 'info', 'post stream_by_domain: Recipient list: ' . join(', ', @{$ctx->recipients}));
                         $self->log($ctx, 'info', 'post stream_by_domain: Hostname: ' . $ctx->hostname);
@@ -114,8 +113,7 @@ sub filter_begin
                 my $action = Mailmunge::Action::Stream->new($self);
                 my $ans = $action->stream_by_recipient($ctx);
                 if ($ans) {
-                        $self->action_discard($ctx);
-                        return;
+                        return Mailmunge::Response->DISCARD();
                 } else {
                         $self->log($ctx, 'info', 'post stream_by_recipient: Recipient list: ' . join(', ', @{$ctx->recipients}));
                         $self->log($ctx, 'info', 'post stream_by_recipient: Hostname: ' . $ctx->hostname);
@@ -123,13 +121,14 @@ sub filter_begin
                 }
         }
 
-        $self->action_tempfail($ctx, "I'm busy at the moment...") if ($subj eq 'begin-tempfail');
-        $self->action_bounce($ctx, 'I am not in the mood') if ($subj eq 'begin-reject');
-        $self->action_discard($ctx) if ($subj eq 'begin-discard');
+        return Mailmunge::Response->TEMPFAIL(message => "I'm busy at the moment...") if ($subj eq 'begin-tempfail');
+        return Mailmunge::Response->REJECT(message => 'I am not in the mood')        if ($subj eq 'begin-reject');
+        return Mailmunge::Response->DISCARD()                                        if ($subj eq 'begin-discard');
 
         $self->action_change_header($ctx, 'X-Foo', 'Foo has been CHANGED') if ($subj eq 'begin-chghdr');
         $self->action_delete_header($ctx, 'X-Foo') if ($subj eq 'begin-delhdr');
         $self->action_add_header($ctx, 'X-Foo', 'New-Foo') if ($subj eq 'begin-addhdr');
+        return 0;
 }
 
 sub filter
@@ -137,7 +136,7 @@ sub filter
         my ($self, $ctx, $entity, $fname, $extension, $type) = @_;
         $fname = lc($fname);
         if ($fname eq 'drop_with_warning.exe') {
-                return $self->action_drop_with_warning($ctx, 'Attachments of type EXE are not accepted');
+                return $self->action_drop($ctx, 'Attachments of type EXE are not accepted');
         }
         if ($fname eq 'replace_with_warning.exe') {
                 return $self->action_replace_with_warning($ctx, "Replaced $fname");
@@ -207,7 +206,7 @@ sub filter_end
                 $self->action_discard($ctx, "I'm a-discardin' ya!");
         }
         if ($subj =~ /\btempfail\b/i) {
-                $self->action_tempfail($ctx, "I'm a-tempfailin' ya!");
+                return Mailmunge::Response->TEMPFAIL(message => "I'm a-tempfailin' ya!");
         }
         if ($subj =~ /\brspamd\b/i) {
                 my $test = Mailmunge::Test::Rspamd->new($self);

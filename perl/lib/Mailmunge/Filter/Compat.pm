@@ -180,8 +180,12 @@ sub _rebuild_entity
 
 sub action_drop
 {
-        my ($self, $ctx) = @_;
+        my ($self, $ctx, $warning) = @_;
         return unless $ctx->in_message_context($self);
+
+        if (defined($warning)) {
+                push(@{$self->_data($ctx)->{warnings}}, $warning);
+        }
 
         $self->_data($ctx)->{action} = 'drop';
 }
@@ -189,10 +193,7 @@ sub action_drop
 sub action_drop_with_warning
 {
         my ($self, $ctx, $warning) = @_;
-        return unless $ctx->in_message_context($self);
-
-        push(@{$self->_data($ctx)->{warnings}}, $warning);
-        $self->_data($ctx)->{action} = 'drop';
+        return $self->action_drop($ctx, $warning);
 }
 
 sub action_accept_with_warning
