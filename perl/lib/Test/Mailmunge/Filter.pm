@@ -86,7 +86,7 @@ sub filter_begin
 {
         my ($self, $ctx) = @_;
         $self->action_tempfail($ctx, "I'm busy at the moment...") if ($ctx->subject eq 'begin-tempfail');
-        $self->action_bounce($ctx, 'I am not in the mood') if ($ctx->subject eq 'begin-reject');
+        return Mailmunge::Response->REJECT(message => 'I am not in the mood') if ($ctx->subject eq 'begin-reject');
         $self->action_discard($ctx) if ($ctx->subject eq 'begin-discard');
 
         $self->action_change_header($ctx, 'X-Foo', 'Foo has been CHANGED') if ($ctx->subject eq 'begin-chghdr');
@@ -190,7 +190,7 @@ sub filter_end
                 $self->action_quarantine_entire_message($ctx, "Go to your room NOW, young message!");
         }
         if ($subj =~ /\bbounce\b/i) {
-                $self->action_bounce($ctx, "I'm a-bouncin' ya!");
+                return Mailmunge::Response->REJECT(message => "I'm a-bouncin' ya!");
         }
         if ($subj =~ /\bdiscard\b/i) {
                 $self->action_discard($ctx, "I'm a-discardin' ya!");
