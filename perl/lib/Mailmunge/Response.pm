@@ -273,6 +273,10 @@ must be 4xx and C<dsn> must be 4.m.n.
 
 Returns true if C<status> is TEMPFAIL; false otherwise.
 
+=head2 is_discard()
+
+Returns true if C<status> is DISCARD; false otherwise.
+
 =head2 is_reject()
 
 Returns true if C<status> is REJECT; false otherwise.

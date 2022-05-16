@@ -301,6 +301,8 @@ This function operates as follows:
 
 =over
 
+if C<$resp> is not defined, or is not a C<Mailmunge::Response> object, return 0.
+
 If C<$resp-E<gt>is_tempfail>, call C<$self-E<gt>action_tempfail($ctx, $resp-E<gt>message)> and return 1
 
 If C<$resp-E<gt>is_reject>, call C<$self-E<gt>action_bounce($ctx, $resp-E<gt>message)> and return 1
@@ -1237,10 +1239,32 @@ sub filter_recipient { return Mailmunge::Response->CONTINUE(); }
 
 =head2 filter_message ($ctx)
 
-$ctx is an Mailmunge::Context object.  This method is called when a message
-is to be scanned.  The return value of this method is ignored; it
-indicates disposition of the message by calling one of the I<action_>
-methods.  If no disposition is specified, then the message is delivered.
+$ctx is an Mailmunge::Context object.  This method is called when a
+message is to be scanned.  The return value of this method is normally
+ignored; C<filter_message> normally indicates disposition of the
+message by calling one of the I<action_> methods.  If no disposition
+is specified, then the message is delivered.
+
+If, however, the return value of C<filter_message> is a L<Mailmunge::Response>
+object whose status is one of TEMPFAIL, REJECT or DISCARD, then the
+corresponding C<action_tempfail>, C<action_bounce> or C<action_discard>
+actions are called.  (See C<action_from_response> for the mechanism used to
+interpret the return value.)
+
+In other words, the following pairs of lines are equivalent if called
+from C<filter_message>:
+
+    # Equivalent ways to tempfail
+    $self->action_tempfail($ctx, "some msg"); return;
+    return Mailmunge::Response->TEMPFAIL(message => "some msg");
+
+    # Equivalent ways to reject
+    $self->action_bounce($ctx, "some msg"); return;
+    return Mailmunge::Response->REJECT(message => "some msg");
+
+    # Equivalent ways to discard
+    $self->action_discard($ctx"); return;
+    return Mailmunge::Response->DISCARD;
 
 The following $ctx fields are available; see L<Mailmunge::Context> for details.
 
@@ -1292,6 +1316,11 @@ the message.  Typically, filter_wrapup is used for something like
 DKIM-signing a message.
 
 The base class implementation does nothing.
+
+Normally, the return value of C<filter_wrapup> is ignored, but if it
+returns a L<Mailmunge::Response> object, then it has the same effect
+on message disposition as a C<Mailmunge::Response> object returned
+by C<filter_message>.
 
 =cut
 sub filter_wrapup    { return; }

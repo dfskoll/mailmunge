@@ -279,6 +279,12 @@ C<filter_end> and C<filter_wrapup> methods.  These methods operate
 similarly to their counterparts in MIMEDefang filtering code and make
 it easier to migrate MIMEDefang filters to Mailmunge.
 
+The return values from C<filter_begin>, C<filter>, C<filter_multipart>,
+C<filter_end> and C<filter_wrapup> are normally ignored.  However, if any
+of these functions returns a L<Mailmunge::Response> object, then it
+is interpreted the same way as a C<Mailmunge::Response> object returned
+by C<filter_message>.
+
 If you derive your filter from C<Mailmunge::Filter::Compat>, you
 I<must not> override C<filter_message>.  Instead, override
 C<filter_begin>, C<filter>, C<filter_multipart>, C<filter_end> and
