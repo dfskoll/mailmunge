@@ -275,6 +275,19 @@ sub _write_quarantine_info
         $filter->copy_or_link($filter->headers_file, "$qdir/HEADERS");
 }
 
+sub canonical_sender
+{
+        my ($self) = @_;
+        return Mailmunge::Filter->canonical_email($self->sender);
+}
+
+sub canonical_recipients
+{
+        my ($self) = @_;
+        my @recips = map { Mailmunge::Filter->canonical_email($_) } (@{$self->recipients});
+        return \@recips;
+}
+
 __PACKAGE__->make_accessors(@accessors);
 
 1;
@@ -591,6 +604,17 @@ Creates a brand-new subdirectory under Mailmunge's quarantine
 directory.  If the Path:QUARANTINEDIR constant is not set, or the directory
 could not be created, returns undef.  Otherwise, returns the full
 path to the directory
+
+=head2 canonical_sender()
+
+Returns Mailmunge::Filter->canonical_email($self->sender)
+
+=head2 canonical_recipients()
+
+Returns an arrayref of envelope recipient addresses after passing them
+through Mailmunge::Filter->canonical_email
+
+=cut
 
 =head1 AUTHOR
 

@@ -21,7 +21,8 @@ program as a replacement for the C<Mailmunge> Perl modules if you wish.
 =head1 PROTOCOL OVERVIEW
 
 The protocol is a simple line-based protocol.  The filter program
-runs in a loop.  This is referred to as running in I<server> mode.
+runs in a loop, communicating with the C<mailmunge-multiplexor>
+program on its standard input and standard output file descriptors.
 
 Each time through the loop, the server reads a single line
 from standard input; this line contains a command.  The server
@@ -68,7 +69,7 @@ Similar to C<-server>, but used by the embedded Perl interpreter.  The
 program should run any initialization routines and then exit.  The
 multiplexor will subsequently call the Perl routine
 C<_mailmunge_do_main_loop> when it is time for the worker to begin
-running in server mode.
+running.
 
 =item 4
 
@@ -271,10 +272,10 @@ defined in the future.
 
 =head2 SERVER REPLIES
 
-In server mode, you should I<not> write anything to standard output
-except reply codes as documented above, or the multiplexor will become
-confused.  You should I<not> terminate the program in server mode;
-simply echo an C<error:> reply and return to the server loop.
+Your filter should I<not> write anything to standard output except
+reply codes as documented above, or the multiplexor will become
+confused.  You should I<not> terminate the program; simply echo an
+C<error:> reply and return to the server loop.
 
 When you send a reply code back to the multiplexor, be sure to terminate
 it with a newline, and to flush standard output.  If your program uses
@@ -282,9 +283,9 @@ the Standard I/O library, standard output may not be flushed immediately,
 and C<mailmunge-multiplexor> will wait forever for the filter's reply,
 and eventually kill the filter on the assumption it has hung up.
 
-In server mode, if the filter program receives a SIGINT signal, it must
-terminate.  This is used by C<mailmunge-multiplexor> to terminate
-workers after they have processed a given number of e-mail messages.
+If the filter program receives a SIGINT signal, it must terminate.
+This is used by C<mailmunge-multiplexor> to terminate workers after
+they have processed a given number of e-mail messages.
 
 =head1 THE SCAN COMMAND
 

@@ -378,9 +378,10 @@ use warnings 'once';
 
 =head2 run()
 
-Run the filter.  In server mode, starts the server main loop.  In embedded
-mode, registers the filter in a global variable and returns; the
-multiplexor will start the server main loop at an appropriate time.
+Run the filter.  In non-embedded-Perl mode, starts the server main
+loop.  In embedded-Perl mode, registers the filter in a global
+variable and returns; the multiplexor will start the server main loop
+at an appropriate time.
 
 =cut
 sub run
@@ -1028,7 +1029,6 @@ sub unknown_command
         my ($self, $cmd, @args) = @_;
         return Mailmunge::Response->REJECT(message => 'Unknown command');
 }
-
 
 # Pathnames of various files written by the milter.
 # Implemented as methods so test code can override if necessary
