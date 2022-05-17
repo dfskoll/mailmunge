@@ -718,8 +718,8 @@ Add a header to the message in the specified position.
 This method may only be called from C<filter_message> or
 C<filter_wrapup> (or from functions called while they are active.)
 
-As a special case, if C<$pos> is negative, then the header is added
-at the end, as with C<action_add_header>
+As a special case, if C<$pos> is negative or not supplied, then the
+header is added at the end, as with C<action_add_header>
 
 =cut
 sub action_insert_header
@@ -727,7 +727,7 @@ sub action_insert_header
         my ($self, $ctx, $hdr, $val, $pos) = @_;
         return 0 unless $ctx->in_message_context($self);
 
-        $pos = 0 unless defined($pos);
+        $pos = -1 unless defined($pos);
 
         return $self->action_add_header($ctx, $hdr, $val) if ($pos < 0);
         $self->_log_if_postfix($ctx, 'info', "Header inserted: $pos: $hdr: $val");
