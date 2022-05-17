@@ -99,7 +99,7 @@ sub filter
         my ($self, $ctx, $entity, $fname, $extension, $type) = @_;
         $fname = lc($fname);
         if ($fname eq 'drop_with_warning.exe') {
-                return $self->action_drop_with_warning($ctx, 'Attachments of type EXE are not accepted');
+                return $self->action_drop($ctx, 'Attachments of type EXE are not accepted');
         }
         if ($fname eq 'replace_with_warning.exe') {
                 return $self->action_replace_with_warning($ctx, "Replaced $fname");
@@ -108,7 +108,7 @@ sub filter
                 return $self->action_drop($ctx);
         }
         if ($fname eq 'warn.txt') {
-                return $self->action_accept_with_warning($ctx, "I reluctantly accepted warn.txt");
+                return $self->action_accept($ctx, "I reluctantly accepted warn.txt");
         }
 }
 

@@ -103,7 +103,14 @@ sub filter_begin     { return; }
 sub filter_multipart { return; }
 sub filter           { return; }
 sub filter_end       { return; }
-sub action_accept    { return; }
+
+sub action_accept {
+        my ($self, $ctx, $warning) = @_;
+        if (defined($warning)) {
+                return $self->action_accept_with_warning($ctx, $warning);
+        }
+        return;
+}
 
 sub _rebuild_entity
 {
@@ -373,18 +380,21 @@ filter_end is called once at the end of filtering.  This is the last
 place you can modify the message (which you can do with
 C<action_add_entity> or C<action_add_part>).
 
-=head2 action_accept($ctx)
+=head2 action_accept($ctx [, $warning])
 
 This method may only be called in C<filter> or C<filter_multipart>.
 It causes the part to remain in the message.  If no method that removes
 or modifies a part is called, then C<action_accept> is implicitly
 the default.
 
-=head2 action_drop($ctx)
+If C<$warning> is supplied, then we call C<action_accept_with-warning>.
+
+=head2 action_drop($ctx [, $warning])
 
 This method may only be called in C<filter> or C<filter_multipart>.
 It causes the part (and if multipart, all sub-parts) to be silently
-removed from the message.
+removed from the message.  However, if C<$warning> is supplied, then
+we call C<action_drop_with_warning> instead.
 
 =head2 action_drop_with_warning($ctx, $warning)
 
