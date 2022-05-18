@@ -16,19 +16,16 @@ jobs:
       - name: Install Prerequisites
         run: |
           sudo apt update
-          sudo apt install libmilter-dev libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam postfix libjson-any-perl
+          sudo apt install libmilter-dev libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam postfix libjson-any-perl libdbd-sqlite3
           sudo cpanm -n File::VirusScan
           sudo adduser --home /home/testuser --gecos 'Test User' --disabled-password testuser
           sudo chown -R testuser .
       - name: Run Unit tests
         run: |
           sudo su -c './configure && make && make test' testuser
-      - name: Run Regression Tests with Postfix
+      - name: Run Regression Tests
         run: |
-          cd docker && sudo ./build-docker-container postfix && sudo ./run-regression-tests-on-docker postfix
-      - name: Run Regression Tests with Sendmail
-        run: |
-          cd docker && sudo ./build-docker-container sendmail && sudo ./run-regression-tests-on-docker sendmail
+          cd docker && sudo ./build-all-containers && sudo ./run-all-regression-tests -f
       - name: Fix permissions so Github does not warn
         run: |
           sudo chmod -R a+rwX .
