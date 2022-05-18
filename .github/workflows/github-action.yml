@@ -18,7 +18,7 @@ jobs:
           sudo apt update
       - name: Install prerequisite packages
         run: |
-          sudo apt install libmilter-dev libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam postfix libjson-any-perl libdbd-sqlite3 libdbi-perl
+          sudo apt install libmilter-dev libmime-tools-perl libperl-dev perl libio-socket-ssl-perl spamassassin libfile-find-rule-perl libtest-deep-perl cpanminus build-essential clamav-base clamav-daemon clamav-freshclam postfix libjson-any-perl libdbd-sqlite3-perl libdbi-perl
       - name: Install File::VirusScan
         run: |
           sudo cpanm -n File::VirusScan
