@@ -118,9 +118,11 @@ fi
 docker exec "$CONTAINER" /bin/sh -c "cp /root/docker-testfiles/etc-default-mailmunge /etc/default/mailmunge"
 docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/mailmunge restart"
 if test "$FLAVOR" = "debian" ; then
+    docker exec "$CONTAINER" freshclam -v
     docker exec "$CONTAINER" /bin/sh -c "/etc/init.d/clamav-daemon restart; /etc/init.d/rsyslog start; /etc/init.d/rspamd start"
 else
     echo "Starting services..."
+    docker exec "$CONTAINER" freshclam -v
     docker exec "$CONTAINER" /bin/sh -c "pkill -9 -u _rspamd; mkdir /var/run/clamav; chown clamscan /var/run/clamav; mkdir /var/run/rspamd; chown _rspamd /var/run/rspamd; clamd; syslog-ng" > /dev/null 2>&1
     # rspamd on CentOS does something very weird if it daemonizes itself;
     # it makes docker exe commands hang.  Hence this awful hack

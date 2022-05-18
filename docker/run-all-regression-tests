@@ -4,11 +4,17 @@ if test "`uname -m`" = 'armv7l'; then
     # Cannot run Rocky on Raspberry Pi
     ROCKY=
 fi
+EXITCODE=0
 
 cd `dirname $0`
 for os in buster bullseye $ROCKY; do
     for mta in postfix sendmail; do
         echo "RUNNING TESTS: $mta $os"
         ./run-regression-tests-on-docker $mta $os "$@"
+        if test "$?" != 0 ; then
+            EXITCODE=$?
+        fi
     done
 done
+
+exit $EXITCODE
