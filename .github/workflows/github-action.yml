@@ -33,7 +33,7 @@ jobs:
           sudo su -c './configure && make && make test' testuser
       - name: Run Regression Tests
         run: |
-          cd docker && sudo ./build-all-containers && sudo ./run-all-regression-tests -f
+          cd docker && sudo ./build-all-containers pull && sudo ./run-all-regression-tests -f
       - name: Fix permissions so Github does not warn
         run: |
           sudo chmod -R a+rwX .
