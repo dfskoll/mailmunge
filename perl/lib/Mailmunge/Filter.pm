@@ -729,7 +729,7 @@ sub action_insert_header
 
         $pos = -1 unless defined($pos);
 
-        return $self->action_add_header($ctx, $hdr, $val) if ($pos < 0);
+        return $self->action_add_header($ctx, $hdr, $val) if ($pos == -1);
         $self->_log_if_postfix($ctx, 'info', "Header inserted: $pos: $hdr: $val");
         $self->_write_result_line($ctx, 'N', $hdr, $pos, $val);
         return 1;
@@ -1269,7 +1269,7 @@ from C<filter_message>:
     return Mailmunge::Response->REJECT(message => "some msg");
 
     # Equivalent ways to discard
-    $self->action_discard($ctx"); return;
+    $self->action_discard($ctx); return;
     return Mailmunge::Response->DISCARD;
 
 The following $ctx fields are available; see L<Mailmunge::Context> for details.

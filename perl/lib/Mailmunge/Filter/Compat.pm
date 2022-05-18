@@ -387,7 +387,9 @@ It causes the part to remain in the message.  If no method that removes
 or modifies a part is called, then C<action_accept> is implicitly
 the default.
 
-If C<$warning> is supplied, then we call C<action_accept_with-warning>.
+If C<$warning> is supplied, then we call C<action_accept_with_warning>
+to add a warning message in a new C<text/plain> part appended to the
+message.
 
 =head2 action_drop($ctx [, $warning])
 
