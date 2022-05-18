@@ -11,8 +11,14 @@ fi
 
 MTA="$1"
 OS="$2"
+PULL=0
 IMAGE=mm-$MTA-$OS-image
 CONTAINER=mm-$MTA-$OS
+if test "$3" = "pull" ; then
+    PULL=1
+    IMAGE=dskoll/$IMAGE
+fi
+
 
 bailout () {
     echo "FATAL: $@"
@@ -35,10 +41,14 @@ if test $? = 0 ; then
    echo "Image $IMAGE appears to exist; skipping build."
    echo "If you wish to rebuild, please remove $IMAGE first."
 else
-    if test "$PROXY" = "" ; then
-        docker build -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
+    if test "$PULL" = "1" ; then
+        docker pull $IMAGE || bailout "docker pull failed"
     else
-        docker build --build-arg "APT_PROXY=$PROXY" -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
+        if test "$PROXY" = "" ; then
+            docker build -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
+        else
+            docker build --build-arg "APT_PROXY=$PROXY" -t "$IMAGE" -f "Dockerfile.$OS.$MTA" . || bailout "docker build failed"
+        fi
     fi
 fi
 
