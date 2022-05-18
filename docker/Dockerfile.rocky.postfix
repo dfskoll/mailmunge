@@ -34,4 +34,6 @@ RUN mkdir /var/spool/mailmunge
 
 RUN chown mailmunge.mailmunge /var/spool/mailmunge
 
+RUN freshclam -v
+
 CMD /usr/bin/waiter.pl

@@ -50,5 +50,7 @@ RUN adduser --home /home/testuser --gecos 'Test User' --disabled-password testus
 # Install File::VirusScan from cpan - not packaged in Debian
 RUN cpanm -n File::VirusScan
 
+RUN freshclam -v
+
 CMD /usr/bin/waiter.pl
 
