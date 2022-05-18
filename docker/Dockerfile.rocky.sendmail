@@ -8,11 +8,11 @@ COPY docker-testfiles/waiter.pl /usr/bin
 
 RUN dnf -y group install --setopt group_package_types=mandatory "Development Tools"
 
-RUN dnf -y install epel-release
+RUN dnf -y install epel-release dnf-plugins-core
 
 RUN dnf config-manager --set-enabled powertools
 
-RUN dnf -y install perl-MIME-tools perl-Sys-Syslog sendmail-milter sendmail sendmail-cf perl-ExtUtils-MakeMaker sendmail-milter-devel perl-Test perl-Test-Simple perl-Test-Deep perl-HTML-Parser perl-Net-DNS perl-File-Find-Rule spamassassin perl-JSON-Any perl-DBD-SQLite perl-Test-Pod perl-Test-Pod-Coverage clamav clamav-data clamd perl-App-cpanminus syslog-ng iproute
+RUN dnf -y install perl-MIME-tools perl-Sys-Syslog sendmail-milter sendmail sendmail-cf perl-ExtUtils-MakeMaker sendmail-milter-devel perl-Test perl-Test-Simple perl-Test-Deep perl-HTML-Parser perl-Net-DNS perl-File-Find-Rule spamassassin perl-JSON-Any perl-DBD-SQLite perl-Test-Pod perl-Test-Pod-Coverage clamav clamav-data clamd perl-App-cpanminus syslog-ng iproute clamav-update
 
 RUN curl https://rspamd.com/rpm-stable/centos-8/rspamd.repo > /etc/yum.repos.d/rspamd.repo
 
