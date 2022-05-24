@@ -292,9 +292,34 @@ sub mta_is_sendmail
         return $MTA_IS_SENDMAIL;
 }
 
+=head2 inputmsg()
+
+Returns the relative path to the input message file received
+from the MTA
+
+=cut
+sub inputmsg         { return 'INPUTMSG'; }
+
+sub _newbody          { return 'NEWBODY'; }
+
+=head2 headers_file()
+
+Returns the relative path to the HEADERS file.  This file contains
+only the top-level headers of the email message.  The headers
+are unwrapped, so this file is guaranteed to contain exactly one
+header per line.
+
+=cut
+
+sub headers_file     { return 'HEADERS'; }
+sub _commands_file    { return 'COMMANDS'; }
+
 =head1 INSTANCE METHODS
 
 =head2 action_from_response ($ctx, $resp)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_from_response($resp)> instead.
 
 Given a L<Mailmunge::Response> object C<$resp>, take the appropriate action.
 This function operates as follows:
@@ -403,6 +428,9 @@ sub _log_if_postfix
 
 =head2 action_bounce($ctx, $reply, $code, $dsn)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_bounce($reply, $code, $dsn)> instead.
+
 Ask the MTA to bounce the message.  $ctx is the Mailmunge::Context object;
 $reply is the text of the bounce; code is a 3-digit 5xy reply code,
 and $dsn is a three-numbered 5.x.y DSN code.
@@ -422,6 +450,9 @@ sub action_bounce
 
 =head2 action_discard($ctx)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_discard()> instead.
+
 Ask the MTA to discard the message.  $ctx is the Mailmunge::Context object.
 
 Writes the 'D' line to RESULTS to tell the C code to discard
@@ -439,6 +470,9 @@ sub action_discard
 
 
 =head2 action_tempfail($ctx, $reply, $code, $dsn)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_tempfail($reply, $code, $dsn)> instead.
 
 Ask the MTA to tempfail the message.  $ctx is the Mailmunge::Context object;
 $reply is the text of the tempfail response; code is a 3-digit 4xy
@@ -458,6 +492,9 @@ sub action_tempfail
 }
 
 =head2 action_change_header($ctx, $hdr, $value, $idx)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_change_header($hdr, $value, $idx)> instead.
 
 Ask the MTA to change the value of header "$hdr" to "$value".  $ctx is
 the Mailmunge::Context object, and $idx (if supplied) is the 1-based index of
@@ -479,6 +516,9 @@ sub action_change_header
 
 =head2 action_delete_header($ctx, $hdr, $idx)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_delete_header($hdr, $idx)> instead.
+
 Ask the MTA to delete the header header "$hdr" $ctx is the Mailmunge::Context
 object, and $idx (if supplied) is the 1-based index of the header to
 delete in the case of multiple headers.
@@ -497,6 +537,9 @@ sub action_delete_header
 
 =head2 action_delete_all_headers($ctx, $hdr)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>delete_all_headers($hdr)> instead.
+
 Ask the MTA to delete all headers "$hdr".  Do not include
 a colon in the header name.
 
@@ -512,6 +555,9 @@ sub action_delete_all_headers
 
 =head2 change_sender($ctx, $sender)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>change_sender($sender)> instead.
+
 Asks the MTA to change the envelope sender
 
 This method may only be called from C<filter_message> or
@@ -525,6 +571,9 @@ sub change_sender
 }
 
 =head2 add_recipient($ctx, $recip)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>add_recipient($recip)> instead.
 
 Asks the MTA to add a recipient to the envelope
 
@@ -540,6 +589,9 @@ sub add_recipient
 
 =head2 delete_recipient($ctx, $recip)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>delete_recipient($recip)> instead.
+
 Asks the MTA to delete $recip from the list of envelope recipients
 
 This method may only be called from C<filter_message> or
@@ -554,6 +606,9 @@ sub delete_recipient
 
 =head2 action_add_header($ctx, $hdr, $val)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_add_header($hdr, $val)> instead.
+
 Add a header to the message
 
 This method may only be called from C<filter_message> or
@@ -567,6 +622,9 @@ sub action_add_header
 }
 
 =head2 action_insert_header($ctx, $hdr, $val, $pos)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_insert_header($hdr, $val, $pos)> instead.
 
 Add a header to the message in the specified position.
 
@@ -585,6 +643,9 @@ sub action_insert_header
 
 =head2 action_sm_quarantine($ctx, $reason)
 
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_sm_quarantine($reason)> instead.
+
 Ask the MTA to quarantine the message.  $reason is the reason for
 the quarantine.
 
@@ -602,6 +663,9 @@ sub action_sm_quarantine
 }
 
 =head2 action_quarantine_entire_message($ctx, $reason)
+
+I<NOTE>: This function still exists for backward-compatibility, but
+you should use C<$ctx-E<gt>action_quarantine_entire_message($reason)> instead.
 
 Quarantines the message in the Mailmunge quarantine directory.  $reason
 is the reason for quarantining.  Note that calling this function does
@@ -850,16 +914,6 @@ sub unknown_command
 # Pathnames of various files written by the milter.
 # Implemented as methods so test code can override if necessary
 
-=head2 inputmsg()
-
-Returns the relative path to the input message file received
-from the MTA
-
-=cut
-sub inputmsg         { return 'INPUTMSG'; }
-
-sub _newbody          { return 'NEWBODY'; }
-
 =head2 inputmsg_fh()
 
 Returns a filehandle open for reading at the start of the raw input
@@ -876,18 +930,6 @@ sub inputmsg_fh
 
         return $fh;
 }
-
-=head2 headers_file()
-
-Returns the relative path to the HEADERS file.  This file contains
-only the top-level headers of the email message.  The headers
-are unwrapped, so this file is guaranteed to contain exactly one
-header per line.
-
-=cut
-
-sub headers_file     { return 'HEADERS'; }
-sub _commands_file    { return 'COMMANDS'; }
 
 =head2 product_name()
 

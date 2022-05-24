@@ -382,26 +382,6 @@ sub _log_if_postfix
         $self->log($level, $msg);
 }
 
-=head2 action_from_response ($resp)
-
-Given a L<Mailmunge::Response> object C<$resp>, take the appropriate action.
-This function operates as follows:
-
-=over
-
-if C<$resp> is not defined, or is not a C<Mailmunge::Response> object, return 0.
-
-If C<$resp-E<gt>is_tempfail>, call C<$self-E<gt>action_tempfail($resp-E<gt>message)> and return 1
-
-If C<$resp-E<gt>is_reject>, call C<$self-E<gt>action_bounce($resp-E<gt>message)> and return 1
-
-If C<$resp-E<gt>is_discard>, call C<$self-E<gt>action_discard()> and return 1
-
-Otherwise, return 0.
-
-=back
-
-=cut
 sub action_from_response
 {
         my ($self, $resp) = @_;
@@ -430,19 +410,6 @@ sub action_from_response
         return 0;
 }
 
-=head2 action_bounce($reply, $code, $dsn)
-
-Ask the MTA to bounce the message.  $reply is the text of the bounce;
-code is a 3-digit 5xy reply code, and $dsn is a three-numbered 5.x.y
-DSN code.
-
-Writes the 'B' line to RESULTS to tell the C code to bounce
-the message.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_bounce
 {
         my ($self, $reply, $code, $dsn) = @_;
@@ -463,17 +430,6 @@ sub action_bounce
         return 1;
 }
 
-=head2 action_discard()
-
-Ask the MTA to discard the message.
-
-Writes the 'D' line to RESULTS to tell the C code to discard
-the message.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_discard
 {
         my ($self) = @_;
@@ -483,19 +439,6 @@ sub action_discard
         return 1;
 }
 
-=head2 action_tempfail($reply, $code, $dsn)
-
-Ask the MTA to tempfail the message.
-$reply is the text of the tempfail response; code is a 3-digit 4xy
-reply code, and $dsn is a three-numbered 4.x.y DSN code.
-
-Writes the 'T' line to RESULTS to tell the C code to tempfail
-the message.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_tempfail
 {
         my ($self, $reply, $code, $dsn) = @_;
@@ -512,19 +455,6 @@ sub action_tempfail
         return 1;
 }
 
-=head2 action_change_header($hdr, $value, $idx)
-
-Ask the MTA to change the value of header "$hdr" to "$value".
-$idx (if supplied) is the 1-based index of
-the header to change in the case of multiple headers.  If "$hdr" was
-not present, then the MTA is asked to add it.
-
-Do not include a colon in the header name.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_change_header
 {
         my ($self, $hdr, $value, $idx) = @_;
@@ -534,18 +464,6 @@ sub action_change_header
         $self->_write_result_line('I', $hdr, $idx, $value);
 }
 
-=head2 action_delete_header($hdr, $idx)
-
-Ask the MTA to delete the header header "$hdr"
-$idx (if supplied) is the 1-based index of the header to
-delete in the case of multiple headers.
-
-Do not include a colon in the header name.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_delete_header
 {
         my ($self, $hdr, $idx) = @_;
@@ -555,15 +473,6 @@ sub action_delete_header
         $self->_write_result_line('J', $hdr, $idx);
 }
 
-=head2 action_delete_all_headers($hdr)
-
-Ask the MTA to delete all headers "$hdr".  Do not include
-a colon in the header name.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_delete_all_headers
 {
         my ($self, $hdr) = @_;
@@ -586,14 +495,6 @@ sub action_delete_all_headers
         return 1;
 }
 
-=head2 change_sender($sender)
-
-Asks the MTA to change the envelope sender
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub change_sender
 {
         my ($self, $sender) = @_;
@@ -603,14 +504,6 @@ sub change_sender
         return 1;
 }
 
-=head2 add_recipient($recip)
-
-Asks the MTA to add a recipient to the envelope
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub add_recipient
 {
         my ($self, $recip) = @_;
@@ -620,14 +513,6 @@ sub add_recipient
         return 1;
 }
 
-=head2 delete_recipient($recip)
-
-Asks the MTA to delete $recip from the list of envelope recipients
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub delete_recipient
 {
         my ($self, $recip) = @_;
@@ -637,14 +522,6 @@ sub delete_recipient
         return 1;
 }
 
-=head2 action_add_header($hdr, $val)
-
-Add a header to the message
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_add_header
 {
         my ($self, $hdr, $val) = @_;
@@ -654,17 +531,6 @@ sub action_add_header
         return 1;
 }
 
-=head2 action_insert_header($hdr, $val, $pos)
-
-Add a header to the message in the specified position.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-As a special case, if C<$pos> is negative or not supplied, then the
-header is added at the end, as with C<action_add_header>
-
-=cut
 sub action_insert_header
 {
         my ($self, $hdr, $val, $pos) = @_;
@@ -678,18 +544,6 @@ sub action_insert_header
         return 1;
 }
 
-=head2 action_sm_quarantine($reason)
-
-Ask the MTA to quarantine the message.  $reason is the reason for
-the quarantine.
-
-Note that this is different from Mailmunge's quarantine function.
-Instead, it ends up calling the Milter function smfi_quarantine.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_sm_quarantine
 {
         my ($self, $reason) = @_;
@@ -698,20 +552,6 @@ sub action_sm_quarantine
         return $self->_write_result_line('Q', $reason);
 }
 
-=head2 action_quarantine_entire_message($reason)
-
-Quarantines the message in the Mailmunge quarantine directory.  $reason
-is the reason for quarantining.  Note that calling this function does
-I<not> affect disposition of the message.  If you do not want the original
-message delivered, you must call action_bounce or action_discard.
-
-On success, returns the directory in which the message was
-quarantined.  On failure, returns undef.
-
-This method may only be called from C<filter_message> or
-C<filter_wrapup> (or from functions called while they are active.)
-
-=cut
 sub action_quarantine_entire_message
 {
         my ($self, $msg) = @_;
@@ -737,14 +577,6 @@ sub action_quarantine_entire_message
         return $qdir;
 }
 
-=head2 copy_or_link($src, $dst)
-
-Attempt to hard-link the file $src to $dst.  $dst must be the full desired
-path of the destination.  If hard-linking fails, copy the file instead.
-
-Returns 1 on success; 0 on failure.
-
-=cut
 sub copy_or_link
 {
         my ($self, $src, $dst) = @_;
@@ -1099,6 +931,159 @@ Log a message to syslog of the specified level.  $level must be one
 of 'emerg', 'alert', 'crit', 'err', 'warning', 'notice', 'info' or 'debug'
 
 =cut
+
+=head2 action_from_response ($resp)
+
+Given a L<Mailmunge::Response> object C<$resp>, take the appropriate action.
+This function operates as follows:
+
+=over
+
+if C<$resp> is not defined, or is not a C<Mailmunge::Response> object, return 0.
+
+If C<$resp-E<gt>is_tempfail>, call C<$self-E<gt>action_tempfail($resp-E<gt>message)> and return 1
+
+If C<$resp-E<gt>is_reject>, call C<$self-E<gt>action_bounce($resp-E<gt>message)> and return 1
+
+If C<$resp-E<gt>is_discard>, call C<$self-E<gt>action_discard()> and return 1
+
+Otherwise, return 0.
+
+=back
+
+=head2 action_bounce($reply, $code, $dsn)
+
+Ask the MTA to bounce the message.  $reply is the text of the bounce;
+code is a 3-digit 5xy reply code, and $dsn is a three-numbered 5.x.y
+DSN code.
+
+Writes the 'B' line to RESULTS to tell the C code to bounce
+the message.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_discard()
+
+Ask the MTA to discard the message.
+
+Writes the 'D' line to RESULTS to tell the C code to discard
+the message.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_tempfail($reply, $code, $dsn)
+
+Ask the MTA to tempfail the message.
+$reply is the text of the tempfail response; code is a 3-digit 4xy
+reply code, and $dsn is a three-numbered 4.x.y DSN code.
+
+Writes the 'T' line to RESULTS to tell the C code to tempfail
+the message.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_change_header($hdr, $value, $idx)
+
+Ask the MTA to change the value of header "$hdr" to "$value".
+$idx (if supplied) is the 1-based index of
+the header to change in the case of multiple headers.  If "$hdr" was
+not present, then the MTA is asked to add it.
+
+Do not include a colon in the header name.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_delete_header($hdr, $idx)
+
+Ask the MTA to delete the header header "$hdr"
+$idx (if supplied) is the 1-based index of the header to
+delete in the case of multiple headers.
+
+Do not include a colon in the header name.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_delete_all_headers($hdr)
+
+Ask the MTA to delete all headers "$hdr".  Do not include
+a colon in the header name.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 change_sender($sender)
+
+Asks the MTA to change the envelope sender
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 add_recipient($recip)
+
+Asks the MTA to add a recipient to the envelope
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 delete_recipient($recip)
+
+Asks the MTA to delete $recip from the list of envelope recipients
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_add_header($hdr, $val)
+
+Add a header to the message
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_insert_header($hdr, $val, $pos)
+
+Add a header to the message in the specified position.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+As a special case, if C<$pos> is negative or not supplied, then the
+header is added at the end, as with C<action_add_header>
+
+=head2 action_sm_quarantine($reason)
+
+Ask the MTA to quarantine the message.  $reason is the reason for
+the quarantine.
+
+Note that this is different from Mailmunge's quarantine function.
+Instead, it ends up calling the Milter function smfi_quarantine.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 action_quarantine_entire_message($reason)
+
+Quarantines the message in the Mailmunge quarantine directory.  $reason
+is the reason for quarantining.  Note that calling this function does
+I<not> affect disposition of the message.  If you do not want the original
+message delivered, you must call action_bounce or action_discard.
+
+On success, returns the directory in which the message was
+quarantined.  On failure, returns undef.
+
+This method may only be called from C<filter_message> or
+C<filter_wrapup> (or from functions called while they are active.)
+
+=head2 copy_or_link($src, $dst)
+
+Attempt to hard-link the file $src to $dst.  $dst must be the full desired
+path of the destination.  If hard-linking fails, copy the file instead.
+
+Returns 1 on success; 0 on failure.
 
 =head1 AUTHOR
 
