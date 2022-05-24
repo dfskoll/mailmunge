@@ -85,13 +85,13 @@ sub filter_recipient
 sub filter_begin
 {
         my ($self, $ctx) = @_;
-        $self->action_tempfail($ctx, "I'm busy at the moment...") if ($ctx->subject eq 'begin-tempfail');
+        $ctx->action_tempfail("I'm busy at the moment...") if ($ctx->subject eq 'begin-tempfail');
         return Mailmunge::Response->REJECT(message => 'I am not in the mood') if ($ctx->subject eq 'begin-reject');
-        $self->action_discard($ctx) if ($ctx->subject eq 'begin-discard');
+        $ctx->action_discard() if ($ctx->subject eq 'begin-discard');
 
-        $self->action_change_header($ctx, 'X-Foo', 'Foo has been CHANGED') if ($ctx->subject eq 'begin-chghdr');
-        $self->action_delete_header($ctx, 'X-Foo') if ($ctx->subject eq 'begin-delhdr');
-        $self->action_add_header($ctx, 'X-Foo', 'New-Foo') if ($ctx->subject eq 'begin-addhdr');
+        $ctx->action_change_header('X-Foo', 'Foo has been CHANGED') if ($ctx->subject eq 'begin-chghdr');
+        $ctx->action_delete_header('X-Foo') if ($ctx->subject eq 'begin-delhdr');
+        $ctx->action_add_header('X-Foo', 'New-Foo') if ($ctx->subject eq 'begin-addhdr');
 }
 
 sub filter
@@ -160,43 +160,43 @@ sub filter_end
                 $self->action_add_part($ctx, 'text/html', '-suggest', "<html><head><title>Foo</title></head><body><p>Wookie</p></body></html>\n");
         }
         if ($subj =~ /\bchgsub\b/i) {
-                $self->action_change_header($ctx, 'Subject', "[New subject] " . $subj);
+                $ctx->action_change_header('Subject', "[New subject] " . $subj);
         }
         if ($subj =~ /\bdelhdr\b/i) {
-                $self->action_delete_header($ctx, 'X-Delete-Me');
+                $ctx->action_delete_header('X-Delete-Me');
         }
         if ($subj =~ /\bchghdr\b/i) {
-                $self->action_change_header($ctx, 'X-Change-Me', 'You are changed!');
+                $ctx->action_change_header('X-Change-Me', 'You are changed!');
         }
         if ($subj =~ /\bdelallhdrs\b/i) {
-                $self->action_delete_all_headers($ctx, 'X-Delete-Us-All');
+                $ctx->action_delete_all_headers('X-Delete-Us-All');
         }
         if ($subj =~ /\bchgsender\b/i) {
-                $self->change_sender($ctx, '<changed_sender@example.org>');
+                $ctx->change_sender('<changed_sender@example.org>');
         }
         if ($subj =~ /\baddrcpt\b/i) {
-                $self->add_recipient($ctx, '<foobarbaz_added@example.org>');
+                $ctx->add_recipient('<foobarbaz_added@example.org>');
         }
         if ($subj =~ /\bdelrcpt\b/i) {
-                $self->delete_recipient($ctx, $ctx->recipients->[0]);
+                $ctx->delete_recipient($ctx->recipients->[0]);
         }
         if ($subj =~ /\baddhdr\b/i) {
-                $self->action_add_header($ctx, 'X-Added', 'I am new!');
+                $ctx->action_add_header('X-Added', 'I am new!');
         }
         if ($subj =~ /\bsmquarantine\b/i) {
-                $self->action_sm_quarantine($ctx, 'You are evil and bad so I am quarantining you');
+                $ctx->action_sm_quarantine('You are evil and bad so I am quarantining you');
         }
         if ($subj =~ /\bquarantine\b/i) {
-                $self->action_quarantine_entire_message($ctx, "Go to your room NOW, young message!");
+                $ctx->action_quarantine_entire_message("Go to your room NOW, young message!");
         }
         if ($subj =~ /\bbounce\b/i) {
                 return Mailmunge::Response->REJECT(message => "I'm a-bouncin' ya!");
         }
         if ($subj =~ /\bdiscard\b/i) {
-                $self->action_discard($ctx, "I'm a-discardin' ya!");
+                $ctx->action_discard("I'm a-discardin' ya!");
         }
         if ($subj =~ /\btempfail\b/i) {
-                $self->action_tempfail($ctx, "I'm a-tempfailin' ya!");
+                $ctx->action_tempfail("I'm a-tempfailin' ya!");
         }
         if ($subj =~ /\bboilerplate_one_start\b/) {
                 my $action = Mailmunge::Action::Boilerplate->new($self);
