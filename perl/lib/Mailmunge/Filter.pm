@@ -1575,7 +1575,7 @@ sub _handle_scan
 
         # Check if $ret is a Mailmunge::Response object and potentially
         # take action
-        $self->action_from_response($ctx, $ret);
+        $ctx->action_from_response($ret);
 
         # Write NEWBODY file if $ctx->new_mime_entity has
         # been called
@@ -1593,7 +1593,7 @@ sub _handle_scan
                 $self->push_tag($qid, "In filter_wrapup");
                 $ctx->in_filter_wrapup(1);
                 $ret = $self->filter_wrapup($ctx);
-                $self->action_from_response($ctx, $ret);
+                $ctx->action_from_response($ret);
                 $self->pop_tag($qid);
                 $ctx->in_filter_wrapup(0);
         }

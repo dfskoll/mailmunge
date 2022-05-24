@@ -194,7 +194,7 @@ passes the input message to rspamd for evaluation.
         # action based on $ans->{response}; $ans->{response} is a
         # Mailmunge::Response object with a suggested response
 
-        if ($self->action_from_response($ctx, $resp)) {
+        if ($ctx->action_from_response($resp)) {
             # Rspamd suggested an action, which we took
             return;
         }

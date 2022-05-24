@@ -30,7 +30,7 @@ sub filter_message
         my $ret = $self->filter_begin($ctx);
         $self->pop_tag($ctx);
 
-        $self->action_from_response($ctx, $ret);
+        $ctx->action_from_response($ret);
 
         if (!$ctx->message_rejected) {
                 # We just want to dup the header into $rebuilt,
@@ -53,7 +53,7 @@ sub filter_message
                 $self->pop_tag($ctx);
         }
 
-        $self->action_from_response($ctx, $ret);
+        $ctx->action_from_response($ret);
 
         # If changes were made, update the MIME entity
         if (!$ctx->message_rejected && $self->_data($ctx)->{changed}) {
@@ -137,7 +137,7 @@ sub _rebuild_entity
                 $self->push_tag($ctx, 'In filter_multipart routine');
                 my $ret = $self->filter_multipart($ctx, $in, $fname, $extension, $type);
                 $self->pop_tag($ctx);
-                $self->action_from_response($ctx, $ret);
+                $ctx->action_from_response($ret);
 
                 # Bail out if we're rejecting
                 return 0 if $ctx->message_rejected();
@@ -162,7 +162,7 @@ sub _rebuild_entity
                 my $ret = $self->filter($ctx, $in, $fname, $extension, $type);
                 $self->pop_tag($ctx);
 
-                $self->action_from_response($ctx, $ret);
+                $ctx->action_from_response($ret);
 
                 # Bail out if we're rejecting
                 return 0 if $ctx->message_rejected();
