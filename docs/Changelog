@@ -12,7 +12,7 @@ affect your filter.
 	* c/Makefile.in: Remove obsolete "chown" command in install target
 
 	* c/config.h.in: Add test for setproctitle_init to make Mailmunge
-	compiler properly on FreeBSD
+	compile properly on FreeBSD
 
 	* mailmunge-multiplexor: Log MTA type in the "multiplexor alive"
 	log line rather than a separate log line
@@ -24,7 +24,7 @@ affect your filter.
 	* Mailmunge::Filter: Move many action_* comments into
 	Mailmunge::Context instead.  However, the Mailmunge::Filter versions
 	will be maintained indefinitely for backward-compatibility; they
-	just call into the context objet.  Functions affected are:
+	just call into the context object.  Functions affected are:
 
 	    action_from_response, action_bounce, action_discard,
 	    action_tempfail, action_change_header, action_delete_header,
