@@ -318,28 +318,7 @@ sub action_from_response
 {
         my ($self, $ctx, $resp) = @_;
 
-        return 0 unless $resp && ref($resp);
-        my $isa_response;
-        eval { $isa_response = $resp->isa('Mailmunge::Response'); };
-        return 0 unless $isa_response;
-
-        if ($resp->is_tempfail) {
-                $self->action_tempfail($ctx, $resp->message);
-                return 1;
-        }
-
-        if ($resp->is_reject) {
-                $self->action_bounce($ctx, $resp->message);
-                return 1;
-        }
-
-        if ($resp->is_discard) {
-                $self->action_discard($ctx);
-                return 1;
-        }
-
-        # Didn't do anything
-        return 0;
+        return $ctx->action_from_response($resp);
 }
 
 =head2 log($ctx, $level, $msg)
@@ -353,9 +332,13 @@ sub log
 {
         my ($self, $ctx, $level, $msg) = @_;
 
-        # Accept either a queue ID or an Mailmunge::Context object
+        # Punt to Mailmunge::Context if $ctx is one
+        if (ref($ctx)) {
+                return $ctx->log($level, $msg);
+        }
+
+        # Must be a queue ID
         my $qid = $ctx;
-        $qid = $ctx->qid if ref($ctx);
 
         if (defined($qid) && $qid ne 'NOQUEUE' && $qid ne '') {
                 syslog($level, '%s', $qid . ': ' . $msg);
@@ -406,65 +389,6 @@ sub _cd_to_spooldir
         chdir($spooldir) if defined($spooldir);
 }
 
-# Private function: Get a filenhandle for writing to the
-# RESULTS file.  Dies if it cannot open RESULTS.
-sub _results_fh
-{
-        my ($self) = @_;
-        if (!$self->{results_fh}) {
-                $self->{results_fh} = IO::File->new('>>RESULTS');
-                if (!$self->{results_fh}) {
-                        die("Could not open RESULTS file: $!");
-                }
-        }
-        return $self->{results_fh};
-}
-
-# Private function: Close the RESULTS filehandle.
-# Dies if close() returns an error.
-sub _close_results_fh
-{
-        my ($self) = @_;
-        if ($self->{results_fh}) {
-                if (!$self->{results_fh}->close()) {
-                        die("Could not close RESULTS file: $!");
-                }
-                delete $self->{results_fh};
-        }
-}
-
-# Private function
-# _write_result_line($ctx, $cmd, @args)
-# Writes the line to RESULTS, percent-escaping each member of @args.
-sub _write_result_line
-{
-        my $self = shift;
-        my $ctx  = shift;
-        my $cmd  = shift;
-
-        my $fh = $self->_results_fh();
-
-        my $line = $cmd . join(' ', map { $self->_percent_encode($_) } (@_));
-	# We have an 8kb limit on the length of lines in RESULTS, including
-	# trailing newline and null used in the milter.  So, we limit $cmd +
-	# $args to 8190 bytes.
-	if( length $line > 8190 ) {
-		$self->log( $ctx, 'warning',  "Cannot write line over 8190 bytes long to RESULTS file; truncating.  Original line began with: " . substr $line, 0, 40);
-		$line = substr $line, 0, 8190;
-	}
-        print $fh "$line\n" or die("Could not write RESULTS line: $!");
-}
-
-# Private function
-# Writes the 'F' command to RESULTS and closes the RESULTS
-# filehandle.
-sub _signal_complete
-{
-        my ($self, $ctx) = @_;
-        $self->_write_result_line($ctx, 'F');
-        $self->_close_results_fh();
-}
-
 # Private function
 # Log only if the MTA is Postfix.  Sendmail
 # is much more verbose about logging Milter
@@ -475,16 +399,6 @@ sub _log_if_postfix
         my ($self, $ctx, $level, $msg) = @_;
         return unless $self->mta_is_postfix();
         $self->log($ctx, $level, $msg);
-}
-
-# Private function
-# Writes the 'C' command to RESULTS to tell the C code to replace
-# the message body
-sub _signal_changed
-{
-        my ($self, $ctx) = @_;
-        $self->_log_if_postfix($ctx, 'info', 'Message body replaced');
-        $self->_write_result_line($ctx, 'C');
 }
 
 =head2 action_bounce($ctx, $reply, $code, $dsn)
@@ -503,21 +417,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_bounce
 {
         my ($self, $ctx, $reply, $code, $dsn) = @_;
-        return 0 unless $ctx->in_message_context($self);
-
-        # Convert bounce to discard for resent mail
-        if ($ctx->was_resent) {
-                $self->log($ctx, 'info', 'Converting "bounce" to "discard" for resent mail');
-                return $self->action_discard($ctx);
-        }
-
-        $ctx->bounced(1);
-        $reply = "Forbidden for policy reasons" unless (defined($reply) and ($reply ne ""));
-        $code = 554 unless (defined($code) and $code =~ /^5\d\d$/);
-        $dsn = "5.7.1" unless (defined($dsn) and $dsn =~ /^5\.\d{1,3}\.\d{1,3}$/);
-
-        $self->_write_result_line($ctx, 'B', $code, $dsn, $reply);
-        return 1;
+        return $ctx->action_bounce($reply, $code, $dsn);
 }
 
 =head2 action_discard($ctx)
@@ -534,11 +434,9 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_discard
 {
         my ($self, $ctx) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $ctx->discarded(1);
-        $self->_write_result_line($ctx, 'D', '');
-        return 1;
+        return $ctx->action_discard();
 }
+
 
 =head2 action_tempfail($ctx, $reply, $code, $dsn)
 
@@ -556,17 +454,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_tempfail
 {
         my ($self, $ctx, $reply, $code, $dsn) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        if ($ctx->was_resent) {
-                $self->log($ctx, 'info', 'Refusing to tempfail resent mail');
-                return 0;
-        }
-        $ctx->tempfailed(1);
-        $reply = "Try again later" unless (defined($reply) and ($reply ne ""));
-        $code = 451 unless (defined($code) and $code =~ /^4\d\d$/);
-        $dsn = "4.3.0" unless (defined($dsn) and $dsn =~ /^4\.\d{1,3}\.\d{1,3}$/);
-        $self->_write_result_line($ctx, 'T', $code, $dsn, $reply);
-        return 1;
+        return $ctx->action_tempfail($reply, $code, $dsn);
 }
 
 =head2 action_change_header($ctx, $hdr, $value, $idx)
@@ -585,10 +473,8 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_change_header
 {
         my ($self, $ctx, $hdr, $value, $idx) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $idx = 1 unless defined($idx);
-        $self->_log_if_postfix($ctx, 'info', "Header changed: $idx: $hdr: $value");
-        $self->_write_result_line($ctx, 'I', $hdr, $idx, $value);
+
+        return $ctx->action_change_header($hdr, $value, $idx);
 }
 
 =head2 action_delete_header($ctx, $hdr, $idx)
@@ -606,10 +492,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_delete_header
 {
         my ($self, $ctx, $hdr, $idx) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $idx = 1 unless defined($idx);
-        $self->_log_if_postfix($ctx, 'info', "Header deleted: $idx: $hdr");
-        $self->_write_result_line($ctx, 'J', $hdr, $idx);
+        return $ctx->action_delete_header($hdr, $idx);
 }
 
 =head2 action_delete_all_headers($ctx, $hdr)
@@ -624,23 +507,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_delete_all_headers
 {
         my ($self, $ctx, $hdr) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        my $fh;
-        if (!open($fh, '<' . $self->headers_file())) {
-                return undef;
-        }
-        my $new_hdr = lc($hdr) . ':';
-        my $len = length($new_hdr);
-        my $count = 0;
-        while(<$fh>) {
-                $count++ if (lc(substr($_, 0, $len)) eq $new_hdr);
-        }
-        $fh->close();
-        while($count > 0) {
-                $self->action_delete_header($ctx, $hdr, $count);
-                $count--;
-        }
-        return 1;
+        return $ctx->action_delete_all_headers($hdr);
 }
 
 =head2 change_sender($ctx, $sender)
@@ -654,10 +521,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub change_sender
 {
         my ($self, $ctx, $sender) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $self->_log_if_postfix($ctx, 'info', "Sender changed: $sender");
-        $self->_write_result_line($ctx, 'f', $sender);
-        return 1;
+        return $ctx->change_sender($sender);
 }
 
 =head2 add_recipient($ctx, $recip)
@@ -671,10 +535,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub add_recipient
 {
         my ($self, $ctx, $recip) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $self->_log_if_postfix($ctx, 'info', "Recipient added: $recip");
-        $self->_write_result_line($ctx, 'R', $recip);
-        return 1;
+        return $ctx->add_recipient($recip);
 }
 
 =head2 delete_recipient($ctx, $recip)
@@ -688,10 +549,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub delete_recipient
 {
         my ($self, $ctx, $recip) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $self->_log_if_postfix($ctx, 'info', "Recipient deleted: $recip");
-        $self->_write_result_line($ctx, 'S', $recip);
-        return 1;
+        return $ctx->delete_recipient($recip);
 }
 
 =head2 action_add_header($ctx, $hdr, $val)
@@ -705,10 +563,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_add_header
 {
         my ($self, $ctx, $hdr, $val) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $self->_log_if_postfix($ctx, 'info', "Header added: $hdr: $val");
-        $self->_write_result_line($ctx, 'H', $hdr, $val);
-        return 1;
+        return $ctx->action_add_header($hdr, $val);
 }
 
 =head2 action_insert_header($ctx, $hdr, $val, $pos)
@@ -725,14 +580,7 @@ header is added at the end, as with C<action_add_header>
 sub action_insert_header
 {
         my ($self, $ctx, $hdr, $val, $pos) = @_;
-        return 0 unless $ctx->in_message_context($self);
-
-        $pos = -1 unless defined($pos);
-
-        return $self->action_add_header($ctx, $hdr, $val) if ($pos == -1);
-        $self->_log_if_postfix($ctx, 'info', "Header inserted: $pos: $hdr: $val");
-        $self->_write_result_line($ctx, 'N', $hdr, $pos, $val);
-        return 1;
+        return $ctx->action_insert_header($hdr, $val, $pos);
 }
 
 =head2 action_sm_quarantine($ctx, $reason)
@@ -750,9 +598,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_sm_quarantine
 {
         my ($self, $ctx, $reason) = @_;
-        return 0 unless $ctx->in_message_context($self);
-        $self->_log_if_postfix($ctx, 'info', "Message held in Postfix 'hold' queue");
-        return $self->_write_result_line($ctx, 'Q', $reason);
+        return $ctx->action_sm_quarantine($reason);
 }
 
 =head2 action_quarantine_entire_message($ctx, $reason)
@@ -772,26 +618,7 @@ C<filter_wrapup> (or from functions called while they are active.)
 sub action_quarantine_entire_message
 {
         my ($self, $ctx, $msg) = @_;
-        return undef unless $ctx->in_message_context($self);
-
-        # If it has already been quarantined, we're good
-        return $ctx->message_quarantined if ($ctx->message_quarantined);
-
-        my $qdir = $ctx->get_quarantine_dir();
-        return undef unless $qdir;
-
-        $ctx->_write_quarantine_info($self, $qdir);
-
-        if (defined($msg) && ($msg ne '')) {
-                if (open(my $fh, ">$qdir/MSG.0")) {
-                        $fh->print("$msg\n");
-                        $fh->close();
-                }
-        }
-        $self->log($ctx, 'info', "Message quarantined in $qdir");
-        $self->copy_or_link($self->inputmsg(), "$qdir/ENTIRE_MESSAGE");
-        $ctx->message_quarantined($qdir);
-        return $qdir;
+        return $ctx->action_quarantine_entire_message($msg);
 }
 
 =head2 copy_or_link($src, $dst)
@@ -806,24 +633,8 @@ sub copy_or_link
 {
         my ($self, $src, $dst) = @_;
 
-        # Try linking
-        return 1 if link($src, $dst);
-
-        # Otherwise copy
-        my $ret = 0;
-        if (open(my $ifh, "<$src")) {
-                if (open(my $ofh, ">$dst")) {
-                        my ($n, $string);
-                        while(($n = read($ifh, $string, 4096)) > 0) {
-                                print $ofh $string;
-                        }
-                        $ret = 1 if ($ofh->close());
-                }
-                $ifh->close();
-        }
-        return $ret;
+        return Mailmunge::Context->copy_or_link($src, $dst);
 }
-
 
 # Private function: _parse_cmdline_args()
 # Parses out the operating mode from the command-line arguments
@@ -1425,6 +1236,7 @@ sub _handle_relayok
                                           client_port => $port,
                                           my_ip       => $myip,
                                           my_port     => $myport,
+                                          mta_is_postfix => $self->mta_is_postfix(),
                                           qid         => $qid);
         my $resp = $self->filter_relay($ctx);
         $resp = $self->_ensure_response($ctx, $resp, 'filter_relay');
@@ -1445,6 +1257,7 @@ sub _handle_helook
                                           client_port => $port,
                                           my_ip       => $myip,
                                           my_port     => $myport,
+                                          mta_is_postfix => $self->mta_is_postfix(),
                                           qid         => $qid);
         my $resp = $self->filter_helo($ctx);
         $resp = $self->_ensure_response($ctx, $resp, 'filter_helo');
@@ -1587,12 +1400,12 @@ sub read_commands_file
         my ($self, $ctx, $need_f) = @_;
         my $fh;
         if (!open($fh, "<" . $self->_commands_file())) {
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 $self->_reply_error("Could not open " . $self->_commands_file() . ": $!");
                 return undef;
         }
         if (!$ctx) {
-                $ctx = Mailmunge::Context->new();
+                $ctx = Mailmunge::Context->new(mta_is_postfix => $self->mta_is_postfix());
         }
 
         $ctx = $ctx->_read_command_filehandle($self, $fh, $need_f);
@@ -1680,7 +1493,7 @@ sub _handle_scan
         my $msg_fh = $self->inputmsg_fh();
         if (!$msg_fh) {
                 my $err = $!;
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 return $self->_reply_error("Could not open " . $self->inputmsg() . ": $err");
         }
         $self->push_tag($qid, "Parsing Message");
@@ -1689,7 +1502,7 @@ sub _handle_scan
         $msg_fh->close();
 
         if (!$entity) {
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 return $self->_reply_error("Could not parse MIME in " . $self->inputmsg() . ": $!");
         }
         $ctx->mime_entity($entity);
@@ -1744,7 +1557,7 @@ sub _handle_scan
         }
 
         # Tell the Milter everything ran successfully
-        $self->_signal_complete($ctx);
+        $ctx->_signal_complete();
         $self->_reply_ok();
 }
 
@@ -1755,14 +1568,14 @@ sub _replace_message
         my ($self, $ctx) = @_;
         my $entity = $ctx->new_mime_entity;
         unless ($entity) {
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 $self->_reply_error("No replacement entity for _replace_message()");
                 return 0;
         }
 
         my $fh;
         if (!open($fh, '>' . $self->_newbody)) {
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 $self->_reply_error("Could not open " . $self->_newbody . ": $!");
                 return 0;
         }
@@ -1770,7 +1583,7 @@ sub _replace_message
         $entity->print_body($fh);
         $self->pop_tag($ctx);
         if (!$fh->close()) {
-                $self->_signal_complete($ctx);
+                $ctx->_signal_complete();
                 $self->_reply_error("Could not close " . $self->_newbody . ": $!");
                 return 0;
         }
@@ -1790,7 +1603,7 @@ sub _replace_message
                 $ct =~ s/\s+$//s;
                 $ct =~ s/^\s+//s;
                 chomp($ct);
-                $self->_write_result_line($ctx, 'M', $ct);
+                $ctx->_write_result_line('M', $ct);
         }
 
         # Fix up all the other MIME headers associated with the
@@ -1833,7 +1646,7 @@ sub _replace_message
                 $self->action_change_header($ctx, 'MIME-Version', '1.0');
         }
 
-        $self->_signal_changed($ctx);
+        $ctx->_signal_changed();
         return 1;
 }
 
