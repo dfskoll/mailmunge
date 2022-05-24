@@ -74,7 +74,7 @@ MX_BUSY=600
 MX_LOG=yes
 MX_MINIMUM=2
 MX_MAXIMUM=10
-USE_SMFI_SETSYMLIST=yes
+USE_SMFI_SETSYMLIST=no
 
 # Source configuration
 if [ -f /etc/sysconfig/$prog ] ; then

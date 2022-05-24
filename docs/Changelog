@@ -2,6 +2,63 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2022-??-?? Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.08 RELEASED
+
+	* .github/workflows/gitub-action.yml: Run unit and regression tests
+	when pushing to GitHub
+
+	* c/Makefile.in: Remove obsolete "chown" command in install target
+
+	* c/config.h.in: Add test for setproctitle_init to make Mailmunge
+	compiler properly on FreeBSD
+
+	* mailmunge-multiplexor: Log MTA type in the "multiplexor alive"
+	log line rather than a separate log line
+
+	* mailmunge: Add option to debug Milter memory allocation/deallocation
+
+	* Many places: Fix typos in comments
+
+	* Mailmunge::Filter: Move many action_* comments into
+	Mailmunge::Context instead.  However, the Mailmunge::Filter versions
+	will be maintained indefinitely for backward-compatibility; they
+	just call into the context objet.  Functions affected are:
+
+	    action_from_response, action_bounce, action_discard,
+	    action_tempfail, action_change_header, action_delete_header,
+	    action_delete_all_headers, change_sender, add_recipient,
+	    delete_recipient, action_add_header, action_insert_header,
+	    action_sm_quarantine, and action_quarantine_entire_message
+
+	For any METHOD in the above list, you can replace:
+
+	    $self->METHOD($ctx, @args);
+
+	with:
+
+   	    $ctx->METHOD(@args);
+
+	* Mailmunge::Filter: The filter_message and filter_wrapup
+	functions can return a Mailmunge::Response object, which (if it's
+	TEMPFAIL, REJECT or DISCARD) will be respected
+
+	* Mailmunge::Filter::Compat: The filter_begin, filter, and
+	filter_multipart functions can return a Mailmunge::Response
+	object, which (if it's TEMPFAIL, REJECT or DISCARD) will be
+	respected
+
+	* Mailmunge::Response: The is_discard accessor has been added
+
+	* Mailmunge::Context: Added canonical_sender and canonical_recipients
+	methods
+
+	* Documentation: Remove obsolete references to "server mode"
+
+	* Documentation: Document pitfalls of the "-y" mailmunge option and
+	turn it off by default in the systemd unit.
+
 2022-02-13 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.07 RELEASED
