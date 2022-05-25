@@ -2888,15 +2888,33 @@ killWorker(Worker *s, char const *reason)
 
     int age = worker_age(s);
     int req_age = worker_request_age(s);
+    char const *cmd = NULL;
+    if (s->state == STATE_BUSY && s->cmd >= 0 && s->cmd <NUM_CMDS) {
+        cmd = CmdName[s->cmd];
+    }
     if (s->state != STATE_KILLED) {
-	if (DOLOG) syslog(LOG_INFO, "Killing %s worker %d (pid %lu) req=%d age=%d req_age=%d: %s",
-			  state_name_lc(s->state),
-			  WORKERNO(s),
-			  (unsigned long) s->pid,
-			  s->numRequests,
-			  age,
-			  req_age,
-			  reason);
+	if (DOLOG) {
+            if (cmd) {
+                syslog(LOG_INFO, "Killing %s worker %d pid=%lu cmd=%s req=%d age=%d req_age=%d: %s",
+                       state_name_lc(s->state),
+                       WORKERNO(s),
+                       (unsigned long) s->pid,
+                       cmd,
+                       s->numRequests,
+                       age,
+                       req_age,
+                       reason);
+            } else {
+                syslog(LOG_INFO, "Killing %s worker %d pid=%lu req=%d age=%d req_age=%d: %s",
+                       state_name_lc(s->state),
+                       WORKERNO(s),
+                       (unsigned long) s->pid,
+                       s->numRequests,
+                       age,
+                       req_age,
+                       reason);
+            }
+        }
 	/* In case, for some weird reason, the worker has stopped... */
 	kill(s->pid, SIGCONT);
 
