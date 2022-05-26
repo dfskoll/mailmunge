@@ -26,9 +26,9 @@ sub filter_begin
         my @contents = $result_set->contents();
         my $result = $contents[0];
         if ($result->is_error()) {
-                $self->action_tempfail($ctx, 'Error running virus-scanner: ' . $result->get_data());
+                return Mailmunge::Response->TEMPFAIL(message => 'Error running virus-scanner: ' . $result->get_data());
         } elsif ($result->is_virus()) {
-                $self->action_bounce($ctx, 'Found virus: ' . $result->get_data());
+                return Mailmunge::Response->REJECT(message => 'Found virus: ' . $result->get_data());
         }
 }
 
@@ -38,8 +38,7 @@ sub filter
 
         # MIME type message/partial is a security hazard
         if (lc($mime_type) eq 'message/partial') {
-                $self->action_bounce($ctx, 'We do not accept messages of type message/partial');
-                return;
+                return Mailmunge::Response->REJECT(message => 'We do not accept messages of type message/partial');
         }
 
         # Do not allow:
@@ -49,7 +48,7 @@ sub filter
         my $re = '\.' . $bad_exts . '\.*$';
 
         if ($extension =~ /$re/i) {
-                $self->action_bounce($ctx, "We do not accept attachments called '$fname'");
+                return Mailmunge::Response->REJECT(message => "We do not accept attachments called '$fname'");
         }
 
 }
@@ -71,6 +70,7 @@ sub filter_end
                 }
                 $status->finish();
         }
+        return;
 }
 
 my $filter = Mailmunge::Filter::Example->new();
