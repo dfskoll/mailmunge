@@ -30,6 +30,7 @@ sub filter_begin
         } elsif ($result->is_virus()) {
                 return Mailmunge::Response->REJECT(message => 'Found virus: ' . $result->get_data());
         }
+        return Mailmunge::Response->CONTINUE();
 }
 
 sub filter
@@ -51,7 +52,9 @@ sub filter
                 return Mailmunge::Response->REJECT(message => "We do not accept attachments called '$fname'");
         }
 
+        return Mailmunge::Response->CONTINUE();
 }
+
 sub filter_end
 {
         my ($self, $ctx) = @_;
@@ -70,7 +73,7 @@ sub filter_end
                 }
                 $status->finish();
         }
-        return;
+        return Mailmunge::Response->CONTINUE();
 }
 
 my $filter = Mailmunge::Filter::Example->new();
