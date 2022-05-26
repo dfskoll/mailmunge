@@ -1,6 +1,7 @@
 #!@PERL@
 #
 # Copyright (C) 2010 Roaring Penguin Software Inc.
+# Copyright (C) 2021-2022 Dianne Skoll
 # This file may be distributed under the terms of the GNU General
 # Public License, Version 2,
 
@@ -69,6 +70,7 @@ Full manpage
 =head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2010 Roaring Penguin Software Inc.
+Copyright (C) 2021-2022 Dianne Skoll
 
 This program may be distributed under the terms of the GNU General
 Public License, Version 2, or (at your option) any later version.

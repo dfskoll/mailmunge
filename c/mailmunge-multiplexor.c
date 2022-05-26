@@ -5,7 +5,8 @@
 * Master program which manages a pool of e-mail scanning processes.
 *
 * Copyright (C) 2001-2005 Roaring Penguin Software Inc.
-* http://www.roaringpenguin.com
+* Copyright (C) 2021-2022 by Dianne Skoll
+* https://www.mailmunge.org/
 *
 * This program may be distributed under the terms of the GNU General
 * Public License, Version 2,

@@ -5,6 +5,8 @@
 * Determine capabilities of libmilter we're building against.
 *
 * Copyright (C) 2006 by Roaring Penguin Software Inc.
+* Copyright (C) 2021-2022 by Dianne Skoll
+* https://www.mailmunge.org/
 *
 * This program may be distributed under the terms of the GNU General
 * Public License, Version 2.

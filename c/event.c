@@ -6,11 +6,11 @@
 * easier.
 *
 * Copyright (C) 2001-2003 Roaring Penguin Software Inc.
+* Copyright (C) 2021-2022 by Dianne Skoll
+* https://www.mailmunge.org/
 *
 * This program may be distributed under the terms of the GNU
 * General Public License, Version 2.
-*
-* Copyright (C) 2001 by Roaring Penguin Software Inc.
 *
 ***********************************************************************/
 

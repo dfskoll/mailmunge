@@ -5,6 +5,8 @@
 * Defined the function find_syslog_facility
 *
 * Copyright (C) 2003-2005 Roaring Penguin Software Inc.
+* Copyright (C) 2021-2022 by Dianne Skoll
+* https://www.mailmunge.org/
 *
 * This program may be distributed under the terms of the GNU General
 * Public License, Version 2.

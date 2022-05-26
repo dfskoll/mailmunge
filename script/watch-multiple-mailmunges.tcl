@@ -2,7 +2,7 @@
 # -*-Mode: TCL;-*-
 #
 # Copyright (C) 2007 Roaring Penguin Software Inc.
-# Copyright (C) 2021 Dianne Skoll.
+# Copyright (C) 2021, 2022 Dianne Skoll.
 # This file may be distributed under the terms of the GNU General
 # Public License, Version 2,
 
