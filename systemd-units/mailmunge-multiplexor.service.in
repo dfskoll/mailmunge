@@ -17,6 +17,7 @@ KillMode=mixed
 # Locale should be set to "C" for generating valid date headers
 Environment=LC_ALL=C SPOOLDIR=@SPOOLDIR@ MX_BUSY=600 MX_LOG=yes MX_MAXIMUM=10 MX_MINIMUM=2 MX_SOCKET=@SPOOLDIR@/mailmunge-multiplexor.sock MX_USER=@MMUSER@ MX_GROUP=@MMGROUP@ MM_ALLOW_GROUP_ACCESS=yes
 EnvironmentFile=-/etc/default/mailmunge
+EnvironmentFile=-/etc/sysconfig/mailmunge
 # This can be removed with Mailmunge 2.82, but is required for older versions:
 # SuccessExitStatus=1
 ExecStart=/bin/sh -c 'HOME=${SPOOLDIR:=@SPOOLDIR@} \
