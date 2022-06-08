@@ -45,10 +45,13 @@ debian/mailmunge-base.postinst
 debian/mailmunge-base.postrm
 debian/rules
 debian/watch-multiple-mailmunges.install
-docker/Dockerfile.debian.postfix
-docker/Dockerfile.debian.sendmail
+docker/Dockerfile.bullseye.postfix
+docker/Dockerfile.bullseye.sendmail
+docker/Dockerfile.buster.postfix
+docker/Dockerfile.buster.sendmail
 docker/Dockerfile.rocky.postfix
 docker/Dockerfile.rocky.sendmail
+docker/build-all-containers
 docker/build-docker-container
 docker/docker-testfiles/etc-default-mailmunge
 docker/docker-testfiles/mailmunge-test-savemail.pl
@@ -56,6 +59,7 @@ docker/docker-testfiles/qualify-hostname.sh
 docker/docker-testfiles/set-apt-proxy
 docker/docker-testfiles/setup-tests.sh
 docker/docker-testfiles/waiter.pl
+docker/run-all-regression-tests
 docker/run-regression-tests-on-docker
 docs/COPYING
 docs/Changelog
@@ -66,7 +70,9 @@ docs/style.css
 etc/default/mailmunge.example.in
 examples/mailmunge-filter.pl.example
 install-sh
+logo/3d-animated-mailmunge.logo.gif
 logo/mailmunge-logo-for-dark-background.svg
+logo/mailmunge-logo.blend
 logo/mailmunge-logo.svg
 perl/Makefile.PL
 perl/inc/Module/Install.pm
@@ -107,6 +113,7 @@ perl/t/10-smtp-forward.t
 perl/t/20-filter-roundtrip.t
 perl/t/21-bad-roundtrip.t
 perl/t/30-filter-exe.t
+perl/t/31-inputmsg-fh.t
 perl/t/40-filter-everything.t
 perl/t/50-boilerplate.t
 perl/t/60-addrcpt.t
@@ -123,6 +130,7 @@ perl/t/91-getmx.t
 perl/t/92-rdns.t
 perl/t/93-greylist.t
 perl/t/94-rspamd.t
+perl/t/95-decode.t
 perl/t/data/boilerplate/RESULTS
 perl/t/data/boilerplate/all_atend/NEWBODY
 perl/t/data/boilerplate/all_atstart/NEWBODY
@@ -178,6 +186,12 @@ regression-tests/t/msgs/generic-msg
 regression-tests/t/msgs/gtube-msg
 script/mailmunge-util.in
 script/watch-multiple-mailmunges.tcl
+spec/mailmunge.spec.in
+synfig/animated-logo.gif
+synfig/animated-logo.sifz
+synfig/gear.png
+synfig/mail.png
+synfig/munge.png
 systemd-units/mailmunge-multiplexor.service.in
 systemd-units/mailmunge.service.in
 sysvinit/mailmunge.in

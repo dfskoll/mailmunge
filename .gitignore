@@ -75,6 +75,7 @@ redhat/mailmunge-init
 redhat/mailmunge-sysconfig
 script/mailmunge-util
 script/mailmunge-util.1
+spec/mailmunge.spec
 systemd-units/mailmunge-multiplexor.service
 systemd-units/mailmunge.service
 xs_init.c

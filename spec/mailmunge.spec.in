@@ -1,0 +1,245 @@
+Name:           mailmunge
+Version:        @PACKAGE_VERSION@
+Release:        1%{?dist}
+Summary:        Email filtering application using the Milter interface
+
+License:        GPL2
+URL:            https://www.mailmunge.org/
+Source0:        https://github.com/dfskoll/mailmunge/archive/v%{version}/%{name}-%{version}.tar.gz
+
+BuildRequires:  sendmail-milter-devel perl-MIME-tools perl-Sys-Syslog
+Requires: mailmunge-base, perl-Mailmunge
+
+%description
+Mailmunge is an email filtering framework that uses the Milter library
+to interface with Postfix or Sendmail. It lets you write your email
+filtering policies in Perl.  The mailmunge packaghe is a virtual
+package that brings in the core files.
+
+%prep
+%autosetup
+
+%build
+%configure --with-perlinstalldirs=vendor --prefix=/usr --disable-perl-build-artifacts
+%make_build
+
+
+%install
+rm -rf %{buildroot}
+%make_install
+
+# move systemd files to place for packages
+install -d %{buildroot}%{_unitdir}
+mv %{buildroot}%{_sysconfdir}/systemd/system/* %{buildroot}%{_unitdir}
+rmdir %{buildroot}%{_sysconfdir}/systemd/system
+rmdir %{buildroot}%{_sysconfdir}/systemd
+
+# move Debian initscript params to where Red Hat expects them
+install -d %{buildroot}%{_sysconfdir}/sysconfig
+mv %{buildroot}%{_sysconfdir}/default/%{name}.example %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+rmdir %{buildroot}%{_sysconfdir}/default
+
+# remove initscript
+rm %{buildroot}%{_sysconfdir}/init.d/%{name}
+rmdir %{buildroot}%{_sysconfdir}/init.d
+
+# Remove example filter
+rm %{buildroot}%{_sysconfdir}/mailmunge/mailmunge-filter.pl.example
+
+%package -n mailmunge-base
+Summary: The base Mailmunge C code
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+
+%description -n mailmunge-base
+The base Mailmunge C code
+
+%package -n perl-Mailmunge
+Summary: The base Mailmunge Perl code
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-MIME-tools
+BuildArch: noarch
+
+%description -n perl-Mailmunge
+The base Mailmunge Perl code
+
+%package -n perl-Test-Mailmunge
+Summary: Test::Mailmunge modules for unit-testing Mailmunge filters
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, perl-JSON-Any
+BuildArch: noarch
+
+%description -n perl-Test-Mailmunge
+Test::Mailmunge modules for unit-testing Mailmunge filters
+
+%package -n perl-Mailmunge-Action-Boilerplate
+Summary: The Mailmunge::Action::Boilerplate module for adding boilerplate text
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, perl-HTML-Parser
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Action-Boilerplate
+The Mailmunge::Action::Boilerplate module for adding boilerplate text
+
+%package -n perl-Mailmunge-Test-SMTPForward
+Summary: The Mailmunge::Test::SMTPForward module for checking a back-end SMTP server
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Test-SMTPForward
+The Mailmunge::Test::SMTPForward module for checking a back-end SMTP server before accepting a recipient
+
+%package -n perl-Mailmunge-Test-GetMX
+Summary: The Mailmunge::Test::GetMX module for getting and classifying MX records
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, perl-Net-DNS
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Test-GetMX
+The Mailmunge::Test::GetMX module for getting and classifying MX records.
+
+%package -n perl-Mailmunge-Test-SpamAssassin
+Summary: The Mailmunge::Test::SpamAssassin module for SpamAssassin integration
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, spamassassin
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Test-SpamAssassin
+The Mailmunge::Test::SpamAssassin module for SpamAssassin integration
+
+%package -n perl-Mailmunge-Test-Rspamd
+Summary: The Mailmunge::Test::Rspamd module for Rspamd integration
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, rspamd
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Test-Rspamd
+The Mailmunge::Test::Rspamd module for Rspamd integration
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, rspamd
+BuildArch: noarch
+
+%package -n perl-Mailmunge-Test-Greylist
+Summary: The Mailmunge::Test::Greylist module for implementing greylisting
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Test-Greylist
+The Mailmunge::Test::Greylist module for implementing greylisting
+
+%package -n watch-multiple-mailmunges
+Summary: The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: tk
+BuildArch: noarch
+
+%description -n watch-multiple-mailmunges
+The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
+
+%files -n mailmunge
+%defattr(-,root,root)
+
+%files -n mailmunge-base
+%defattr(-,root,root)
+%doc README.md docs examples 
+%{_sysconfdir}/sysconfig/*
+%{_unitdir}/*
+%{_bindir}/mailmunge
+%{_bindir}/mailmunge-multiplexor
+%{_bindir}/mm-mx-ctrl
+%{_mandir}/man7/mailmunge-notify.7.gz
+%{_mandir}/man7/mailmunge-protocol.7.gz
+%{_mandir}/man8/mailmunge-multiplexor.8.gz
+%{_mandir}/man8/mailmunge.8.gz
+%{_mandir}/man8/mm-mx-ctrl.8.gz
+
+%files -n perl-Mailmunge
+%defattr(-,root,root)
+%{_bindir}/mailmunge-util
+%{_mandir}/man1/mailmunge-util.1.gz
+%{_mandir}/man3/Mailmunge.3pm.gz
+%{_mandir}/man3/Mailmunge::Action.3pm.gz
+%{_mandir}/man3/Mailmunge::Action::Stream.3pm.gz
+%{_mandir}/man3/Mailmunge::Base.3pm.gz
+%{_mandir}/man3/Mailmunge::Constants.3pm.gz
+%{_mandir}/man3/Mailmunge::Context.3pm.gz
+%{_mandir}/man3/Mailmunge::Filter.3pm.gz
+%{_mandir}/man3/Mailmunge::Filter::Compat.3pm.gz
+%{_mandir}/man3/Mailmunge::Response.3pm.gz
+%{_mandir}/man3/Mailmunge::Test.3pm.gz
+%{perl_vendorlib}/Mailmunge.pm
+%{perl_vendorlib}/Mailmunge/Action.pm
+%{perl_vendorlib}/Mailmunge/Action/Stream.pm
+%{perl_vendorlib}/Mailmunge/Base.pm
+%{perl_vendorlib}/Mailmunge/Constants.pm
+%{perl_vendorlib}/Mailmunge/Context.pm
+%{perl_vendorlib}/Mailmunge/Filter.pm
+%{perl_vendorlib}/Mailmunge/Filter/Compat.pm
+%{perl_vendorlib}/Mailmunge/Response.pm
+%{perl_vendorlib}/Mailmunge/Test.pm
+
+%files -n perl-Test-Mailmunge
+%defattr(-,root,root)
+%{_mandir}/man3/Test::Mailmunge::Filter.3pm.gz
+%{_mandir}/man3/Test::Mailmunge::RegressionUtils.3pm.gz
+%{_mandir}/man3/Test::Mailmunge::SMTPServer.3pm.gz
+%{_mandir}/man3/Test::Mailmunge::Tmpdir.3pm.gz
+%{_mandir}/man3/Test::Mailmunge::Utils.3pm.gz
+%{perl_vendorlib}/Test/Mailmunge/Filter.pm
+%{perl_vendorlib}/Test/Mailmunge/RegressionUtils.pm
+%{perl_vendorlib}/Test/Mailmunge/SMTPServer.pm
+%{perl_vendorlib}/Test/Mailmunge/Tmpdir.pm
+%{perl_vendorlib}/Test/Mailmunge/Utils.pm
+
+%files -n perl-Mailmunge-Action-Boilerplate
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Action::Boilerplate.3pm.gz
+%{perl_vendorlib}/Mailmunge/Action/Boilerplate.pm
+
+%files -n perl-Mailmunge-Test-SMTPForward
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Test::SMTPForward.3pm.gz
+%{perl_vendorlib}/Mailmunge/Test/SMTPForward.pm
+
+%files -n perl-Mailmunge-Test-GetMX
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Test::GetMX.3pm.gz
+%{perl_vendorlib}/Mailmunge/Test/GetMX.pm
+
+%files -n perl-Mailmunge-Test-SpamAssassin
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Test::SpamAssassin.3pm.gz
+%{perl_vendorlib}/Mailmunge/Test/SpamAssassin.pm
+
+%files -n perl-Mailmunge-Test-Rspamd
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Test::Rspamd.3pm.gz
+%{perl_vendorlib}/Mailmunge/Test/Rspamd.pm
+
+%files -n perl-Mailmunge-Test-Greylist
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Test::Greylist.3pm.gz
+%{perl_vendorlib}/Mailmunge/Test/Greylist.pm
+
+%files -n watch-multiple-mailmunges
+%defattr (-,root,root)
+%{_bindir}/watch-multiple-mailmunges.tcl
+%{_mandir}/man8/watch-multiple-mailmunges.8.gz
+
+%changelog
+* Thu Jun  9 2022 Dianne Skoll <dianne@skollsoft.com>
+- Make RPMs match Debian packages.
+* Sat May 28 2022 Kenneth Porter <shiva.mailmungespec at sewingwitch.com> 20220528-1kp
+- Initial spec file.

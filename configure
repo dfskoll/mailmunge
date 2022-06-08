@@ -4875,7 +4875,7 @@ CONFDIR_EVAL=`echo ${sysconfdir}${CONFSUBDIR}`
 
 
 
-ac_config_files="$ac_config_files Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmunge-multiplexor.pod pod/mm-mx-ctrl.pod perl/lib/Mailmunge.pm perl/lib/Mailmunge/Constants.pm systemd-units/mailmunge.service systemd-units/mailmunge-multiplexor.service sysvinit/mailmunge etc/default/mailmunge.example"
+ac_config_files="$ac_config_files Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmunge-multiplexor.pod pod/mm-mx-ctrl.pod perl/lib/Mailmunge.pm perl/lib/Mailmunge/Constants.pm systemd-units/mailmunge.service systemd-units/mailmunge-multiplexor.service sysvinit/mailmunge etc/default/mailmunge.example spec/mailmunge.spec"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5581,6 +5581,7 @@ do
     "systemd-units/mailmunge-multiplexor.service") CONFIG_FILES="$CONFIG_FILES systemd-units/mailmunge-multiplexor.service" ;;
     "sysvinit/mailmunge") CONFIG_FILES="$CONFIG_FILES sysvinit/mailmunge" ;;
     "etc/default/mailmunge.example") CONFIG_FILES="$CONFIG_FILES etc/default/mailmunge.example" ;;
+    "spec/mailmunge.spec") CONFIG_FILES="$CONFIG_FILES spec/mailmunge.spec" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -558,7 +558,7 @@ AC_SUBST(PERLINSTALLCONF)
 AC_SUBST(PERLINSTALLSITECONF)
 AC_SUBST(PERLINSTALLVENDORCONF)
 
-AC_OUTPUT(Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmunge-multiplexor.pod pod/mm-mx-ctrl.pod perl/lib/Mailmunge.pm perl/lib/Mailmunge/Constants.pm systemd-units/mailmunge.service systemd-units/mailmunge-multiplexor.service sysvinit/mailmunge etc/default/mailmunge.example)
+AC_OUTPUT(Makefile c/Makefile script/mailmunge-util pod/mailmunge.pod pod/mailmunge-multiplexor.pod pod/mm-mx-ctrl.pod perl/lib/Mailmunge.pm perl/lib/Mailmunge/Constants.pm systemd-units/mailmunge.service systemd-units/mailmunge-multiplexor.service sysvinit/mailmunge etc/default/mailmunge.example spec/mailmunge.spec)
 
 HERE=`pwd`
 echo "*** Switching to perl/ directory and running $PERL Makefile.PL..."
