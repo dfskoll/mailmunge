@@ -186,6 +186,7 @@ regression-tests/t/msgs/generic-msg
 regression-tests/t/msgs/gtube-msg
 script/mailmunge-util.in
 script/watch-multiple-mailmunges.tcl
+spec/mailmunge.spec
 spec/mailmunge.spec.in
 synfig/animated-logo.gif
 synfig/animated-logo.sifz
