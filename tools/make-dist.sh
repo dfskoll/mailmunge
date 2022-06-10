@@ -6,7 +6,9 @@ if test "$VERSION" = "" ; then
 fi
 
 if test -d .git ; then
-    git archive --worktree-attributes --format=tar --prefix=mailmunge-$VERSION/ HEAD | gzip -9 > mailmunge-$VERSION.tar.gz
+    # git archive --worktree-attributes --format=tar
+    # --prefix=mailmunge-$VERSION/ --add-file=spec/mailmunge.spec HEAD | gzip -9 > mailmunge-$VERSION.tar.gz
+    git archive --worktree-attributes --format=tar --prefix=mailmunge-$VERSION/spec/ --add-file=spec/mailmunge.spec --prefix=mailmunge-$VERSION/ HEAD | gzip -9 > mailmunge-$VERSION.tar.gz
     exit $?
 elif tar --help 2>&1 | grep -e --transform= > /dev/null 2>&1 ; then
     tar cf - --files-from=DIST-CONTENTS --transform=s+^+mailmunge-$VERSION/+ | gzip -9 > mailmunge-$VERSION.tar.gz

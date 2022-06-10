@@ -46,6 +46,11 @@ rmdir %{buildroot}%{_sysconfdir}/init.d
 # Remove example filter
 rm %{buildroot}%{_sysconfdir}/mailmunge/mailmunge-filter.pl.example
 
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
 %package -n mailmunge-base
 Summary: The base Mailmunge C code
 Version: @PACKAGE_VERSION@
@@ -148,6 +153,24 @@ BuildArch: noarch
 %description -n watch-multiple-mailmunges
 The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
 
+
+%pre base
+getent group mailmunge >/dev/null || groupadd --system mailmunge
+getent passwd mailmunge >/dev/null || \
+  useradd --system -g mailmunge -d /var/spool/mailmunge -s /sbin/nologin -c "Mailmunge user" mailmunge
+exit 0
+
+
+%preun base
+# Package removal, not upgrade
+%systemd_preun mailmunge.service
+
+
+%postun base
+# Package upgrade, not uninstall
+%systemd_postun_with_restart mailmunge.service
+
+
 %files -n mailmunge
 %defattr(-,root,root)
 
@@ -164,6 +187,8 @@ The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
 %{_mandir}/man8/mailmunge-multiplexor.8.gz
 %{_mandir}/man8/mailmunge.8.gz
 %{_mandir}/man8/mm-mx-ctrl.8.gz
+%attr(0750,mailmunge,mailmunge) %dir %{_localstatedir}/spool/mailmunge
+%attr(0750,mailmunge,mailmunge) %dir %{_localstatedir}/spool/mm-quarantine
 
 %files -n perl-Mailmunge
 %defattr(-,root,root)
@@ -239,6 +264,8 @@ The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
 %{_mandir}/man8/watch-multiple-mailmunges.8.gz
 
 %changelog
+* Fri Jun 10 2022 Kenneth Porter <shiva.mailmungespec at sewingwitch.com> 20220528-1kp
+- Add scripts to create user/group and restart systemd services.
 * Thu Jun  9 2022 Dianne Skoll <dianne@skollsoft.com>
 - Make RPMs match Debian packages.
 * Sat May 28 2022 Kenneth Porter <shiva.mailmungespec at sewingwitch.com> 20220528-1kp
