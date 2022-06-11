@@ -45,8 +45,6 @@ SPOOLDIR=@SPOOLDIR@
 QDIR=@QDIR@
 VERSION=@PACKAGE_VERSION@
 
-INSTALL_STRIP_FLAG=-s
-
 ## NO MORE ./configure substitutions beyond this point!
 
 all: mailmunge mailmunge-multiplexor mm-mx-ctrl manpages
@@ -185,9 +183,9 @@ install: all
 	-test ! -d $(DESTDIR)$(SPOOLDIR) && mkdir -p $(DESTDIR)$(SPOOLDIR) && chmod 750 $(DESTDIR)$(SPOOLDIR) || true
 	-test ! -d $(DESTDIR)$(QDIR) && mkdir -p $(DESTDIR)$(QDIR) && chmod 750 $(DESTDIR)$(QDIR) || true
 
-	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mailmunge-multiplexor   $(DESTDIR)$(prefix)/bin/mailmunge-multiplexor
-	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mm-mx-ctrl              $(DESTDIR)$(prefix)/bin/mm-mx-ctrl
-	$(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) mailmunge               $(DESTDIR)$(prefix)/bin/mailmunge
+	$(INSTALL) -m 755 mailmunge-multiplexor   $(DESTDIR)$(prefix)/bin/mailmunge-multiplexor
+	$(INSTALL) -m 755 mm-mx-ctrl              $(DESTDIR)$(prefix)/bin/mm-mx-ctrl
+	$(INSTALL) -m 755 mailmunge               $(DESTDIR)$(prefix)/bin/mailmunge
 
 	$(INSTALL) -m 755 ../script/watch-multiple-mailmunges.tcl $(DESTDIR)$(prefix)/bin/watch-multiple-mailmunges.tcl
 	$(INSTALL) -m 755 ../script/mailmunge-util        $(DESTDIR)$(prefix)/bin/mailmunge-util

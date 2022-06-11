@@ -8,7 +8,7 @@ URL:            https://www.mailmunge.org/
 Source0:        https://github.com/dfskoll/mailmunge/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  sendmail-milter-devel perl-MIME-tools perl-Sys-Syslog
-Requires: mailmunge-base, perl-Mailmunge
+Requires: perl-Mailmunge
 
 %description
 Mailmunge is an email filtering framework that uses the Milter library
@@ -50,14 +50,6 @@ rm %{buildroot}%{_sysconfdir}/mailmunge/mailmunge-filter.pl.example
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-
-%package -n mailmunge-base
-Summary: The base Mailmunge C code
-Version: @PACKAGE_VERSION@
-Release: 1%{?dist}
-
-%description -n mailmunge-base
-The base Mailmunge C code
 
 %package -n perl-Mailmunge
 Summary: The base Mailmunge Perl code
@@ -154,27 +146,24 @@ BuildArch: noarch
 The watch-multiple-mailmunges Tcl/Tk tool for monitoring Mailmunge servers
 
 
-%pre base
+%pre -n mailmunge
 getent group mailmunge >/dev/null || groupadd --system mailmunge
 getent passwd mailmunge >/dev/null || \
   useradd --system -g mailmunge -d /var/spool/mailmunge -s /sbin/nologin -c "Mailmunge user" mailmunge
 exit 0
 
 
-%preun base
+%preun -n mailmunge
 # Package removal, not upgrade
 %systemd_preun mailmunge.service
 
 
-%postun base
+%postun -n mailmunge
 # Package upgrade, not uninstall
 %systemd_postun_with_restart mailmunge.service
 
 
 %files -n mailmunge
-%defattr(-,root,root)
-
-%files -n mailmunge-base
 %defattr(-,root,root)
 %doc README.md docs examples 
 %{_sysconfdir}/sysconfig/*
