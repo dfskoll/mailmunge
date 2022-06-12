@@ -6,6 +6,9 @@ affect your filter.
 
 	* Mailmunge 3.08
 
+	* spec/mailmunge.spec.in: Add a spec file that lets you build
+	Mailmunge RPMs.  rpm -tb mailmunge-$VERSION.tar.gz should work
+
 	* .github/workflows/gitub-action.yml: Run unit and regression tests
 	when pushing to GitHub
 
