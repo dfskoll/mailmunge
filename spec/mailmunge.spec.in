@@ -166,7 +166,7 @@ exit 0
 %files -n mailmunge
 %defattr(-,root,root)
 %doc README.md docs examples
-%config{noreplace} %{_sysconfdir}/sysconfig/mailmunge
+%config(noreplace) %{_sysconfdir}/sysconfig/mailmunge
 %{_unitdir}/*
 %{_bindir}/mailmunge
 %{_bindir}/mailmunge-multiplexor
