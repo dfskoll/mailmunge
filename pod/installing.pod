@@ -149,10 +149,10 @@ Don't run the unit tests as I<root>; they will fail.
 
 =head2 REGRESSION TESTS
 
-Mailmunge ships with four Docker files for creating containers
-that do regression tests.  The four files are for the four combinations
-of (Sendmail, Postfix) as the MTA, and (Debian 10, Rocky Linux 8) as the
-Linux distribution.
+Mailmunge ships with six Docker files for creating containers that do
+regression tests.  The six files are for the six combinations of
+(Sendmail, Postfix) as the MTA, and (Debian 11, Debian 10, Rocky Linux
+8) as the Linux distribution.
 
 To run the Docker regression tests, you
 must (obviously) have Docker installed and your user-ID must have
@@ -160,11 +160,17 @@ permission to create and run docker images and containers.
 
 To create a Docker container for running regression tests:
 
+  # If you want to run tests with Postfix on Debian 11:
+  cd docker; ./build-docker-container postfix bullseye
+
+  # If you want to run tests with Sendmail on Debian 11:
+  cd docker; ./build-docker-container sendmail bullseye
+
   # If you want to run tests with Postfix on Debian 10:
-  cd docker; ./build-docker-container postfix debian
+  cd docker; ./build-docker-container postfix buster
 
   # If you want to run tests with Sendmail on Debian 10:
-  cd docker; ./build-docker-container sendmail debian
+  cd docker; ./build-docker-container sendmail buster
 
   # If you want to run tests with Postfix on Rocky Linux 8:
   cd docker; ./build-docker-container postfix rocky
@@ -176,11 +182,17 @@ It can take quite a while (around 30 minutes) to create each container image.
 
 To run the regression tests:
 
+  # If you want to run tests with Postfix on Debian 11:
+  cd docker; ./run-regression-tests-on-docker postfix bullseye
+
+  # If you want to run tests with Sendmail on Debian 11:
+  cd docker; ./run-regression-tests-on-docker sendmail bullseye
+
   # If you want to run tests with Postfix on Debian 10:
-  cd docker; ./run-regression-tests-on-docker postfix debian
+  cd docker; ./run-regression-tests-on-docker postfix buster
 
   # If you want to run tests with Sendmail on Debian 10:
-  cd docker; ./run-regression-tests-on-docker sendmail debian
+  cd docker; ./run-regression-tests-on-docker sendmail buster
 
   # If you want to run tests with Postfix on Rocky Linux 8:
   cd docker; ./run-regression-tests-on-docker postfix rocky
