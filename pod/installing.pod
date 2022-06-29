@@ -365,7 +365,6 @@ in F</etc/default/mailmunge>
   MX_LOG=yes
   MX_MINIMUM=2
   MX_MAXIMUM=10
-  USE_SMFI_SETSYMLIST=yes
   MX_SOCKET=$SPOOLDIR/mailmunge-multiplexor.sock
   SOCKET=$SPOOLDIR/mailmunge.sock
   MX_PIDFILE=/var/run/mailmunge-multiplexor.pid  # sysvinit script only
