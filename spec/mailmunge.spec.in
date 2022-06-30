@@ -81,6 +81,26 @@ BuildArch: noarch
 %description -n perl-Mailmunge-Action-Boilerplate
 The Mailmunge::Action::Boilerplate module for adding boilerplate text
 
+%package -n perl-Mailmunge-Action-Stream
+Summary: The Mailmunge::Action::Stream module for streaming messages
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Action-Stream
+The Mailmunge::Action::Stream module for allowing per-recipient policies
+
+%package -n perl-Mailmunge-Action-DKIMSigner
+Summary: The Mailmunge::Action::DKIMSigner module for signing messages
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
+Requires: perl-Mailmunge, perl-Mail-DKIM
+BuildArch: noarch
+
+%description -n perl-Mailmunge-Action-DKIMSigner
+The Mailmunge::Action::DKIMSigner module for signing messages with DKIM
+
 %package -n perl-Mailmunge-Test-SMTPForward
 Summary: The Mailmunge::Test::SMTPForward module for checking a back-end SMTP server
 Version: @PACKAGE_VERSION@
@@ -222,6 +242,16 @@ exit 0
 %{_mandir}/man3/Mailmunge::Action::Boilerplate.3pm.gz
 %{perl_vendorlib}/Mailmunge/Action/Boilerplate.pm
 
+%files -n perl-Mailmunge-Action-Stream
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Action::Stream.3pm.gz
+%{perl_vendorlib}/Mailmunge/Action/Stream.pm
+
+%files -n perl-Mailmunge-Action-DKIMSigner
+%defattr (-,root,root)
+%{_mandir}/man3/Mailmunge::Action::DKIMSigner.3pm.gz
+%{perl_vendorlib}/Mailmunge/Action/DKIMSigner.pm
+
 %files -n perl-Mailmunge-Test-SMTPForward
 %defattr (-,root,root)
 %{_mandir}/man3/Mailmunge::Test::SMTPForward.3pm.gz
@@ -253,6 +283,8 @@ exit 0
 %{_mandir}/man8/watch-multiple-mailmunges.8.gz
 
 %changelog
+* Thu Jun 30 2022 Dianne Skoll <dianne@skollsoft.com>
+- Package up perl-Mailmunge-Action-DKIMSigner and perl-Mailmunge-Action-Stream
 * Fri Jun 10 2022 Kenneth Porter <shiva.mailmungespec at sewingwitch.com> 20220528-1kp
 - Add scripts to create user/group and restart systemd services.
 * Thu Jun  9 2022 Dianne Skoll <dianne@skollsoft.com>
