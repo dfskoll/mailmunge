@@ -86,6 +86,7 @@ perl/inc/Module/Install/WriteAll.pm
 perl/lib/Mailmunge.pm.in
 perl/lib/Mailmunge/Action.pm
 perl/lib/Mailmunge/Action/Boilerplate.pm
+perl/lib/Mailmunge/Action/DKIMSigner.pm
 perl/lib/Mailmunge/Action/Stream.pm
 perl/lib/Mailmunge/Base.pm
 perl/lib/Mailmunge/Constants.pm.in
@@ -136,6 +137,8 @@ perl/t/data/boilerplate/all_atend/NEWBODY
 perl/t/data/boilerplate/all_atstart/NEWBODY
 perl/t/data/boilerplate/one_atend/NEWBODY
 perl/t/data/boilerplate/one_atstart/NEWBODY
+perl/t/data/dkim/private-key.pem
+perl/t/data/dkim/public-key.pem
 perl/t/data/for-boilerplate.msg
 perl/t/data/generic-msg
 perl/t/data/msg-with-everything/NEWBODY
@@ -186,7 +189,6 @@ regression-tests/t/msgs/generic-msg
 regression-tests/t/msgs/gtube-msg
 script/mailmunge-util.in
 script/watch-multiple-mailmunges.tcl
-spec/mailmunge.spec
 spec/mailmunge.spec.in
 synfig/animated-logo.gif
 synfig/animated-logo.sifz
