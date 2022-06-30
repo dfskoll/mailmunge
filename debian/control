@@ -44,7 +44,7 @@ Description: A Mailmunge action to add boilerplate to emails
 
 Package: libmailmunge-action-dkimsigner-perl
 Architecture: all
-Depends: ${perl:Depends}, libmail-dkim-perl
+Depends: ${perl:Depends}, libmail-dkim-perl, libmailmunge-perl (= ${binary:Version})
 Description: A Mailmunge action to DKIM-sign messages
  This package contains a module that lets you sign email
  messages using DKIM.
