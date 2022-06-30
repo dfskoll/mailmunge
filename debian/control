@@ -9,7 +9,7 @@ Homepage: https://www.mailmunge.org/
 Package: mailmunge
 Architecture: all
 Depends: mailmunge-base (= ${binary:Version}), libmailmunge-perl (= ${binary:Version})
-Suggests: libtest-mailmunge-perl, libmailmunge-action-boilerplate-perl, libmailmunge-test-smtpforward-perl, libmailmunge-test-getmx-perl, libmailmunge-test-spamassassin-perl, libmailmunge-test-rspamd-perl, libmailmunge-action-stream-perl, libmailmunge-action-dkimsigner-perl
+Suggests: libtest-mailmunge-perl, libmailmunge-action-boilerplate-perl, libmailmunge-test-smtpforward-perl, libmailmunge-test-getmx-perl, libmailmunge-test-spamassassin-perl, libmailmunge-test-rspamd-perl, libmailmunge-action-dkimsigner-perl
 Description: Meta-package for the Mailmunge email filtering framework
  This package pulls in mailmunge-base and libmailmunge-perl, providing the
  basic framework for email filtering using Mailmunge.
@@ -48,13 +48,6 @@ Depends: ${perl:Depends}, libmail-dkim-perl
 Description: A Mailmunge action to DKIM-sign messages
  This package contains a module that lets you sign email
  messages using DKIM.
-
-Package: libmailmunge-action-stream-perl
-Architecture: all
-Depends: ${perl:Depends}
-Description: A Mailmunge action to "stream" messages
- This package contains a module that lets you process
- messages for different recipients with per-recipient policies
 
 Package: libmailmunge-test-smtpforward-perl
 Architecture: all
