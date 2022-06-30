@@ -67,6 +67,8 @@ binary: build install
 	dh_gencontrol -pmailmunge-base
 	dh_gencontrol -plibmailmunge-perl
 	dh_gencontrol -plibmailmunge-action-boilerplate-perl
+	dh_gencontrol -plibmailmunge-action-stream-perl
+	dh_gencontrol -plibmailmunge-action-dkimsigner-perl
 	dh_gencontrol -plibmailmunge-test-getmx-perl
 	dh_gencontrol -plibmailmunge-test-smtpforward-perl
 	dh_gencontrol -plibmailmunge-test-spamassassin-perl
