@@ -275,6 +275,7 @@ sub _write_quarantine_info
                 close(OUT);
         }
         $self->copy_or_link(Mailmunge::Filter->headers_file, "$qdir/HEADERS");
+        $self->copy_or_link(Mailmunge::Filter->headers_file, "$qdir/PRISTINE_HEADERS");
 }
 
 sub canonical_sender

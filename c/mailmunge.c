@@ -184,6 +184,7 @@ struct privdata {
     unsigned char qid_written;  /* Have we written qid to COMMANDS? */
     int fd;			/* File for message body */
     int headerFD;		/* File for message headers */
+    int pristine_headerFD;      /* File for pristine (wrapped) headers */
     int cmdFD;			/* File for commands */
     int numContentTypeHeaders;  /* How many Content-Type headers have we seen? */
     int seenMimeVersionHeader;  /* True if there was a MIME-Version header */
@@ -556,6 +557,7 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
     data->qid      = NOQUEUE;
     data->fd       = -1;
     data->headerFD = -1;
+    data->pristine_headerFD = -1;
     data->cmdFD    = -1;
     data->numContentTypeHeaders = 0;
     data->seenMimeVersionHeader = 0;
@@ -658,6 +660,7 @@ mfconnect(SMFICTX *ctx, char *hostname, _SOCK_ADDR *sa)
     data->dir = NULL;
     data->fd = -1;
     data->headerFD = -1;
+    data->pristine_headerFD = -1;
     data->cmdFD = -1;
     data->suspiciousBody = 0;
     data->lastWasCR = 0;
@@ -865,6 +868,7 @@ envfrom(SMFICTX *ctx, char **from)
 
     if (data->fd >= 0) closefd(data->fd);
     if (data->headerFD >= 0) closefd(data->headerFD);
+    if (data->pristine_headerFD >= 0) closefd(data->pristine_headerFD);
     if (data->cmdFD >= 0) closefd(data->cmdFD);
     if (data->dir) {
 	/* Clean data->dir up if it's still lying around */
@@ -877,6 +881,7 @@ envfrom(SMFICTX *ctx, char **from)
 
     data->fd = -1;
     data->headerFD = -1;
+    data->pristine_headerFD = -1;
     data->cmdFD = -1;
     data->filterFailed = 0;
     data->numContentTypeHeaders = 0;
@@ -896,6 +901,11 @@ envfrom(SMFICTX *ctx, char **from)
     data->headerFD = get_fd(data, "HEADERS", data->headerFD);
     if (data->headerFD >= 0) {
 	data->headerFD = put_fd(data->headerFD);
+    }
+
+    data->pristine_headerFD = get_fd(data, "PRISTINE_HEADERS", data->pristine_headerFD);
+    if (data->pristine_headerFD >= 0) {
+	data->pristine_headerFD = put_fd(data->pristine_headerFD);
     }
 
     /* Initialize the dynamic buffer for writing COMMANDS file */
@@ -1341,8 +1351,24 @@ header(SMFICTX *ctx, char *headerf, char *headerv)
 	    DEBUG_EXIT("header", "SMFIS_TEMPFAIL");
 	    return SMFIS_TEMPFAIL;
 	}
-	dbuf_free(&dbuf);
 	data->fd = put_fd(data->fd);
+
+        /* Write the header to the PRISTINE_HEADERS file */
+        data->pristine_headerFD = get_fd(data, "PRISTINE_HEADERS", data->pristine_headerFD);
+        if (data->pristine_headerFD < 0) {
+	    dbuf_free(&dbuf);
+	    cleanup(ctx);
+	    DEBUG_EXIT("header", "SMFIS_TEMPFAIL");
+	    return SMFIS_TEMPFAIL;
+        }
+        if (write_dbuf(&dbuf, data->pristine_headerFD, data, "PRISTINE_HEADERS") < 0) {
+	    dbuf_free(&dbuf);
+	    cleanup(ctx);
+	    DEBUG_EXIT("header", "SMFIS_TEMPFAIL");
+	    return SMFIS_TEMPFAIL;
+        }
+        data->pristine_headerFD = put_fd(data->pristine_headerFD);
+	dbuf_free(&dbuf);
     }
 
     /* Remove embedded newlines and save to our HEADERS file */
@@ -1435,7 +1461,16 @@ eoh(SMFICTX *ctx)
 	DEBUG_EXIT("eoh", "SMFIS_TEMPFAIL");
 	return SMFIS_TEMPFAIL;
     }
+    /* Also close pristine_headerFD to save a descriptor */
+    if (data->pristine_headerFD >= 0 && closefd(data->pristine_headerFD) < 0) {
+	data->pristine_headerFD = -1;
+	syslog(LOG_WARNING, "%s: Error closing header descriptor: %m", data->qid);
+	cleanup(ctx);
+	DEBUG_EXIT("eoh", "SMFIS_TEMPFAIL");
+	return SMFIS_TEMPFAIL;
+    }
     data->headerFD = -1;
+    data->pristine_headerFD = -1;
     data->suspiciousBody = 0;
     data->lastWasCR = 0;
 
@@ -1646,9 +1681,11 @@ eom(SMFICTX *ctx)
     /* All the fd's are closed unconditionally -- no need for put_fd */
     if (data->fd >= 0       && (closefd(data->fd) < 0))       problem = 1;
     if (data->headerFD >= 0 && (closefd(data->headerFD) < 0)) problem = 1;
+    if (data->pristine_headerFD >= 0 && (closefd(data->pristine_headerFD) < 0)) problem = 1;
     if (data->cmdFD >= 0    && (closefd(data->cmdFD) < 0))    problem = 1;
     data->fd = -1;
     data->headerFD = -1;
+    data->pristine_headerFD = -1;
     data->cmdFD = -1;
 
     if (problem) {
@@ -2033,6 +2070,7 @@ mfclose(SMFICTX *ctx)
         }
 	if (data->fd >= 0)       closefd(data->fd);
 	if (data->headerFD >= 0) closefd(data->headerFD);
+	if (data->pristine_headerFD >= 0) closefd(data->pristine_headerFD);
 	if (data->cmdFD >= 0)    closefd(data->cmdFD);
 	if (data->dir)           free(data->dir);
 	if (data->hostname)      free(data->hostname);
@@ -2098,6 +2136,13 @@ cleanup(SMFICTX *ctx)
 	r = SMFIS_TEMPFAIL;
     }
     data->headerFD = -1;
+
+    if (data->pristine_headerFD >= 0 && (closefd(data->pristine_headerFD) < 0)) {
+	syslog(LOG_ERR, "%s: Failure in cleanup line %d: %m",
+	       data->qid, __LINE__);
+	r = SMFIS_TEMPFAIL;
+    }
+    data->pristine_headerFD = -1;
 
     if (data->cmdFD >= 0 && (closefd(data->cmdFD) < 0)) {
 	syslog(LOG_ERR, "%s: Failure in cleanup line %d: %m",

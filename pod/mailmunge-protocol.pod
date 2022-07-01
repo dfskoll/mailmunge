@@ -313,6 +313,12 @@ A file containing just the headers, one per line.  Headers which are
 continued over several lines in the original message are collapsed
 into a single line in this file.
 
+=item PRISTINE_HEADERS
+
+A file containing just the headers, exactly as they were received from
+the SMTP client.  In contrast the HEADERS, we do not unwrap the headers
+in this file, so a single header may extend over several lines.
+
 =item COMMANDS
 
 A file containing a list of commands.  Each command is a single

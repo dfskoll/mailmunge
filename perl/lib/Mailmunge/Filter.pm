@@ -312,6 +312,18 @@ header per line.
 =cut
 
 sub headers_file     { return 'HEADERS'; }
+
+=head2 pristine_headers_file()
+
+Returns the relative path to the PRISTINE_HEADERS file.  This file contains
+only the top-level headers of the email message, exactly as they
+came in from the SMTP client.
+
+=cut
+
+
+sub pristine_headers_file { return 'PRISTINE_HEADERS'; }
+
 sub _commands_file    { return 'COMMANDS'; }
 
 =head1 INSTANCE METHODS

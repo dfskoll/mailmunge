@@ -174,8 +174,12 @@ sub parse_and_copy_msg
         }
 
         my $entity = $parser->parse(IO::File->new("$output_dir/INPUTMSG"));
-        # Generate HEADERS
+        # Generate HEADERS and PRISTINE_HEADERS
         my $head = $entity->head;
+        if (open(OUT, ">$output_dir/PRISTINE_HEADERS")) {
+                print OUT $head->as_string;
+                close(OUT);
+        }
         $head->unfold;
         if (open(OUT, ">$output_dir/HEADERS")) {
                 print OUT $head->as_string;
@@ -272,7 +276,8 @@ C<message_id> is set to the value of the C<Message-Id> header, if any.
 If you supply C<$new_subject>, then the literal text C<__SUBJECT__> in the
 message body is replaced with the value of C<$new_subject>.
 
-This method also creates a HEADERS file in C<$output_dir>.
+This method also creates the HEADERS and PRISTINE_HEADERS files in
+C<$output_dir>.
 
 =head2 dns_available()
 

@@ -20,34 +20,33 @@ sub add_dkim_signature
         # otherwise; sign original
         if (-f $wd . '/' . $filter->_newbody()) {
                 $fh = IO::File->new($wd . '/' . $filter->headers_file(), O_RDONLY);
-                $file = 'HEADERS';
+                $file = 'PRISTINE_HEADERS';
         } else {
                 $fh = IO::File->new("$wd/INPUTMSG", O_RDONLY);
         }
 
         return undef unless $fh;
-
-        while(<$fh>) {
-                # Replace local line terminators with SMTP line terminators
-                chomp;
-                s/\015$//;
-                $signer->PRINT("$_\015\012");
-        }
-        $fh->close();
-        if ($file eq 'HEADERS') {
+        $self->_consume($signer, $fh);
+        if ($file eq 'PRISTINE_HEADERS') {
                 $fh = IO::File->new($wd . '/' . $filter->_newbody(), O_RDONLY);
                 return undef unless $fh;
-                while(<$fh>) {
-                        chomp;
-                        s/\015$//;
-                        $signer->PRINT("$_\015\012");
-                }
-                $fh->close();
+                $self->_consume($signer, $fh);
         }
 
         my $sig = $signer->signature()->as_string();
 	$sig =~ s/^DKIM-Signature:\s+//i;
 	return $ctx->action_add_header('DKIM-Signature', $sig);
+}
+
+sub _consume
+{
+        my ($self, $signer, $fh) = @_;
+        while(<$fh>) {
+                chomp;
+                s/\015$//;
+                $signer->PRINT("$_\015\012");
+        }
+        $fh->close();
 }
 
 1;
