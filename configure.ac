@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(mailmunge, 3.08, , mailmunge, https://www.mailmunge.org/)
+AC_INIT(mailmunge, 3.09, , mailmunge, https://www.mailmunge.org/)
 
 dnl UGLY hack... set the --sysconfdir to /etc UNLESS it was explicitly
 dnl supplied on the command line.  Autoconf has no other nice way to set
