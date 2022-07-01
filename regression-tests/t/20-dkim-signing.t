@@ -26,7 +26,14 @@ cmp_deeply($ans, {
 
 wait_for_files("$dir/dkim.msg");
 
-open(IN, "dkimproxy-verify < $dir/dkim.msg|");
+if (-f '/usr/share/doc/perl-Mail-DKIM/dkimverify.pl') {
+        # Rocky Linux
+        open(IN, "perl /usr/share/doc/perl-Mail-DKIM/dkimverify.pl < $dir/dkim.msg|");
+} else {
+        # Debian
+        open(IN, "dkimproxy-verify < $dir/dkim.msg|");
+}
+
 my $passed = 0;
 while(<IN>) {
         $passed = 1 if (/verify result: pass/);
@@ -40,10 +47,18 @@ print OUT "Some more stuff, what?\n";
 close(OUIT);
 
 $passed = 1;
+if (-f '/usr/share/doc/perl-Mail-DKIM/dkimverify.pl') {
+        # Rocky Linux
+        open(IN, "perl /usr/share/doc/perl-Mail-DKIM/dkimverify.pl < $dir/dkim.msg|");
+} else {
+        # Debian
+        open(IN, "dkimproxy-verify < $dir/dkim.msg|");
+}
+
 while(<IN>) {
         $passed = 0 if (/verify result: fail .body has been altered/);
 }
 close(IN);
-ok($passed, "Message's DKIM signature correctly failed to verify if body is altered");
+ok(!$passed, "Message's DKIM signature correctly failed to verify if body is altered");
 
 done_testing;
