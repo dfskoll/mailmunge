@@ -32,6 +32,7 @@ debian/changelog
 debian/compat
 debian/control
 debian/libmailmunge-action-boilerplate-perl.install
+debian/libmailmunge-action-dkimsigner-perl.install
 debian/libmailmunge-perl.docs
 debian/libmailmunge-perl.install
 debian/libmailmunge-test-getmx-perl.install
@@ -177,6 +178,7 @@ regression-tests/t/16-chgsender.t
 regression-tests/t/17-add-hdr.t
 regression-tests/t/18-greylist.t
 regression-tests/t/19-rspamd.t
+regression-tests/t/20-dkim-signing.t
 regression-tests/t/expected/boilerplate-end-all
 regression-tests/t/expected/boilerplate-end-one
 regression-tests/t/expected/boilerplate-start-all
@@ -185,6 +187,7 @@ regression-tests/t/msgs/delete-part.msg
 regression-tests/t/msgs/discard-msg
 regression-tests/t/msgs/eicar-msg
 regression-tests/t/msgs/for-boilerplate.msg
+regression-tests/t/msgs/for-dkim-signing.msg
 regression-tests/t/msgs/generic-msg
 regression-tests/t/msgs/gtube-msg
 script/mailmunge-util.in

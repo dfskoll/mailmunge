@@ -2,6 +2,8 @@ package Mailmunge::Action::DKIMSigner;
 use strict;
 use warnings;
 
+use base qw(Mailmunge::Action);
+
 use IO::File;
 
 sub add_dkim_signature
@@ -28,11 +30,14 @@ sub add_dkim_signature
         return undef unless $fh;
         $self->_consume($signer, $fh);
         if ($file eq 'PRISTINE_HEADERS') {
+                # Add blank line between headers and body
+                $signer->PRINT("\015\012");
                 $fh = IO::File->new($wd . '/' . $filter->_newbody(), O_RDONLY);
                 return undef unless $fh;
                 $self->_consume($signer, $fh);
         }
 
+        $signer->CLOSE();
         my $sig = $signer->signature()->as_string();
 	$sig =~ s/^DKIM-Signature:\s+//i;
 	return $ctx->action_add_header('DKIM-Signature', $sig);
