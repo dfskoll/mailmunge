@@ -118,6 +118,7 @@ perl/t/30-filter-exe.t
 perl/t/31-inputmsg-fh.t
 perl/t/40-filter-everything.t
 perl/t/50-boilerplate.t
+perl/t/55-dkim-sign.t
 perl/t/60-addrcpt.t
 perl/t/70-delrcpt.t
 perl/t/75-change-subject.t
@@ -141,6 +142,9 @@ perl/t/data/boilerplate/one_atstart/NEWBODY
 perl/t/data/dkim/private-key.pem
 perl/t/data/dkim/public-key.pem
 perl/t/data/for-boilerplate.msg
+perl/t/data/for-dkim/RESULTS
+perl/t/data/for-dkim/RESULTS-MODIFIED
+perl/t/data/for-dkim/for-dkim.msg
 perl/t/data/generic-msg
 perl/t/data/msg-with-everything/NEWBODY
 perl/t/data/msg-with-everything/RESULTS
