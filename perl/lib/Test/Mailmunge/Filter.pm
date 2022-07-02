@@ -5,6 +5,9 @@ package Test::Mailmunge::Filter;
 use base qw(Mailmunge::Filter::Compat);
 use Mailmunge::Response;
 use Mailmunge::Test::Rspamd;
+use Mailmunge::Action::DKIMSigner;
+use Mail::DKIM::Signer;
+use Mail::DKIM;
 
 use JSON::Any;
 
@@ -15,6 +18,8 @@ use Cwd;
 use Mailmunge::Constants;
 
 use Mailmunge::Action::Boilerplate;
+
+my $signing_key = 'MIIEpQIBAAKCAQEA56Vb3PSQuoISxMEPT7/FBST+4NgOmmB+a7O7HzbtKhMSbJRv+0uhmHz2/JiiDQn86HvPNGSlMz1CB/PsmjAh+d0u/dDW4SFyJIM/XewieneJ56ZPySgX77LiEs16x/yeE2VsVJgHCwxHHBVw70iRzzXQM5Jo+Y1ZGInDJlUoaL6TNd4uostSEWF+TV5LpUTAm4VyBrwxhEVBaroVo0whFW3FpiYCGN6EQiJfBEmiqT3h0LKUf5UxB0DC4GooU45ItXBn0xT7SyZK9DZy75bnUaJqtPs87bDf8aZIUipu3swn+1wHiUc3qMucuYi+UmhO2mtTMe/lyC79UfFPdp8zuQIDAQABAoIBABk4IIMywRr9FEwFdMRK7Yk82N7jxts5zCmvnJyuXy2oe+YEVxi1yDcQy9b+Sw4+WyF4cTuUBYRJlAnHnae/u8M3OGl7thk2ifW9sEVqcuqAXywwKBmPWuPGxuQjKM3jC9aywROIpaOnR4qgLvZuISm9AxjKRNF+eQe539wpg0e72sWT7yEpFmNjeNN+nLtvPIRPRI2IfNOrcNYxufBPJ8KA5PttQD41ACtJqcjJCfZGfW0UwiklTaME6VLrQ65jpYKXv7QIfuBmmaYZJ3juQg/QU+NJOHd6dz5O2ekE2JFWcKpmK5AYgulMyAejW+lQ0NEt6DAxXcAtAIIID4n/wI0CgYEA9s11BISoJ1QMM3rbeKVvyunEnRClaoaShKbJptS9sDjlO7hHb2tLEMqHH0N/KFN6BL/vXtMpsCBOP3GPeaKoAAUH3M8yOb/MWyB+P126Mit/ENnoyfr0ZYgnGGDViXeO7UoxumtBSxo7W0M5/ZJVJx47p0uzqoDTr/y8i29ZWm8CgYEA8EdN+ndlz7JAXelQjIfHwgIhiC+1vw5WL6DvvxFlf/qc3XHu8iMJX5RjRkReBfd1J5o+/DKzPACCfENiEekA1p6jhKweEWpux/CcDSz6j0H3cfsJapAtgiuQwqiTqgQjymUkfXkngclPKJUmZ5n7ChlNp02euQROilOklOFyCFcCgYEAzYOG9s00bRNq2Y9rpIo2jkSdaaEL7anD5lwwvRCYKF8oW9N3AMvahU/wttLw1va0O7JMNK0oILa2EdSRgds1hFasFm4ex8Hz/MoQ9tkojFB2DeU3GMI1szpuO7me90qspOHMiQx5IX3lgXh4mLO63skpKYU7Rjbij8CojH+ba1cCgYEA5y+kTras5h8bIYDIuL44LGpCezd0hqSztlYB93Q0leO7JLJn9uBRN36d2lETqmgDeBxIN/5MSBIxeoCXDqaC4P14VcIJmDYw6v2OGHtLhaUyAaBJ2hdpQhLK0RDEK1SaXzXb20JECfN4z5Jahlo4menotm3PpzMGor+B3qHgRzcCgYEAsBfgwkno24K43NXPf5SqhDvf+mQmtoxuTT4oxa4jDve4sxNTYh7qyX8iRCRZmD2m47bxETqXAznclVSNOMVOc+rOx+oxEVQ1neMvFWq6DWf312NJwDzZbhLcHR+gTbNSulnxbxBxC/V7mJd5+ujTxZxlCsSbO+4EyH0dRwNQ9po=';
 
 sub log_identifier { return 'mailmunge-test-filter-dont-panic'; }
 
@@ -220,6 +225,24 @@ sub filter_end
         }
 }
 
+sub filter_wrapup
+{
+        my($self, $ctx) = @_;
+
+        my $subj = $ctx->subject;
+
+        if ($subj =~ /\bdkim_sign\b/) {
+                my $signer = Mail::DKIM::Signer->new(
+                        Algorithm => 'rsa-sha256',
+                        Method    => 'relaxed',
+                        Domain    => 'test.mailmunge.org',
+                        Selector  => 'testing',
+                        Key       => Mail::DKIM::PrivateKey->load(Data => $signing_key));
+                my $action = Mailmunge::Action::DKIMSigner->new($self);
+                $action->add_dkim_signature($ctx, $signer);
+        }
+        return 0;
+}
 1;
 
 __END__

@@ -1,0 +1,4 @@
+Mmultipart/mixed;%20boundary=%22foo%22
+C
+HDKIM-Signature v=1;%20a=rsa-sha256;%20c=relaxed;%20d=test.mailmunge.org;%20h=from:to:date:message-id:subject:mime-version:content-type;%20s=testing;%20bh=m7dZ6FjqwMG2RTKYqC4UzivEuhlKEJ2qMrkopNeIR54=;%20b=AWRisUuom1x53y0yvUc2WNXyp9vAfGPxpzrOh8cn9dYMO/q8Y/HA0KBZPycOqvf3aR4hygZMmF0euLXtbDfRA/2HeyERyP0WJI4X3t2MbNYpzcTHzBqtsU9SHe9Pzh4SoaQnBw5dRFRp9kUmIgrTO+zbe/c0TdcFxhHE2vvl+GUkOxh8t1uqfXvWbnBFfxK67sLHMgSX0W0Mo3Dc1YWibuS+XYDXQ5TqJjXCVNND+gxxPfirD1BDhSA7SGlTjqz5eBDLZB9UM7qJF7A6H4H3LWOvc9X0Mwq834OM3iG9j/hvOf98OOH/c6DjLHE3Dfb9NLTpJgFcr5ztMw8KfKlcMA==
+F
