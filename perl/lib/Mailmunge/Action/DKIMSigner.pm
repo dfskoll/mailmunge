@@ -98,12 +98,13 @@ the current message.  It should be called from filter_wrapup.
 =head1 WARNING
 
 C<Mailmunge::Action::DKIMSigner> can correctly sign a message that has
-not been modified, or whose message body has been replaced without altering
-the MIME type.  However, if certain messages such as C<Subject> or C<From>
-are altered, the signature will be I<incorrect>.  The reason is that
-header changes are made only once the Perl code has finished running and the
-C milter library functions are invoked; as such, the DKIM-signing code will
-not see the modified headers.  If you are going to sign an outbound
-message, you should I<not> make any changes to headers that might cause
-the signature to fail.  Adding C<X-*> headers is OK since these are not
-part of the DKIM signature.
+not been modified, or whose message body has been replaced without
+altering the MIME type.  However, if certain headers such as
+C<Content-Type>, C<Subject> or C<From> are altered, the signature will
+be I<incorrect>.  The reason is that header changes are made only once
+the Perl code has finished running and the C milter library functions
+are invoked; as such, the DKIM-signing code will not see the modified
+headers.  If you are going to sign an outbound message, you should
+I<not> make any changes to headers that might cause the signature to
+fail.  Adding C<X-*> headers is OK since these are not part of the
+DKIM signature.
