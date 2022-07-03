@@ -80,7 +80,7 @@ This class implements a method that adds a DKIM signature to a message.
             Algorithm => 'rsa-sha256',
             Method    => 'relaxed',
             Domain    => 'example.org',
-            Selecter  => 'my_selector',
+            Selector  => 'my_selector',
             Key       => Mail::DKIM::PrivateKey->load(Data => get_my_key()));
 
         my $action = Mailmunge::Action::DKIMSigner->new($self);
