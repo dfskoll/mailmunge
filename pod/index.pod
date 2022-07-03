@@ -39,6 +39,8 @@ These are handy modules that give additional capabilities to your filter.
 
 L<Mailmunge::Action::Boilerplate>
 
+L<Mailmunge::Action::DKIMSigner>
+
 L<Mailmunge::Action::Stream>
 
 L<Mailmunge::Test::GetMX>
