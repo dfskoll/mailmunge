@@ -2,6 +2,20 @@ WARNING: Before upgrading Mailmunge, please search this file for
 *** NOTE INCOMPATIBILITY ** to see if anything has changed that might
 affect your filter.
 
+2022-07-04 Dianne Skoll <dianne@skollsoft.com>
+
+	* Mailmunge 3.09
+
+	* New feature: Add Mailmunge::Action::DKIMSigner for DKIM-signing
+	messages.
+
+	* mailmunge: In addition to the HEADERS file that contains unwrapped
+	headers, create a PRISTINE_HEADERS file with the original unmodified
+	headers.  This is required for reliable DKIM signing if we modify
+	the message body.
+
+	* Minor documentation fixes
+
 2022-06-15 Dianne Skoll <dianne@skollsoft.com>
 
 	* Mailmunge 3.08
@@ -41,7 +55,7 @@ affect your filter.
 
 	with:
 
-   	    $ctx->METHOD(@args);
+	    $ctx->METHOD(@args);
 
 	* Mailmunge::Filter: The filter_message and filter_wrapup
 	functions can return a Mailmunge::Response object, which (if it's
@@ -146,7 +160,7 @@ affect your filter.
 	* Mailmunge 3.04 RELEASED
 
 	* Mailmunge::Filter: Read the COMMANDS files prior to filter_sender
-  	  and filter_recipient callbacks.  This populates sendmail_macros.
+	  and filter_recipient callbacks.  This populates sendmail_macros.
 
 	* mailmunge-multiplexor: Fix error in embedded Perl code.
 	  PERL_SYS_TERM was being called each time an embedded interpreter
@@ -166,7 +180,7 @@ affect your filter.
 	  This allows for up to 216,000 IDs per second.
 
 	* Mailmunge::Filter: diagnose incorrect return values from various
-  	  filter callbacks and log helpful error messages.
+	  filter callbacks and log helpful error messages.
 
 	* Makefile: Don't install the *.in files when running "make install"
 
