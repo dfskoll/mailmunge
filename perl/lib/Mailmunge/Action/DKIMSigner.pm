@@ -95,6 +95,45 @@ Given a Mail::DKIM::Signer instance (that the caller must create with
 appropriate settings), this method adds a DKIM-Signature: header to
 the current message.  It should be called from filter_wrapup.
 
+=head1 INBOUND vs OUTBOUND MAIL
+
+Generally, we only want to sign outbound mail, so the question becomes:
+How do we distinguish "outbound" from "inbound" mail?  There's no easy
+answer to this because it's really a policy decision.  There are three
+types of email:
+
+=over 4
+
+=item Inbound mail
+
+Mail that originates from an external machine and
+is destined for either the local host or a downstream SMTP server that
+we control.
+
+=item Outbound mail
+
+Mail that originates from the local host or an
+internal machine that we control and is destined for an SMTP server
+that we do not control.
+
+=item Local mail
+
+Mail that both originates on and is destined for the
+localhost or a machine that we control.
+
+=back
+
+One clear sign of outbound mail is mail sent from an authenticated
+session.  You can detect this by looking at
+C<$ctx-E<gt>mta_macro('auth_authen')>; if this is defined and
+non-blank, then the SMTP session is authenticated.
+
+Otherwise, you can obtain the connecting SMTP client address from
+C<$ctx-E<gt>connecting_ip>, and for each recipient, you can examine
+the destination mailer with C<$ctx-E<gt>get_recipient_mailer($rcpt)>.
+These should give you enough information to determine if the
+originating machine and destination machine(s) are local or off-site.
+
 =head1 WARNING
 
 C<Mailmunge::Action::DKIMSigner> can correctly sign a message that has
